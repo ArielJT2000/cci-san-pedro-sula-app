@@ -13,6 +13,9 @@ const Color primarioOscuro = Color(0xFFE0E0E0);
 const Color accent =
     Color(0xFF007AFF); // Azul sutil para elementos interactivos
 
+/// Rojo tipo YouTube para pantalla En Vivo y enlaces a YouTube.
+const Color youtubeRed = Color(0xFFE62117);
+
 // Colores adicionales
 const Color beigeCream = Color(0xFFF5F5DC); // Beige/Crema usado en ubicación
 const Color colorGrisIntermedio =

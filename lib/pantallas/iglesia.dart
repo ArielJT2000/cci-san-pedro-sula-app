@@ -3,6 +3,7 @@ import 'dart:ui';
 import '../utils/constants.dart';
 import '../widgets/swipe_back_wrapper.dart';
 import 'red_cci.dart';
+import 'puertas_abiertas.dart';
 
 class Iglesia extends StatelessWidget {
   const Iglesia({super.key});
@@ -36,6 +37,8 @@ class Iglesia extends StatelessWidget {
                   _buildVisionMisionSection(screenWidth),
                   _buildPastoresSection(screenWidth, screenHeight),
                   _buildRedCCISection(context, screenWidth, screenHeight),
+                  _buildPuertasAbiertasSection(
+                      context, screenWidth, screenHeight),
                   SizedBox(height: screenHeight * 0.08),
                 ],
               ),
@@ -85,9 +88,10 @@ class Iglesia extends StatelessWidget {
   Widget _buildVisionMisionSection(double screenWidth) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: const [
-        _MisionSection(),
-        _VisionSection(),
+      children: [
+        const _MisionSection(),
+        SizedBox(height: screenWidth * 0.06),
+        const _VisionSection(),
       ],
     );
   }
@@ -117,12 +121,11 @@ class Iglesia extends StatelessWidget {
               children: [
                 _PastorImage("mario", context, screenWidth, screenHeight),
                 _PastorImage("karla", context, screenWidth, screenHeight),
+                _PastorImage("enrique", context, screenWidth, screenHeight),
                 _PastorImage("juanramon", context, screenWidth, screenHeight),
                 _PastorImage("rosa", context, screenWidth, screenHeight),
                 _PastorImage("juanca", context, screenWidth, screenHeight),
                 _PastorImage("kensy", context, screenWidth, screenHeight),
-                _PastorImage("alejandro", context, screenWidth, screenHeight),
-                _PastorImage("gaby", context, screenWidth, screenHeight),
               ],
             ),
           ),
@@ -224,6 +227,99 @@ class Iglesia extends StatelessWidget {
     );
   }
 
+  Widget _buildPuertasAbiertasSection(
+      BuildContext context, double screenWidth, double screenHeight) {
+    return Column(
+      children: [
+        SizedBox(height: screenHeight * 0.04),
+        Text(
+          "Fundación Puertas Abiertas",
+          style: TextStyle(
+            fontFamily: 'SF Pro Display',
+            color: blanco,
+            fontSize: screenWidth < 360 ? 20 : 24,
+            fontWeight: FontWeight.w600,
+            letterSpacing: -0.5,
+            height: 1.2,
+          ),
+        ),
+        SizedBox(height: screenHeight * 0.03),
+        Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: () => _navigateToPuertasAbiertas(context),
+            borderRadius: BorderRadius.circular(borderRadius),
+            child: Container(
+              width: double.infinity,
+              padding: EdgeInsets.all(screenWidth * 0.05),
+              decoration: BoxDecoration(
+                color: grisCard,
+                borderRadius: BorderRadius.circular(borderRadius),
+                border: Border.all(
+                  color: colorWithOpacity(blanco, 0.1),
+                  width: 0.5,
+                ),
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    width: 56,
+                    height: 56,
+                    decoration: BoxDecoration(
+                      color: colorWithOpacity(blanco, 0.1),
+                      borderRadius: BorderRadius.circular(borderRadiusSmall),
+                    ),
+                    child: Icon(
+                      Icons.volunteer_activism_outlined,
+                      color: blanco,
+                      size: 28,
+                    ),
+                  ),
+                  SizedBox(width: screenWidth * 0.05),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Conoce más sobre Puertas Abiertas",
+                          style: TextStyle(
+                            fontFamily: 'SF Pro Display',
+                            color: blanco,
+                            fontSize: screenWidth < 360 ? 16 : 18,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: -0.41,
+                            height: 1.2,
+                          ),
+                        ),
+                        SizedBox(height: screenHeight * 0.006),
+                        Text(
+                          "Serviendo a familias vulnerables desde 2010",
+                          style: TextStyle(
+                            fontFamily: 'SF Pro Display',
+                            color: grisMedio,
+                            fontSize: screenWidth < 360 ? 13 : 15,
+                            fontWeight: FontWeight.w400,
+                            letterSpacing: -0.24,
+                            height: 1.4,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Icon(
+                    Icons.arrow_forward_ios_rounded,
+                    color: grisMedio,
+                    size: 16,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   void _navigateToRedCCI(BuildContext context) {
     Navigator.of(context).push(
       PageRouteBuilder(
@@ -231,6 +327,51 @@ class Iglesia extends StatelessWidget {
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           final blurValue = (1 - animation.value) * 15.0;
 
+          return Stack(
+            children: [
+              if (animation.value < 1.0)
+                ClipRect(
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(
+                      sigmaX: blurValue,
+                      sigmaY: blurValue,
+                    ),
+                    child: Container(
+                      color: Colors.black.withValues(
+                          alpha: (0.3 * (1 - animation.value)).clamp(0.0, 1.0)),
+                    ),
+                  ),
+                ),
+              FadeTransition(
+                opacity: animation,
+                child: SlideTransition(
+                  position: Tween<Offset>(
+                    begin: const Offset(0.0, 0.03),
+                    end: Offset.zero,
+                  ).animate(
+                    CurvedAnimation(
+                      parent: animation,
+                      curve: Curves.easeOutCubic,
+                    ),
+                  ),
+                  child: child,
+                ),
+              ),
+            ],
+          );
+        },
+        transitionDuration: duracionLarga,
+      ),
+    );
+  }
+
+  void _navigateToPuertasAbiertas(BuildContext context) {
+    Navigator.of(context).push(
+      PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) =>
+            const PuertasAbiertas(),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          final blurValue = (1 - animation.value) * 15.0;
           return Stack(
             children: [
               if (animation.value < 1.0)
@@ -360,34 +501,48 @@ class _PastorImage extends StatelessWidget {
     "mario": {
       "nombre": "Mario Valencia",
       "titulo": "Pastor General",
+      "info": "Lidera la visión y misión general de CCI San Pedro Sula, enfocado en la restauración "
+          "de las familias y la formación de discípulos misionales, guiando a la iglesia conforme "
+          "al propósito de Dios.",
     },
     "karla": {
       "nombre": "Karla de Valencia",
       "titulo": "Pastora General",
+      "info": "Lidera junto a su esposo Mario Valencia la visión y misión general de CCI San Pedro Sula, "
+          "con un enfoque en el discipulado, la familia y el desarrollo del liderazgo ministerial, "
+          "aportando dirección y acompañamiento pastoral.",
     },
     "juanramon": {
       "nombre": "Juan Ramón Tábora",
       "titulo": "Pastor titular 9:00 A.M.",
+      "info":
+          "Pastor titular del servicio de las 9:00 A.M. junto a su esposa Rosa de Tábora. "
+              "Dedicado a la enseñanza de la Palabra y la pastoral de familias.",
     },
     "rosa": {
       "nombre": "Rosa de Tábora",
       "titulo": "Pastora titular 9:00 A.M.",
+      "info": "Pastora titular del servicio de las 9:00 A.M. "
+          "Con un corazón por la adoración y el acompañamiento pastoral.",
     },
     "juanca": {
       "nombre": "Juan Carlos Vallecillo",
       "titulo": "Pastor titular 11:30 A.M.",
+      "info":
+          "Pastor titular del servicio de las 11:30 A.M. junto a su esposa Kensy de Vallecillo. "
+              "Enfocado en la predicación y el crecimiento de la congregación.",
     },
     "kensy": {
       "nombre": "Kensy de Vallecillo",
       "titulo": "Pastora titular 11:30 A.M.",
+      "info": "Pastora titular del servicio de las 11:30 A.M. "
+          "Comprometida con la formación espiritual y el cuidado de las familias.",
     },
-    "alejandro": {
-      "nombre": "Alejandro Henríquez",
-      "titulo": "Pastor null",
-    },
-    "gaby": {
-      "nombre": "Gaby de Henríquez",
-      "titulo": "Pastora null",
+    "enrique": {
+      "nombre": "Enrique",
+      "titulo": "Pastor de Alabanza y Comunicaciones",
+      "info": "Lidera los ministerios de alabanza y comunicaciones. "
+          "A cargo de la alabanza, los medios y la transmisión de los servicios.",
     },
   };
 
@@ -431,6 +586,7 @@ class _PastorImage extends StatelessWidget {
       builder: (context) => _PastorInfoDialog(
         nombre: info["nombre"]!,
         titulo: info["titulo"]!,
+        info: info["info"],
         imagePath: "assets/images/$name.png",
       ),
     );
@@ -440,11 +596,13 @@ class _PastorImage extends StatelessWidget {
 class _PastorInfoDialog extends StatelessWidget {
   final String nombre;
   final String titulo;
+  final String? info;
   final String imagePath;
 
   const _PastorInfoDialog({
     required this.nombre,
     required this.titulo,
+    this.info,
     required this.imagePath,
   });
 
@@ -456,31 +614,25 @@ class _PastorInfoDialog extends StatelessWidget {
     return Dialog(
       backgroundColor: Colors.transparent,
       elevation: 0,
-      child: Stack(
-        children: [
-          // Fondo con blur (glassmorphism)
-          BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.black.withValues(alpha: 0.3),
-                borderRadius: BorderRadius.circular(borderRadius),
-              ),
-            ),
-          ),
-          // Contenido del modal
-          Container(
+      alignment: Alignment.center,
+      insetPadding: EdgeInsets.symmetric(horizontal: screenWidth * 0.08),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(borderRadiusLarge),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+          child: Container(
             padding: EdgeInsets.all(screenWidth * 0.06),
             decoration: BoxDecoration(
-              color: colorWithOpacity(grisCard, 0.9),
-              borderRadius: BorderRadius.circular(borderRadius),
+              borderRadius: BorderRadius.circular(borderRadiusLarge),
+              color: Colors.white.withValues(alpha: 0.05),
               border: Border.all(
-                color: colorWithOpacity(blanco, 0.2),
-                width: 1,
+                color: Colors.white.withValues(alpha: 0.06),
+                width: 0.5,
               ),
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 // Botón de cerrar
                 Align(
@@ -491,29 +643,32 @@ class _PastorInfoDialog extends StatelessWidget {
                   ),
                 ),
                 SizedBox(height: screenHeight * 0.02),
-                // Imagen del pastor
-                Container(
-                  width: screenHeight * 0.15,
-                  height: screenHeight * 0.15,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: colorWithOpacity(blanco, 0.1),
-                    border: Border.all(
-                      color: colorWithOpacity(blanco, 0.3),
-                      width: 2,
-                    ),
-                  ),
-                  child: ClipOval(
-                    child: Image.asset(
-                      imagePath,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) {
-                        return Icon(
-                          Icons.person,
-                          size: screenHeight * 0.1,
-                          color: colorWithOpacity(blanco, 0.5),
-                        );
-                      },
+                // Imagen del pastor (rectangular, sin círculo)
+                Center(
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(borderRadius),
+                    child: Container(
+                      width: screenWidth * 0.55,
+                      height: screenHeight * 0.22,
+                      decoration: BoxDecoration(
+                        color: colorWithOpacity(blanco, 0.03),
+                        borderRadius: BorderRadius.circular(borderRadius),
+                        border: Border.all(
+                          color: colorWithOpacity(blanco, 0.06),
+                          width: 0.5,
+                        ),
+                      ),
+                      child: Image.asset(
+                        imagePath,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Icon(
+                            Icons.person,
+                            size: screenHeight * 0.1,
+                            color: colorWithOpacity(blanco, 0.5),
+                          );
+                        },
+                      ),
                     ),
                   ),
                 ),
@@ -521,6 +676,7 @@ class _PastorInfoDialog extends StatelessWidget {
                 // Nombre
                 Text(
                   nombre,
+                  textAlign: TextAlign.center,
                   style: TextStyle(
                     fontFamily: 'SF Pro Display',
                     color: blanco,
@@ -534,6 +690,7 @@ class _PastorInfoDialog extends StatelessWidget {
                 // Título
                 Text(
                   titulo,
+                  textAlign: TextAlign.center,
                   style: TextStyle(
                     fontFamily: 'SF Pro Display',
                     color: grisMedio,
@@ -543,11 +700,26 @@ class _PastorInfoDialog extends StatelessWidget {
                     height: 1.4,
                   ),
                 ),
+                if (info != null && info!.isNotEmpty) ...[
+                  SizedBox(height: screenHeight * 0.02),
+                  Text(
+                    info!,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontFamily: 'SF Pro Display',
+                      color: grisMedio,
+                      fontSize: screenWidth < 360 ? 14 : 15,
+                      fontWeight: FontWeight.w400,
+                      letterSpacing: 0.0,
+                      height: 1.5,
+                    ),
+                  ),
+                ],
                 SizedBox(height: screenHeight * 0.02),
               ],
             ),
           ),
-        ],
+        ),
       ),
     );
   }

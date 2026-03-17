@@ -1,4 +1,4 @@
-package com.example.cci_app
+package org.ccisanpedrosula.app
 
 import io.flutter.embedding.android.FlutterActivity
 

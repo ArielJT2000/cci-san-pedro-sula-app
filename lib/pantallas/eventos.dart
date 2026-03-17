@@ -264,7 +264,7 @@ class _EventosState extends State<Eventos> {
                 );
               }),
         SizedBox(height: screenHeight * 0.03),
-        // Actividades Externas
+        // CCI San Pedro Sula
         _buildExternalActivitiesCard(screenWidth, screenHeight),
       ],
     );
@@ -286,7 +286,7 @@ class _EventosState extends State<Eventos> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            "Actividades Externas",
+            "CCI San Pedro Sula",
             overflow: TextOverflow.visible,
             style: TextStyle(
               fontFamily: 'SF Pro Display',

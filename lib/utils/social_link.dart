@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:simple_icons/simple_icons.dart';
 import 'constants.dart';
 
 class SocialLink extends StatelessWidget {
@@ -68,11 +69,11 @@ class SocialLink extends StatelessWidget {
   IconData _getPlatformIcon(String platform) {
     switch (platform.toLowerCase()) {
       case 'instagram':
-        return Icons.camera_alt;
+        return SimpleIcons.instagram;
       case 'facebook':
-        return Icons.facebook;
+        return SimpleIcons.facebook;
       case 'youtube':
-        return Icons.play_circle;
+        return SimpleIcons.youtube;
       case 'whatsapp':
         return Icons.chat;
       default:

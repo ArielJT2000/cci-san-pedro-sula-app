@@ -10,7 +10,7 @@ class IgNext extends StatelessWidget {
   Widget build(BuildContext context) {
     return SocialLink(
       socialId: socialId,
-      url: 'https://www.instagram.com/next.cci',
+      url: 'https://www.instagram.com/nxt_yth/',
       platform: 'Instagram',
     );
   }

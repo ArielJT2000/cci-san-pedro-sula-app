@@ -5,10 +5,14 @@ import '../widgets/swipe_back_wrapper.dart';
 /// Widget base para pantallas de ministerios (Alive, Next, Shift)
 /// Reduce código duplicado y mantiene consistencia.
 /// Opcionalmente muestra una sección "Información" con eventos (AWS) vía [informationSection].
+/// Si [headerWidget] se proporciona, se usa en lugar de [imagePath] (título como texto SF Pro Display).
 class MinistryScreenBase extends StatelessWidget {
   final String title;
   final String description;
-  final String imagePath;
+  /// Ruta de imagen del ministerio; se ignora si [headerWidget] no es null.
+  final String? imagePath;
+  /// Título del ministerio como widget (texto SF Pro Display). Si no es null, reemplaza la imagen.
+  final Widget? headerWidget;
   final String additionalInfo;
   final Widget socialWidget;
   /// Sección opcional (ej. MinistryEventsSection) que se muestra bajo el bloque del ministerio.
@@ -18,7 +22,8 @@ class MinistryScreenBase extends StatelessWidget {
     super.key,
     required this.title,
     required this.description,
-    required this.imagePath,
+    this.imagePath,
+    this.headerWidget,
     required this.additionalInfo,
     required this.socialWidget,
     this.informationSection,
@@ -96,32 +101,67 @@ class MinistryScreenBase extends StatelessWidget {
     );
   }
 
+  /// Misma proporción y presentación que el logo en Ministerios CCI (545×249).
+  static const double _logoDesignWidth = 545.0;
+  static const double _logoDesignHeight = 249.0;
+
+  Widget _buildLogoLikeMinisterios(double screenWidth) {
+    if (imagePath == null) return const SizedBox.shrink();
+    final maxWidth = screenWidth * 0.88;
+    final width = maxWidth.clamp(0.0, _logoDesignWidth);
+    final height = width * (_logoDesignHeight / _logoDesignWidth);
+    return Center(
+      child: SizedBox(
+        width: width,
+        height: height,
+        child: Image.asset(
+          imagePath!,
+          fit: BoxFit.contain,
+          cacheWidth: 545,
+          cacheHeight: 249,
+          errorBuilder: (_, __, ___) => Container(
+            decoration: BoxDecoration(
+              color: colorWithOpacity(gris, 0.3),
+              borderRadius: BorderRadius.circular(borderRadius),
+            ),
+            child: Icon(
+              Icons.people,
+              size: screenWidth * 0.2,
+              color: colorWithOpacity(blanco, 0.5),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildMinistryInfo(double screenWidth, double screenHeight) {
     return Padding(
       padding: EdgeInsets.all(screenWidth * 0.07),
       child: Column(
         children: [
-          Container(
-            width: screenWidth * 0.6,
-            height: screenHeight * 0.15,
-            child: Image.asset(
-              imagePath,
-              fit: BoxFit.contain,
-              errorBuilder: (context, error, stackTrace) {
-                return Container(
-                  decoration: BoxDecoration(
-                    color: colorWithOpacity(gris, 0.3),
-                    borderRadius: BorderRadius.circular(borderRadius),
-                  ),
-                  child: Icon(
-                    Icons.people,
-                    size: screenWidth * 0.2,
-                    color: colorWithOpacity(blanco, 0.5),
-                  ),
-                );
-              },
+          if (headerWidget != null)
+            SizedBox(
+              width: screenWidth * 0.6,
+              height: screenHeight * 0.15,
+              child: headerWidget,
             ),
-          ),
+          if (headerWidget == null && imagePath != null)
+            _buildLogoLikeMinisterios(screenWidth),
+          if (headerWidget == null && imagePath == null)
+            Container(
+              width: screenWidth * 0.6,
+              height: screenHeight * 0.15,
+              decoration: BoxDecoration(
+                color: colorWithOpacity(gris, 0.3),
+                borderRadius: BorderRadius.circular(borderRadius),
+              ),
+              child: Icon(
+                Icons.people,
+                size: screenWidth * 0.2,
+                color: colorWithOpacity(blanco, 0.5),
+              ),
+            ),
           SizedBox(height: screenHeight * 0.02),
           Text(
             additionalInfo,

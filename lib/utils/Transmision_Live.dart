@@ -64,6 +64,7 @@ class _TransmisionLiveState extends State<TransmisionLive> {
     return YoutubePlayerBase(
       videoId: _liveVideoId!,
       title: widget.title,
+      autoPlay: true,
     );
   }
 }

@@ -80,10 +80,10 @@ class _InicioState extends State<Inicio> with TickerProviderStateMixin {
       ),
     );
 
-    // Escala del logo y texto durante la transición (se hace más pequeño)
+    // Escala del logo: mismo tamaño que al finalizar el Hero (0.85)
     _logoPositionScaleAnimation = Tween<double>(
-      begin: 1.0, // Tamaño inicial (centrado)
-      end: 0.85, // Tamaño final (un poco más pequeño)
+      begin: 0.85, // Igual al tamaño final del Hero para transición continua
+      end: 0.85, // Tamaño final en header
     ).animate(
       CurvedAnimation(
         parent: _logoPositionController,
@@ -346,7 +346,7 @@ class _InicioState extends State<Inicio> with TickerProviderStateMixin {
       },
       {
         'icon': Icons.arrow_forward_outlined,
-        'title': 'Youth',
+        'title': 'Youth CCI',
         'subtitle': 'Próximas generaciones',
         'screen': const Youth(),
       },

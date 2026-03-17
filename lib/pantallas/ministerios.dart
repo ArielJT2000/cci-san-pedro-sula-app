@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import '../Informacion/produccion.dart';
-import '../Informacion/Worship.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../utils/constants.dart';
 import '../widgets/swipe_back_wrapper.dart';
+import '../redes sociales/ig_alabanza.dart';
 import '../redes sociales/ig_alive.dart';
 import '../redes sociales/ig_next.dart';
 import '../redes sociales/ig_matrimonios.dart';
@@ -25,27 +25,27 @@ class Ministerios extends StatelessWidget {
         decoration: getGradientBackground(),
         child: SafeArea(
           child: SingleChildScrollView(
-          physics: const BouncingScrollPhysics(),
-          child: Padding(
-            padding: EdgeInsets.symmetric(
-              horizontal: getHorizontalPadding(screenWidth),
-            ),
+            physics: const BouncingScrollPhysics(),
+            child: Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: getHorizontalPadding(screenWidth),
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   SizedBox(height: screenHeight * 0.02),
                   _buildHeader(screenWidth),
-                SizedBox(height: screenHeight * 0.02),
-                _buildLocation(screenWidth),
-                SizedBox(height: screenHeight * 0.04),
-                _buildDescription(screenWidth),
-                _buildMinisteriosList(screenWidth, screenHeight),
-                SizedBox(height: screenHeight * 0.08),
-              ],
+                  SizedBox(height: screenHeight * 0.02),
+                  _buildLocation(screenWidth),
+                  SizedBox(height: screenHeight * 0.04),
+                  _buildDescription(screenWidth),
+                  _buildMinisteriosList(context, screenWidth, screenHeight),
+                  SizedBox(height: screenHeight * 0.08),
+                ],
+              ),
             ),
           ),
         ),
-      ),
       ),
     );
   }
@@ -87,86 +87,364 @@ class Ministerios extends StatelessWidget {
     );
   }
 
-  Widget _buildMinisteriosList(double screenWidth, double screenHeight) {
+  static const String _formAlabanzaComunicacionesUrl =
+      'https://ccisanpedrosula.org/comunicaciones-alabanza/';
+  static const String _formComunicacionesServidoresUrl =
+      'https://ccisanpedrosula.org/comunicaciones-servidores/';
+  static const String _formEbdUrl =
+      'https://ccisanpedrosula.org/discipulado-app-cci/';
+  static const String _formCciKidsUrl =
+      'https://ccisanpedrosula.org/cci-kids-app-cci/';
+  static const String _formMovilizacionUrl =
+      'https://ccisanpedrosula.org/movilizacion/';
+  static const String _formGruposHogarUrl =
+      'https://ccisanpedrosula.org/grupos-en-hogar-cci/';
+  static const String _formServidoresUrl =
+      'https://ccisanpedrosula.org/servidores-cci/';
+
+  static String? _getMinisterioLogoAsset(String ministryKey) {
+    switch (ministryKey.toLowerCase()) {
+      case 'alabanza':
+        return 'assets/images/alabanza.png';
+      case 'produccion':
+        return 'assets/images/comunicaciones.png';
+      case 'alive':
+        return 'assets/images/alive.png';
+      case 'next':
+        return 'assets/images/next.png';
+      case 'matrimonios':
+        return 'assets/images/matrimonios.png';
+      case 'hombres':
+        return 'assets/images/hombres.png';
+      case 'mujeres':
+        return 'assets/images/mujeres.png';
+      case 'shift':
+        return 'assets/images/shift.png';
+      case 'ebd':
+        return 'assets/images/ebd.png';
+      case 'kids':
+        return 'assets/images/kids.png';
+      case 'movilizacion':
+        return 'assets/images/movilizacion.png';
+      case 'hg':
+        return 'assets/images/hg.png';
+      case 'servidores':
+        return 'assets/images/servidores.png';
+      default:
+        return null;
+    }
+  }
+
+  /// Proporción del logo: 545 ancho × 249 alto
+  static const double _logoDesignWidth = 545.0;
+  static const double _logoDesignHeight = 249.0;
+
+  Widget _buildMinisterioLogo(
+      String ministryKey, double screenWidth, double screenHeight) {
+    final asset = _getMinisterioLogoAsset(ministryKey);
+    if (asset == null) return const SizedBox.shrink();
+    final maxWidth = screenWidth * 0.88;
+    final width = maxWidth.clamp(0.0, _logoDesignWidth);
+    final height = width * (_logoDesignHeight / _logoDesignWidth);
+    return Center(
+      child: SizedBox(
+        width: width,
+        height: height,
+        child: Image.asset(
+          asset,
+          fit: BoxFit.contain,
+          cacheWidth: 545,
+          cacheHeight: 249,
+          errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _launchComunicacionesUrl(BuildContext context) async {
+    final uri = Uri.parse(_formComunicacionesServidoresUrl);
+    try {
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      } else {
+        throw 'No se puede abrir el enlace';
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('No se pudo abrir el enlace'),
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _launchFormUrl(BuildContext context) async {
+    final uri = Uri.parse(_formAlabanzaComunicacionesUrl);
+    try {
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      } else {
+        throw 'No se puede abrir el enlace';
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('No se pudo abrir el enlace'),
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _launchEbdUrl(BuildContext context) async {
+    final uri = Uri.parse(_formEbdUrl);
+    try {
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      } else {
+        throw 'No se puede abrir el enlace';
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('No se pudo abrir el enlace'),
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _launchCciKidsUrl(BuildContext context) async {
+    final uri = Uri.parse(_formCciKidsUrl);
+    try {
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      } else {
+        throw 'No se puede abrir el enlace';
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('No se pudo abrir el enlace'),
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _launchMovilizacionUrl(BuildContext context) async {
+    final uri = Uri.parse(_formMovilizacionUrl);
+    try {
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      } else {
+        throw 'No se puede abrir el enlace';
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('No se pudo abrir el enlace'),
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _launchGruposHogarUrl(BuildContext context) async {
+    final uri = Uri.parse(_formGruposHogarUrl);
+    try {
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      } else {
+        throw 'No se puede abrir el enlace';
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('No se pudo abrir el enlace'),
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _launchServidoresUrl(BuildContext context) async {
+    final uri = Uri.parse(_formServidoresUrl);
+    try {
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      } else {
+        throw 'No se puede abrir el enlace';
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('No se pudo abrir el enlace'),
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    }
+  }
+
+  Widget _buildMinisteriosList(
+      BuildContext context, double screenWidth, double screenHeight) {
     return Column(
       children: [
-        _buildMinisterioItem(
+        RepaintBoundary(
+            child: _buildMinisterioItem(
+          "kids",
+          "Ofrecemos cuidado de niños en cada celebración dominical, para que los más pequeños "
+              "vivan un encuentro con Dios en un ambiente seguro, divertido y lleno de su Palabra.",
+          () => _launchCciKidsUrl(context),
+          "Conoce más",
+          screenWidth,
+          screenHeight,
+        )),
+        RepaintBoundary(
+            child: _buildMinisterioItem(
+          "movilizacion",
+          "Llevamos el amor de Dios más allá de las paredes de la iglesia mediante obras y "
+              "actividades en comunidades, impactando vidas con fe, amor y esperanza.",
+          () => _launchMovilizacionUrl(context),
+          "Conoce más",
+          screenWidth,
+          screenHeight,
+        )),
+        RepaintBoundary(
+            child: _buildMinisterioItem(
+          "hg",
+          "Somos un ministerio de grupos que se reúnen en hogares para crecer en comunidad, "
+              "estudiar la Palabra y apoyarse en la fe.",
+          () => _launchGruposHogarUrl(context),
+          "Conoce más",
+          screenWidth,
+          screenHeight,
+        )),
+        RepaintBoundary(
+            child: _buildMinisterioItem(
+          "ebd",
+          "Somos un ministerio que orienta las actividades y enseñanzas hacia el evangelismo, "
+              "misiones y servicio, discipulando al estilo de Jesús mediante grupos pequeños "
+              "de estudio bíblico y relación entre mentor y discípulos.",
+          () => _launchEbdUrl(context),
+          "Inscríbete al Estudio Bíblico",
+          screenWidth,
+          screenHeight,
+        )),
+        RepaintBoundary(
+            child: _buildMinisterioSocialItem(
+          "matrimonios",
+          "Ser un ministerio que edifica matrimonios y prepara futuras familias sobre fundamentos bíblicos, "
+              "fortaleciendo relaciones saludables, restauradas y centradas en Cristo, desde la etapa prematrimonial "
+              "hasta la vida matrimonial.",
+          const IgMatrimonios('Instagram'),
+          screenWidth,
+          screenHeight,
+        )),
+        RepaintBoundary(
+            child: _buildMinisterioItem(
+          "produccion",
+          "Ser un ministerio que comunica el mensaje del Evangelio con excelencia y creatividad, "
+              "utilizando los medios y la producción audiovisual para apoyar la visión de la iglesia "
+              "y facilitar encuentros claros y efectivos con Dios.",
+          () => _launchComunicacionesUrl(context),
+          "Forma parte de nuestro equipo!",
+          screenWidth,
+          screenHeight,
+        )),
+        RepaintBoundary(
+            child: _buildMinisterioItem(
           "alabanza",
           "Ser un ministerio entendido de nuestra función como siervos que disciernen "
               "la voluntad de Dios, el mover del Espíritu Santo y que ejercen su sacerdocio "
               "guiando al pueblo a una alabanza y adoración genuina, recordándoles Quién es "
               "Él y lo que ha hecho por nosotros.",
-          () => const FormWorship(),
+          () => _launchFormUrl(context),
           "Forma parte de nuestro equipo!",
           screenWidth,
           screenHeight,
-        ),
-        _buildMinisterioItem(
-          "produccion",
-          "Ser un ministerio entendido de nuestra función como siervos que disciernen "
-              "la voluntad de Dios, el mover del Espíritu Santo y que ejercen su sacerdocio "
-              "guiando al pueblo a una alabanza y adoración genuina, recordándoles Quién es "
-              "Él y lo que ha hecho por nosotros.",
-          () => const FormProduccion(),
-          "Forma parte de nuestro equipo!",
-          screenWidth,
-          screenHeight,
-        ),
-        _buildMinisterioSocialItem(
+          socialWidget: const IgAlabanza('Instagram'),
+        )),
+        RepaintBoundary(
+            child: _buildMinisterioSocialItem(
           "alive",
-          "Ser un ministerio entendido de nuestra función como siervos que disciernen "
-              "la voluntad de Dios, el mover del Espíritu Santo y que ejercen su sacerdocio "
-              "guiando al pueblo a una alabanza y adoración genuina, recordándoles Quién es "
-              "Él y lo que ha hecho por nosotros.",
+          "Ser un ministerio que acompaña a adolescentes en el descubrimiento de su identidad en Cristo, "
+              "formando fundamentos bíblicos sólidos y guiándolos a vivir una fe auténtica, relevante y firme "
+              "en medio de su etapa de crecimiento.",
           const IgAlive('Instagram'),
           screenWidth,
           screenHeight,
-        ),
-        _buildMinisterioSocialItem(
+        )),
+        RepaintBoundary(
+            child: _buildMinisterioSocialItem(
           "next",
-          "Únete a Next Generation y sé parte de una comunidad que busca crecer "
-              "espiritualmente mientras se divierte y forma amistades duraderas. "
-              "Tenemos actividades, estudios bíblicos y eventos especiales diseñados "
-              "específicamente para jóvenes como tú.",
+          "Ser un ministerio que impulsa a los jóvenes a desarrollar una relación personal con Dios, afirmando "
+              "su identidad, propósito y llamado, para que vivan una fe práctica que impacte sus decisiones, "
+              "su entorno y su generación.",
           const IgNext('Instagram'),
           screenWidth,
           screenHeight,
-        ),
-        _buildMinisterioSocialItem(
-          "matrimonios",
-          "Un ministerio dedicado a fortalecer y enriquecer los matrimonios, "
-              "proporcionando herramientas, recursos y comunidad para parejas que buscan "
-              "crecer juntas en su relación y en su fe.",
-          const IgMatrimonios('Instagram'),
-          screenWidth,
-          screenHeight,
-        ),
-        _buildMinisterioSocialItem(
+        )),
+        RepaintBoundary(
+            child: _buildMinisterioSocialItem(
           "hombres",
-          "Un ministerio enfocado en el crecimiento espiritual y personal de los hombres, "
-              "proporcionando un espacio de comunidad, apoyo y desarrollo donde los hombres "
-              "pueden fortalecer su fe y sus relaciones.",
+          "Ser un ministerio que forma hombres conforme al corazón de Dios, afirmando su identidad, responsabilidad "
+              "y liderazgo espiritual, para impactar positivamente su hogar, la iglesia y la sociedad.",
           const FbHombres('Facebook'),
           screenWidth,
           screenHeight,
-        ),
-        _buildMinisterioSocialItem(
+        )),
+        RepaintBoundary(
+            child: _buildMinisterioSocialItem(
           "mujeres",
-          "Un ministerio dedicado a empoderar y fortalecer a las mujeres en su fe y vida diaria, "
-              "ofreciendo comunidad, apoyo y recursos para el crecimiento espiritual y personal.",
+          "Ser un ministerio que impulsa a las mujeres a vivir su identidad en Cristo, desarrollando su "
+              "llamado y propósito, para servir, influir y transformar su entorno con fe, amor y acción.",
           const IgMujeres('Instagram'),
           screenWidth,
           screenHeight,
-        ),
-        _buildMinisterioSocialItem(
+        )),
+        RepaintBoundary(
+            child: _buildMinisterioSocialItem(
           "shift",
-          "Un ministerio dinámico enfocado en el crecimiento y desarrollo de la próxima generación, "
-              "proporcionando un espacio donde los jóvenes pueden conectarse, crecer espiritualmente "
-              "y hacer un impacto positivo en su comunidad.",
+          "Ser un ministerio que crea espacios de comunidad para jóvenes adultos, donde puedan "
+              "crecer espiritualmente, fortalecer su carácter y aplicar los principios bíblicos a la "
+              "vida diaria, influyendo de manera intencional en su familia, trabajo y sociedad.",
           const IgShift('Instagram'),
           screenWidth,
           screenHeight,
-        ),
+        )),
+        RepaintBoundary(
+            child: _buildMinisterioItem(
+          "servidores",
+          "Creemos que cada persona tiene dones y un propósito. Te invitamos a unirte a uno de "
+              "nuestros equipos de servicio y ser parte de lo que Dios está haciendo en CCI.",
+          () => _launchServidoresUrl(context),
+          "¡Sé parte!",
+          screenWidth,
+          screenHeight,
+        )),
       ],
     );
   }
@@ -177,34 +455,15 @@ class Ministerios extends StatelessWidget {
     VoidCallback onTap,
     String buttonText,
     double screenWidth,
-    double screenHeight,
-  ) {
+    double screenHeight, {
+    Widget? socialWidget,
+  }) {
     return Padding(
       padding: EdgeInsets.all(screenWidth * 0.07),
       child: Column(
         children: [
-          Container(
-            width: screenWidth * 0.6,
-            height: screenHeight * 0.15,
-            child: Image.asset(
-              "assets/images/$image.png",
-              fit: BoxFit.contain,
-              errorBuilder: (context, error, stackTrace) {
-                return Container(
-                  decoration: BoxDecoration(
-                    color: colorWithOpacity(gris, 0.3),
-                    borderRadius: BorderRadius.circular(borderRadius),
-                  ),
-                  child: Icon(
-                    Icons.music_note,
-                    size: screenWidth * 0.2,
-                    color: colorWithOpacity(blanco, 0.5),
-                  ),
-                );
-              },
-            ),
-          ),
-          SizedBox(height: screenHeight * 0.02),
+          _buildMinisterioLogo(image, screenWidth, screenHeight),
+          SizedBox(height: screenHeight * 0.012),
           Text(
             description,
             style: TextStyle(
@@ -214,7 +473,7 @@ class Ministerios extends StatelessWidget {
             ),
             textAlign: TextAlign.center,
           ),
-          SizedBox(height: screenHeight * 0.02),
+          SizedBox(height: screenHeight * 0.015),
           Center(
             child: ElevatedButton(
               onPressed: onTap,
@@ -239,6 +498,14 @@ class Ministerios extends StatelessWidget {
               ),
             ),
           ),
+          if (socialWidget != null) ...[
+            SizedBox(height: screenHeight * 0.02),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              mainAxisSize: MainAxisSize.min,
+              children: [socialWidget],
+            ),
+          ],
         ],
       ),
     );
@@ -255,29 +522,8 @@ class Ministerios extends StatelessWidget {
       padding: EdgeInsets.all(screenWidth * 0.07),
       child: Column(
         children: [
-          Container(
-            width: screenWidth * 0.6,
-            height: screenHeight * 0.15,
-            child: Image.asset(
-              "assets/images/$image.png",
-              fit: BoxFit.contain,
-              errorBuilder: (context, error, stackTrace) {
-                return Container(
-                  decoration: BoxDecoration(
-                    color: colorWithOpacity(gris, 0.3),
-                    borderRadius: BorderRadius.circular(borderRadius),
-                    border: Border.all(color: colorWithOpacity(blanco, 0.2)),
-                  ),
-                  child: Icon(
-                    Icons.people,
-                    size: screenWidth * 0.2,
-                    color: colorWithOpacity(blanco, 0.5),
-                  ),
-                );
-              },
-            ),
-          ),
-          SizedBox(height: screenHeight * 0.02),
+          _buildMinisterioLogo(image, screenWidth, screenHeight),
+          SizedBox(height: screenHeight * 0.012),
           Text(
             description,
             style: TextStyle(
@@ -287,7 +533,7 @@ class Ministerios extends StatelessWidget {
             ),
             textAlign: TextAlign.center,
           ),
-          SizedBox(height: screenHeight * 0.02),
+          SizedBox(height: screenHeight * 0.015),
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             mainAxisSize: MainAxisSize.min,

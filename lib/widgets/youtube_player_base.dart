@@ -8,11 +8,13 @@ import '../utils/constants.dart';
 class YoutubePlayerBase extends StatefulWidget {
   final String videoId;
   final String title;
+  final bool autoPlay;
 
   const YoutubePlayerBase({
     super.key,
     required this.videoId,
     required this.title,
+    this.autoPlay = false,
   });
 
   @override
@@ -27,7 +29,7 @@ class _YoutubePlayerBaseState extends State<YoutubePlayerBase> {
     super.initState();
     _controller = YoutubePlayerController.fromVideoId(
       videoId: widget.videoId,
-      autoPlay: false,
+      autoPlay: widget.autoPlay,
       params: const YoutubePlayerParams(
         showControls: true,
         showFullscreenButton: true,
@@ -80,7 +82,7 @@ class _YoutubePlayerBaseState extends State<YoutubePlayerBase> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.play_circle_outline, size: 48, color: accent),
+              Icon(Icons.play_circle_outline, size: 48, color: blanco),
               const SizedBox(height: 12),
               Text(
                 'Este video no se puede reproducir aquí',
@@ -101,14 +103,20 @@ class _YoutubePlayerBaseState extends State<YoutubePlayerBase> {
                 ),
               ),
               const SizedBox(height: 16),
-              FilledButton.icon(
+              FilledButton(
                 onPressed: _openInYouTube,
-                icon: const Icon(Icons.open_in_new, size: 20),
-                label: const Text('Abrir en YouTube'),
                 style: FilledButton.styleFrom(
-                  backgroundColor: accent,
-                  foregroundColor: Colors.white,
+                  backgroundColor: grisOscuro,
+                  foregroundColor: blanco,
                   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.open_in_new, size: 20, color: blanco),
+                    const SizedBox(width: 10),
+                    const Text('Abrir en YouTube'),
+                  ],
                 ),
               ),
             ],
@@ -176,12 +184,12 @@ class _YoutubePlayerBaseState extends State<YoutubePlayerBase> {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.open_in_new, size: 18, color: accent),
+                    Icon(Icons.open_in_new, size: 18, color: blanco),
                     const SizedBox(width: 6),
                     Text(
                       'Abrir en YouTube',
                       style: TextStyle(
-                        color: accent,
+                        color: blanco,
                         fontSize: 13,
                         fontWeight: FontWeight.w500,
                       ),

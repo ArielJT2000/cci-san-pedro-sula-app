@@ -95,10 +95,12 @@ class _ForceDisableDebugOverlays extends StatefulWidget {
   const _ForceDisableDebugOverlays({required this.child});
 
   @override
-  State<_ForceDisableDebugOverlays> createState() => _ForceDisableDebugOverlaysState();
+  State<_ForceDisableDebugOverlays> createState() =>
+      _ForceDisableDebugOverlaysState();
 }
 
-class _ForceDisableDebugOverlaysState extends State<_ForceDisableDebugOverlays> {
+class _ForceDisableDebugOverlaysState
+    extends State<_ForceDisableDebugOverlays> {
   Timer? _timer;
 
   @override

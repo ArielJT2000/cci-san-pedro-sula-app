@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:simple_icons/simple_icons.dart';
 import '../utils/constants.dart';
 import '../utils/app_config.dart';
 import '../widgets/swipe_back_wrapper.dart';
@@ -124,10 +125,14 @@ class Transmisiones extends StatelessWidget {
       ),
       child: Column(
         children: [
-          Icon(
-            Icons.live_tv_outlined,
-            color: accent,
-            size: 32,
+          ColorFiltered(
+            colorFilter: const ColorFilter.mode(blanco, BlendMode.srcIn),
+            child: Image.asset(
+              'assets/images/Logo CCI SPS_Globo Gris Oscuro.png',
+              height: 40,
+              fit: BoxFit.contain,
+              errorBuilder: (_, __, ___) => Icon(Icons.live_tv_outlined, color: blanco, size: 32),
+            ),
           ),
           SizedBox(height: screenWidth * 0.03),
           Text(
@@ -145,7 +150,7 @@ class Transmisiones extends StatelessWidget {
           ),
           SizedBox(height: screenWidth * 0.02),
           Text(
-            "Únete a nosotros cada domingo a las 11:30 AM y miércoles a las 7:00 PM "
+            "Únete a nosotros cada domingo a las 11:30 AM y el primer miércoles de cada mes a las 7:00 PM "
             "para nuestros servicios en vivo.",
             style: TextStyle(
               fontFamily: 'SF Pro Display',
@@ -172,7 +177,7 @@ class Transmisiones extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            "Predicaciones y contenido",
+            "Prédicas y contenido",
             style: TextStyle(
               fontFamily: 'SF Pro Display',
               color: blanco,
@@ -198,14 +203,14 @@ class Transmisiones extends StatelessWidget {
             child: Column(
               children: [
                 Icon(
-                  Icons.play_circle_outline,
-                  color: accent,
+                  Icons.video_library_outlined,
+                  color: blanco,
                   size: 40,
                 ),
                 SizedBox(height: screenWidth * 0.04),
                 Text(
                   "Descubre nuestro canal de YouTube para ver todas nuestras "
-                  "predicaciones, transmisiones recientes y contenido exclusivo.",
+                  "prédicas, transmisiones recientes y contenido de CCI Praise.",
                   style: TextStyle(
                     fontFamily: 'SF Pro Display',
                     color: grisMedio,
@@ -218,17 +223,23 @@ class Transmisiones extends StatelessWidget {
                   textAlign: TextAlign.center,
                 ),
                 SizedBox(height: screenWidth * 0.05),
-                FilledButton.icon(
+                FilledButton(
                   onPressed: _openYouTubeChannel,
-                  icon: const Icon(Icons.open_in_new, size: 20),
-                  label: const Text('Ver canal en YouTube'),
                   style: FilledButton.styleFrom(
-                    backgroundColor: accent,
-                    foregroundColor: Colors.black,
+                    backgroundColor: grisOscuro,
+                    foregroundColor: blanco,
                     padding: EdgeInsets.symmetric(
                       horizontal: screenWidth * 0.06,
                       vertical: 14,
                     ),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(SimpleIcons.youtube, size: 20, color: youtubeRed),
+                      SizedBox(width: screenWidth * 0.03),
+                      const Text('Ver canal en YouTube'),
+                    ],
                   ),
                 ),
               ],

@@ -1,6 +1,6 @@
 {
-    "name": "cci_app",
-    "short_name": "cci_app",
+    "name": "CCI San Pedro Sula",
+    "short_name": "CCI San Pedro Sula",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

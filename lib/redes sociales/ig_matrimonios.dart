@@ -10,7 +10,7 @@ class IgMatrimonios extends StatelessWidget {
   Widget build(BuildContext context) {
     return SocialLink(
       socialId: socialId,
-      url: 'https://www.instagram.com/matrimonioscci',
+      url: 'https://www.instagram.com/pastoraldematrimonioscci_sps/',
       platform: 'Instagram',
     );
   }

@@ -107,18 +107,15 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                                   animation: animation,
                                   builder: (context, child) {
                                     final progress = animation.value;
-                                    // Escala que cambia durante la transición
-                                    // De 1.0 (tamaño inicial: screenWidth * 0.5) a 0.4 (tamaño final: screenWidth * 0.20)
-                                    // 0.20 / 0.5 = 0.4
+                                    // Escala al final de la transición Hero = 0.85 para coincidir con el tamaño final en Inicio
                                     final scale =
-                                        1.0 - (progress * 0.6); // De 1.0 a 0.4
-                                    // Opacidad que se ajusta durante la transición
+                                        1.0 - (progress * 0.15); // De 1.0 a 0.85
                                     final opacity = 1.0 - (progress * 0.2);
 
                                     return Opacity(
                                       opacity: opacity.clamp(0.0, 1.0),
                                       child: Transform.scale(
-                                        scale: scale.clamp(0.4, 1.0),
+                                        scale: scale.clamp(0.85, 1.0),
                                         child: toHero.child,
                                       ),
                                     );

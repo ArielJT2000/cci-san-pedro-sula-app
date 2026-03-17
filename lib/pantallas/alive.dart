@@ -11,13 +11,11 @@ class Alive extends StatelessWidget {
     return MinistryScreenBase(
       title: "Alive",
       description:
-          "Somos una familia de jovenes enfocados en la restauración "
-          "integral de nuestros adolescentes y en su formación para alcanzar ",
-      imagePath: "assets/images/alive.png",
+          "Somos un ministerio que acompaña a adolescentes a descubrir su identidad en Cristo, "
+          "con fundamentos bíblicos sólidos y una fe auténtica y firme en su etapa de crecimiento.",
+      imagePath: 'assets/images/alive.png',
       additionalInfo:
-          "Únete a Alive y sé parte de una comunidad vibrante que busca vivir "
-          "una vida plena en Cristo. Tenemos reuniones semanales"
-          "y espacios de crecimiento diseñados para jóvenes.",
+          "Únete a Alive y sé parte de una comunidad vibrante para jóvenes.",
       socialWidget: const IgAlive('Instagram'),
       informationSection: const MinistryEventsSection(category: 'alive'),
     );

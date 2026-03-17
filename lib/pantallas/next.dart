@@ -11,16 +11,11 @@ class Next extends StatelessWidget {
     return MinistryScreenBase(
       title: "Next",
       description:
-          "Somos una familia de jovenes enfocados en formar jóvenes que vivan con Dios "
-          "cada día y reflejen al Espíritu Santo. Guiándolos a descubrir su identidad y "
-          "propósito en Jesús, crecer espiritualmente, construir relaciones sanas y servir "
-          "activamente en la misión de la iglesia.",
-      imagePath: "assets/images/next.png",
+          "Somos un ministerio que impulsa a los jóvenes a una relación personal con Dios, "
+          "afirmando su identidad y propósito, para que su fe impacte sus decisiones, entorno y generación.",
+      imagePath: 'assets/images/next.png',
       additionalInfo:
-          "Únete a Next y sé parte de una comunidad que busca crecer "
-          "espiritualmente mientras se divierte y forma amistades duraderas. "
-          "Tenemos actividades, estudios bíblicos y eventos especiales diseñados "
-          "específicamente para jóvenes como tú.",
+          "Únete a Next y sé parte de una comunidad para jóvenes como tú.",
       socialWidget: const IgNext('Instagram'),
       informationSection: const MinistryEventsSection(category: 'next'),
     );
