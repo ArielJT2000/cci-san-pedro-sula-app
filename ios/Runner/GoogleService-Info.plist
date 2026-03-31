@@ -9,7 +9,7 @@
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.example.cciApp</string>
+	<string>com.ccisps.app</string>
 	<key>PROJECT_ID</key>
 	<string>cci-app-5bac1</string>
 	<key>STORAGE_BUCKET</key>
@@ -25,6 +25,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:20060340278:ios:57a04a7adc48030fcc1897</string>
+	<string>1:20060340278:ios:40bf6906fb56e5bacc1897</string>
 </dict>
 </plist>

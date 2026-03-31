@@ -59,11 +59,11 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyCQSEaHDC6qwuBrcu1O48D2PWZS3pn1Ug0',
-    appId: '1:20060340278:ios:57a04a7adc48030fcc1897',
+    appId: '1:20060340278:ios:40bf6906fb56e5bacc1897',
     messagingSenderId: '20060340278',
     projectId: 'cci-app-5bac1',
     storageBucket: 'cci-app-5bac1.firebasestorage.app',
-    iosBundleId: 'com.example.cciApp',
+    iosBundleId: 'com.ccisps.app',
   );
 }
 

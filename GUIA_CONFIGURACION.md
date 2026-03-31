@@ -10,7 +10,7 @@ Esta guía detalla los pasos para dejar la app lista para publicación en App St
 
 - **Bundle ID (iOS):** `org.ccisanpedrosula.app` (antes `com.Arielito.cciApp`).
 - **Application ID (Android):** `org.ccisanpedrosula.app` (antes `com.example.cci_app`).
-- **Push Notifications (iOS):** `ios/Runner/Runner.entitlements` creado con capacidad de notificaciones.
+- **Push Notifications (iOS):** `RunnerDebug.entitlements` (development) y `RunnerRelease.entitlements` (production) con `aps-environment` para FCM/APNs.
 - **Firma en Xcode:** `DEVELOPMENT_TEAM` está vacío; **debes abrir Xcode, elegir el target Runner → Signing & Capabilities y seleccionar el Team** de la cuenta ccisanpedrosula@gmail.com (o la que uses como host).
 
 Después de elegir el Team en Xcode, el proyecto compilará y firmará correctamente.
@@ -54,7 +54,7 @@ Después de elegir el Team en Xcode, el proyecto compilará y firmará correctam
    - **Team:** elige el equipo asociado a **ccisanpedrosula@gmail.com** (si no aparece, añade la cuenta en **Xcode → Settings → Accounts**).
    - Deja **Automatically manage signing** activado.
    - Si Xcode muestra “No team”, haz clic y selecciona tu equipo para que genere perfiles y certificados.
-5. Comprueba que en **Capabilities** aparezca **Push Notifications** (el proyecto ya tiene `Runner.entitlements` con `aps-environment`).
+5. Comprueba que en **Capabilities** aparezca **Push Notifications** (el proyecto usa `RunnerDebug.entitlements` / `RunnerRelease.entitlements` con `aps-environment`).
 
 Con esto, el **host** de la app en Apple es la cuenta con la que elegiste el Team.
 
@@ -213,10 +213,10 @@ Todo queda ligado a:
 
 ## 7. Entitlements y push en release (iOS)
 
-El archivo `ios/Runner/Runner.entitlements` tiene `aps-environment` en **development**. Para publicar en App Store:
+- **Debug** usa `RunnerDebug.entitlements` → `aps-environment`: **development** (pruebas desde Xcode a dispositivo).
+- **Release** y **Profile** usan `RunnerRelease.entitlements` → **production** (TestFlight / App Store).
 
-- Al archivar con **Release**, Xcode suele usar el perfil de distribución que incluye **production**.
-- Si en algún momento las notificaciones en producción fallan, en **Signing & Capabilities** asegúrate de que **Push Notifications** esté activado y que el perfil de release sea de tipo **Distribution** (App Store). No suele ser necesario editar a mano el `.entitlements` si la capacidad está bien configurada en el App ID y en Xcode.
+Si las notificaciones en producción fallan, revisa **Signing & Capabilities**, el App ID con Push activado y la clave APNs en Firebase. Detalle: **[docs/FIREBASE_PUSH_SETUP.md](docs/FIREBASE_PUSH_SETUP.md)**.
 
 ---
 

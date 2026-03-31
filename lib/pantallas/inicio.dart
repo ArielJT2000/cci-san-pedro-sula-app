@@ -311,140 +311,244 @@ class _InicioState extends State<Inicio> with TickerProviderStateMixin {
     );
   }
 
+  static const double _bentoRadius = borderRadiusXL;
+  static const double _bentoGap = 12.0;
+
   Widget _buildMenuGrid(
       BuildContext context, double screenWidth, double screenHeight) {
-    final menuItems = [
-      {
-        'icon': Icons.calendar_today_outlined,
-        'title': 'Eventos',
-        'subtitle': 'Próximas actividades',
-        'screen': const Eventos(),
-      },
-      {
-        'icon': Icons.church_outlined,
-        'title': 'Seamos Iglesia',
-        'subtitle': 'Conoce más sobre nosotros',
-        'screen': const Iglesia(),
-      },
-      {
-        'icon': Icons.people_outline,
-        'title': 'Ministerios CCI',
-        'subtitle': 'Nuestros ministerios',
-        'screen': const Ministerios(),
-      },
-      {
-        'icon': Icons.live_tv_outlined,
-        'title': 'En vivo',
-        'subtitle': 'Transmisiones en vivo',
-        'screen': const Transmisiones(),
-      },
-      {
-        'icon': Icons.favorite_outline,
-        'title': 'Dar',
-        'subtitle': 'Ofrendas y donaciones',
-        'screen': const Ofrendas(),
-      },
-      {
-        'icon': Icons.arrow_forward_outlined,
-        'title': 'Youth CCI',
-        'subtitle': 'Próximas generaciones',
-        'screen': const Youth(),
-      },
-      {
-        'icon': Icons.location_on_outlined,
-        'title': 'Ubicación',
-        'subtitle': 'Encuéntranos y visita',
-        'screen': const Ubicacion(),
-      },
-    ];
+    final titleStyle = getCardTitleStyle(screenWidth);
+    final subtitleStyle = getCardSubtitleStyle(screenWidth);
 
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(
           kSectionExplore,
           style: getSectionTitleStyle(screenWidth),
+          textAlign: TextAlign.start,
         ),
-        SizedBox(height: screenHeight * 0.04),
-        ...menuItems.map((item) => Padding(
-              padding: EdgeInsets.only(bottom: screenHeight * 0.02),
-              child: _buildLuxuryCard(
+        SizedBox(height: screenHeight * 0.025),
+        _buildBentoNavTile(
+          context: context,
+          screenWidth: screenWidth,
+          screenHeight: screenHeight,
+          icon: Icons.calendar_today_outlined,
+          title: 'Eventos',
+          subtitle: 'Próximas actividades',
+          screen: const Eventos(),
+          titleStyle: titleStyle,
+          subtitleStyle: subtitleStyle,
+          minHeight: 108,
+          featuredAccent: true,
+        ),
+        SizedBox(height: _bentoGap),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              flex: 58,
+              child: _buildBentoNavTile(
                 context: context,
-                icon: item['icon'] as IconData,
-                title: item['title'] as String,
-                subtitle: item['subtitle'] as String,
-                screen: item['screen'] as Widget,
                 screenWidth: screenWidth,
                 screenHeight: screenHeight,
+                icon: Icons.church_outlined,
+                title: 'Seamos Iglesia',
+                subtitle: 'Conoce más sobre nosotros',
+                screen: const Iglesia(),
+                titleStyle: titleStyle,
+                subtitleStyle: subtitleStyle,
+                minHeight: 148,
+                compactText: false,
               ),
-            )),
+            ),
+            SizedBox(width: _bentoGap),
+            Expanded(
+              flex: 42,
+              child: _buildBentoNavTile(
+                context: context,
+                screenWidth: screenWidth,
+                screenHeight: screenHeight,
+                icon: Icons.people_outline,
+                title: 'Ministerios CCI',
+                subtitle: 'Nuestros ministerios',
+                screen: const Ministerios(),
+                titleStyle: titleStyle,
+                subtitleStyle: subtitleStyle,
+                minHeight: 112,
+                compactText: true,
+              ),
+            ),
+          ],
+        ),
+        SizedBox(height: _bentoGap),
+        _buildBentoNavTile(
+          context: context,
+          screenWidth: screenWidth,
+          screenHeight: screenHeight,
+          icon: Icons.live_tv_outlined,
+          title: 'En vivo',
+          subtitle: 'Transmisiones en vivo',
+          screen: const Transmisiones(),
+          titleStyle: titleStyle,
+          subtitleStyle: subtitleStyle,
+          minHeight: 108,
+          featuredAccent: true,
+        ),
+        SizedBox(height: _bentoGap),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              flex: 58,
+              child: _buildBentoNavTile(
+                context: context,
+                screenWidth: screenWidth,
+                screenHeight: screenHeight,
+                icon: Icons.favorite_outline,
+                title: 'Dar',
+                subtitle: 'Ofrendas y donaciones',
+                screen: const Ofrendas(),
+                titleStyle: titleStyle,
+                subtitleStyle: subtitleStyle,
+                minHeight: 148,
+                compactText: false,
+              ),
+            ),
+            SizedBox(width: _bentoGap),
+            Expanded(
+              flex: 42,
+              child: _buildBentoNavTile(
+                context: context,
+                screenWidth: screenWidth,
+                screenHeight: screenHeight,
+                icon: Icons.arrow_forward_outlined,
+                title: 'Youth CCI',
+                subtitle: 'Próximas generaciones',
+                screen: const Youth(),
+                titleStyle: titleStyle,
+                subtitleStyle: subtitleStyle,
+                minHeight: 112,
+                compactText: true,
+              ),
+            ),
+          ],
+        ),
+        SizedBox(height: _bentoGap),
+        _buildBentoNavTile(
+          context: context,
+          screenWidth: screenWidth,
+          screenHeight: screenHeight,
+          icon: Icons.location_on_outlined,
+          title: 'Ubicación',
+          subtitle: 'Encuéntranos y visita',
+          screen: const Ubicacion(),
+          titleStyle: titleStyle,
+          subtitleStyle: subtitleStyle,
+          minHeight: 104,
+          featuredAccent: true,
+        ),
       ],
     );
   }
 
-  Widget _buildLuxuryCard({
+  Widget _buildBentoNavTile({
     required BuildContext context,
+    required double screenWidth,
+    required double screenHeight,
     required IconData icon,
     required String title,
     required String subtitle,
     required Widget screen,
-    required double screenWidth,
-    required double screenHeight,
+    required TextStyle titleStyle,
+    required TextStyle subtitleStyle,
+    double minHeight = 100,
+    bool compactText = false,
+    bool featuredAccent = false,
   }) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: () => _navigateToScreen(context, screen),
-        borderRadius: BorderRadius.circular(borderRadius),
-        child: Container(
-          width: double.infinity,
-          padding: EdgeInsets.all(screenWidth * 0.06),
-          decoration: BoxDecoration(
-            color: grisCard,
-            borderRadius: BorderRadius.circular(borderRadius),
-            border: Border.all(
-              color: colorWithOpacity(blanco, 0.1),
-              width: 0.5,
+    final pad = screenWidth * 0.045;
+    final titleEffective = compactText
+        ? titleStyle.copyWith(fontSize: (titleStyle.fontSize ?? 17) * 0.92)
+        : titleStyle;
+    final subtitleEffective = compactText
+        ? subtitleStyle.copyWith(
+            fontSize: (subtitleStyle.fontSize ?? 14) * 0.9,
+            height: 1.25,
+          )
+        : subtitleStyle;
+
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(_bentoRadius),
+        border: Border.all(
+          color: colorWithOpacity(blanco, 0.1),
+          width: 0.5,
+        ),
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(_bentoRadius - 0.5),
+        child: Material(
+          color: grisCard,
+          child: InkWell(
+            onTap: () => _navigateToScreen(context, screen),
+            splashColor: colorWithOpacity(accent, 0.18),
+            highlightColor: colorWithOpacity(blanco, 0.06),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(minHeight: minHeight),
+              child: Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  if (featuredAccent)
+                    Positioned(
+                      right: -screenWidth * 0.02,
+                      bottom: -screenWidth * 0.06,
+                      child: Icon(
+                        icon,
+                        size: screenWidth * 0.26,
+                        color: colorWithOpacity(accent, 0.14),
+                      ),
+                    ),
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(pad, pad * 0.95, pad, pad),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          width: 36,
+                          height: 36,
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(
+                            color: colorWithOpacity(accent, 0.28),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            icon,
+                            color: colorWithOpacity(blanco, 0.95),
+                            size: 18,
+                          ),
+                        ),
+                        SizedBox(height: screenHeight * 0.012),
+                        Text(
+                          title,
+                          style: titleEffective,
+                          maxLines: compactText ? 2 : 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        SizedBox(height: screenHeight * 0.004),
+                        Text(
+                          subtitle,
+                          style: subtitleEffective,
+                          maxLines: compactText ? 3 : 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-          child: Row(
-            children: [
-              Container(
-                width: 56,
-                height: 56,
-                decoration: BoxDecoration(
-                  color: colorWithOpacity(blanco, 0.1),
-                  borderRadius: BorderRadius.circular(borderRadiusSmall),
-                ),
-                child: Icon(
-                  icon,
-                  color: blanco,
-                  size: 28,
-                ),
-              ),
-              SizedBox(width: screenWidth * 0.05),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: getCardTitleStyle(screenWidth),
-                    ),
-                    SizedBox(height: screenHeight * 0.006),
-                    Text(
-                      subtitle,
-                      style: getCardSubtitleStyle(screenWidth),
-                    ),
-                  ],
-                ),
-              ),
-              Icon(
-                Icons.arrow_forward_ios_rounded,
-                color: grisMedio,
-                size: 16,
-              ),
-            ],
           ),
         ),
       ),
