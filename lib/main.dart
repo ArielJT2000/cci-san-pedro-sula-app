@@ -140,7 +140,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) => MaterialApp(
         navigatorKey: navigatorKey,
         debugShowCheckedModeBanner: false,
-        title: 'CCI San Pedro Sula',
+        title: 'CCI SPS',
         builder: (context, child) {
           // Evita que algunos Text caigan en `errorTextStyle` (subrayado amarillo)
           // cuando se usan pantallas que no envuelven su contenido en Scaffold/Material.
