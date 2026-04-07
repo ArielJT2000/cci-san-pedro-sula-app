@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../utils/constants.dart';
 import '../widgets/swipe_back_wrapper.dart';
+import '../widgets/back_button_widget.dart';
 
 /// Widget base para pantallas de ministerios (Alive, Next, Shift)
 /// Reduce código duplicado y mantiene consistencia.
@@ -39,32 +40,46 @@ class MinistryScreenBase extends StatelessWidget {
         width: double.infinity,
         height: double.infinity,
         decoration: getGradientBackground(),
-        child: SafeArea(
-          child: SingleChildScrollView(
-            physics: const BouncingScrollPhysics(),
-            child: Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: getHorizontalPadding(screenWidth),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(height: screenHeight * 0.02),
-                  _buildHeader(screenWidth),
-                  SizedBox(height: screenHeight * 0.02),
-                  _buildLocation(screenWidth),
-                  SizedBox(height: screenHeight * 0.04),
-                  _buildDescription(screenWidth),
-                  _buildMinistryInfo(screenWidth, screenHeight),
-                  if (informationSection != null) ...[
-                    SizedBox(height: screenHeight * 0.03),
-                    informationSection!,
-                  ],
-                  SizedBox(height: screenHeight * 0.08),
-                ],
+        child: Stack(
+          children: [
+            SafeArea(
+              child: SingleChildScrollView(
+                physics: const BouncingScrollPhysics(),
+                child: Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: getHorizontalPadding(screenWidth),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(height: screenHeight * 0.02),
+                      _buildHeader(screenWidth),
+                      SizedBox(height: screenHeight * 0.02),
+                      _buildLocation(screenWidth),
+                      SizedBox(height: screenHeight * 0.04),
+                      _buildDescription(screenWidth),
+                      _buildMinistryInfo(screenWidth, screenHeight),
+                      if (informationSection != null) ...[
+                        SizedBox(height: screenHeight * 0.03),
+                        informationSection!,
+                      ],
+                      SizedBox(height: screenHeight * 0.08),
+                    ],
+                  ),
+                ),
               ),
             ),
-          ),
+            Positioned(
+              top: 0,
+              left: 0,
+              child: SafeArea(
+                bottom: false,
+                child: BackButtonWidget(
+                  onPressed: () => Navigator.of(context).maybePop(),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
