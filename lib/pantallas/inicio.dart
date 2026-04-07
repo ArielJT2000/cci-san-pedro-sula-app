@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'dart:ui';
 import '../utils/constants.dart';
 import '../widgets/swipe_back_wrapper.dart';
+import '../widgets/pushed_screen_back_overlay.dart';
 import 'eventos.dart';
 import 'iglesia.dart';
 import 'ministerios.dart';
+import 'puertas_abiertas.dart';
 import 'transmisiones.dart';
 import 'ofrendas.dart';
 import 'youth.dart';
@@ -332,46 +334,45 @@ class _InicioState extends State<Inicio> with TickerProviderStateMixin {
           context: context,
           screenWidth: screenWidth,
           screenHeight: screenHeight,
-          icon: Icons.calendar_today_outlined,
-          title: 'Eventos',
-          subtitle: 'Próximas actividades',
-          screen: const Eventos(),
+          icon: Icons.church_outlined,
+          title: 'Seamos Iglesia',
+          subtitle: 'Conoce más sobre nosotros',
+          screen: const Iglesia(),
           titleStyle: titleStyle,
           subtitleStyle: subtitleStyle,
           minHeight: 108,
           featuredAccent: true,
         ),
         SizedBox(height: _bentoGap),
+        // Segunda fila: En vivo y Dar como botones pequeños
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(
-              flex: 58,
               child: _buildBentoNavTile(
                 context: context,
                 screenWidth: screenWidth,
                 screenHeight: screenHeight,
-                icon: Icons.church_outlined,
-                title: 'Seamos Iglesia',
-                subtitle: 'Conoce más sobre nosotros',
-                screen: const Iglesia(),
+                icon: Icons.live_tv_outlined,
+                title: 'En vivo',
+                subtitle: 'Transmisiones en vivo',
+                screen: const Transmisiones(),
                 titleStyle: titleStyle,
                 subtitleStyle: subtitleStyle,
-                minHeight: 148,
-                compactText: false,
+                minHeight: 112,
+                compactText: true,
               ),
             ),
             SizedBox(width: _bentoGap),
             Expanded(
-              flex: 42,
               child: _buildBentoNavTile(
                 context: context,
                 screenWidth: screenWidth,
                 screenHeight: screenHeight,
-                icon: Icons.people_outline,
-                title: 'Ministerios CCI',
-                subtitle: 'Nuestros ministerios',
-                screen: const Ministerios(),
+                icon: Icons.favorite_outline,
+                title: 'Dar',
+                subtitle: 'Ofrendas y donaciones',
+                screen: const Ofrendas(),
                 titleStyle: titleStyle,
                 subtitleStyle: subtitleStyle,
                 minHeight: 112,
@@ -385,38 +386,36 @@ class _InicioState extends State<Inicio> with TickerProviderStateMixin {
           context: context,
           screenWidth: screenWidth,
           screenHeight: screenHeight,
-          icon: Icons.live_tv_outlined,
-          title: 'En vivo',
-          subtitle: 'Transmisiones en vivo',
-          screen: const Transmisiones(),
+          icon: Icons.volunteer_activism_outlined,
+          title: 'Fundación Puertas Abiertas',
+          subtitle: 'Conoce más sobre nuestra fundación',
+          screen: const PuertasAbiertas(),
           titleStyle: titleStyle,
           subtitleStyle: subtitleStyle,
           minHeight: 108,
-          featuredAccent: true,
         ),
         SizedBox(height: _bentoGap),
+        // Eventos como botón pequeño
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(
-              flex: 58,
               child: _buildBentoNavTile(
                 context: context,
                 screenWidth: screenWidth,
                 screenHeight: screenHeight,
-                icon: Icons.favorite_outline,
-                title: 'Dar',
-                subtitle: 'Ofrendas y donaciones',
-                screen: const Ofrendas(),
+                icon: Icons.calendar_today_outlined,
+                title: 'Eventos',
+                subtitle: 'Próximas actividades',
+                screen: const Eventos(),
                 titleStyle: titleStyle,
                 subtitleStyle: subtitleStyle,
-                minHeight: 148,
-                compactText: false,
+                minHeight: 112,
+                compactText: true,
               ),
             ),
             SizedBox(width: _bentoGap),
             Expanded(
-              flex: 42,
               child: _buildBentoNavTile(
                 context: context,
                 screenWidth: screenWidth,
@@ -432,6 +431,20 @@ class _InicioState extends State<Inicio> with TickerProviderStateMixin {
               ),
             ),
           ],
+        ),
+        SizedBox(height: _bentoGap),
+        _buildBentoNavTile(
+          context: context,
+          screenWidth: screenWidth,
+          screenHeight: screenHeight,
+          icon: Icons.people_outline,
+          title: 'Ministerios CCI',
+          subtitle: 'Nuestros ministerios',
+          screen: const Ministerios(),
+          titleStyle: titleStyle,
+          subtitleStyle: subtitleStyle,
+          minHeight: 108,
+          featuredAccent: true,
         ),
         SizedBox(height: _bentoGap),
         _buildBentoNavTile(
@@ -558,7 +571,8 @@ class _InicioState extends State<Inicio> with TickerProviderStateMixin {
   void _navigateToScreen(BuildContext context, Widget screen) {
     Navigator.of(context).push(
       PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) => screen,
+        pageBuilder: (context, animation, secondaryAnimation) =>
+            PushedScreenBackOverlay(child: screen),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           // Efecto blur progresivo: la pantalla anterior se vuelve borrosa
           final blurValue =

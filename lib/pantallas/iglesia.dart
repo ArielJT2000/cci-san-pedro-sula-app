@@ -20,7 +20,7 @@ class Iglesia extends StatelessWidget {
         decoration: getGradientBackground(),
         child: SafeArea(
           child: SingleChildScrollView(
-            physics: const BouncingScrollPhysics(),
+            physics: const ClampingScrollPhysics(),
             child: Padding(
               padding: EdgeInsets.symmetric(
                 horizontal: getHorizontalPadding(screenWidth),
@@ -117,7 +117,7 @@ class Iglesia extends StatelessWidget {
             height: screenHeight * 0.18,
             child: ListView(
               scrollDirection: Axis.horizontal,
-              physics: const BouncingScrollPhysics(),
+              physics: const ClampingScrollPhysics(),
               children: [
                 _PastorImage("mario", context, screenWidth, screenHeight),
                 _PastorImage("karla", context, screenWidth, screenHeight),
@@ -521,7 +521,7 @@ class _PastorImage extends StatelessWidget {
     },
     "rosa": {
       "nombre": "Rosa de Tábora",
-      "titulo": "Pastora titular 9:00 A.M.",
+      "titulo": "Pastora adjunta 9:00 A.M.",
       "info": "Pastora titular del servicio de las 9:00 A.M. "
           "Con un corazón por la adoración y el acompañamiento pastoral.",
     },
@@ -534,13 +534,13 @@ class _PastorImage extends StatelessWidget {
     },
     "kensy": {
       "nombre": "Kensy de Vallecillo",
-      "titulo": "Pastora titular 11:30 A.M.",
+      "titulo": "Pastora adjunta 11:30 A.M.",
       "info": "Pastora titular del servicio de las 11:30 A.M. "
           "Comprometida con la formación espiritual y el cuidado de las familias.",
     },
     "enrique": {
       "nombre": "Enrique",
-      "titulo": "Pastor de Alabanza y Comunicaciones",
+      "titulo": "Pastor titular de Alabanza y Comunicaciones",
       "info": "Lidera los ministerios de alabanza y comunicaciones. "
           "A cargo de la alabanza, los medios y la transmisión de los servicios.",
     },
@@ -556,7 +556,8 @@ class _PastorImage extends StatelessWidget {
         height: screenHeight * 0.13,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          color: colorWithOpacity(blanco, 0.1),
+          // Fondo oscuro para evitar que transparencias se vean “blancas”.
+          color: colorWithOpacity(negro, 0.25),
           border: Border.all(color: colorWithOpacity(blanco, 0.2)),
         ),
         child: ClipOval(
@@ -651,7 +652,8 @@ class _PastorInfoDialog extends StatelessWidget {
                       width: screenWidth * 0.55,
                       height: screenHeight * 0.22,
                       decoration: BoxDecoration(
-                        color: colorWithOpacity(blanco, 0.03),
+                        // Fondo oscuro para evitar bordes claros si la imagen trae transparencia.
+                        color: colorWithOpacity(negro, 0.18),
                         borderRadius: BorderRadius.circular(borderRadius),
                         border: Border.all(
                           color: colorWithOpacity(blanco, 0.06),

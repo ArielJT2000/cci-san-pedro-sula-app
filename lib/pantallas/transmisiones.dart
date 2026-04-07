@@ -28,7 +28,7 @@ class Transmisiones extends StatelessWidget {
         decoration: getGradientBackground(),
         child: SafeArea(
           child: SingleChildScrollView(
-            physics: const BouncingScrollPhysics(),
+            physics: const ClampingScrollPhysics(),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [

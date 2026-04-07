@@ -110,7 +110,7 @@ class _EventosState extends State<Eventos> {
           children: [
             SingleChildScrollView(
               controller: _scrollController,
-              physics: const BouncingScrollPhysics(),
+              physics: const ClampingScrollPhysics(),
               child: Padding(
                 padding: EdgeInsets.symmetric(
                   horizontal: getHorizontalPadding(screenWidth),

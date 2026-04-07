@@ -3,6 +3,7 @@ import 'dart:ui';
 import '../pantallas/welcome_screen.dart';
 import '../navigation/main_navigation.dart';
 import '../utils/fcm_service.dart';
+import '../utils/constants.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({Key? key}) : super(key: key);
@@ -13,6 +14,7 @@ class SplashScreen extends StatefulWidget {
 
 class SplashScreenState extends State<SplashScreen>
     with SingleTickerProviderStateMixin {
+  static const _splashHeroKey = ValueKey('splash_app_logo_hero');
   late AnimationController _animationController;
   late Animation<double> _scaleAnimation;
 
@@ -59,7 +61,7 @@ class SplashScreenState extends State<SplashScreen>
           Navigator.of(context).pushReplacement(
             PageRouteBuilder(
               pageBuilder: (context, animation, secondaryAnimation) =>
-                  const WelcomeScreen(),
+                  const WelcomeScreen(fromSplash: true),
             transitionsBuilder:
                 (context, animation, secondaryAnimation, child) {
               // Efecto blur progresivo
@@ -96,7 +98,7 @@ class SplashScreenState extends State<SplashScreen>
                 ],
               );
             },
-              transitionDuration: const Duration(milliseconds: 600),
+              transitionDuration: const Duration(seconds: 1),
             ),
           );
         }
@@ -113,26 +115,37 @@ class SplashScreenState extends State<SplashScreen>
   Widget build(BuildContext context) {
     print('SplashScreen: build');
     final screenWidth = MediaQuery.of(context).size.width;
-    final screenHeight = MediaQuery.of(context).size.height;
     return Scaffold(
-      backgroundColor: Colors.white,
-      body: Center(
-        child: AnimatedBuilder(
-          animation: _animationController,
-          builder: (context, child) {
-            return Transform.scale(
-              scale: _scaleAnimation.value,
-              child: Image.asset(
-                'assets/images/Logo CCI SPS_Globo Gris Oscuro.png',
-                width: screenWidth * 0.7,
-                height: screenHeight * 0.4,
-                fit: BoxFit.contain,
-                errorBuilder: (context, error, stackTrace) {
-                  return Icon(Icons.error, size: 120, color: Colors.red);
-                },
-              ),
-            );
-          },
+      body: Container(
+        width: double.infinity,
+        height: double.infinity,
+        decoration: getGradientBackground(),
+        child: Center(
+          child: AnimatedBuilder(
+            animation: _animationController,
+            builder: (context, child) {
+              return Transform.scale(
+                scale: _scaleAnimation.value,
+                child: Material(
+                  color: Colors.transparent,
+                  child: Hero(
+                    tag: 'app_logo',
+                    key: _splashHeroKey,
+                    child: Image.asset(
+                      'assets/images/logo.png',
+                      // Un poco más grande al inicio; el Hero lo encoge al llegar al Welcome.
+                      width: screenWidth * 0.65,
+                      height: screenWidth * 0.65,
+                      fit: BoxFit.contain,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Icon(Icons.error, size: 120, color: Colors.red);
+                      },
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
         ),
       ),
     );

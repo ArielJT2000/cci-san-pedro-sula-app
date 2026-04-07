@@ -14,23 +14,27 @@ class BackButtonWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    
+    final iconOnly = text == null || text!.isEmpty;
+    final padding = iconOnly
+        ? const EdgeInsets.fromLTRB(4, 4, 10, 10)
+        : const EdgeInsets.symmetric(horizontal: 12, vertical: 8);
+
     return Material(
       color: Colors.transparent,
       child: InkWell(
         onTap: onPressed ?? () => Navigator.of(context).pop(),
         borderRadius: BorderRadius.circular(borderRadiusSmall),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        child: Padding(
+          padding: padding,
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               Icon(
                 Icons.chevron_left_rounded,
                 color: primario,
-                size: 28,
+                size: iconOnly ? 32 : 28,
               ),
-              if (text != null) ...[
+              if (!iconOnly) ...[
                 SizedBox(width: screenWidth * 0.01),
                 Text(
                   text!,

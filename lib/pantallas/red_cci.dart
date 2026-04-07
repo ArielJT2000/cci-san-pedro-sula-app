@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../utils/constants.dart';
 import '../widgets/swipe_back_wrapper.dart';
+import '../widgets/back_button_widget.dart';
 
 class RedCCI extends StatefulWidget {
   const RedCCI({super.key});
@@ -24,35 +25,49 @@ class _RedCCIState extends State<RedCCI> {
         width: double.infinity,
         height: double.infinity,
         decoration: getGradientBackground(),
-        child: SafeArea(
-          child: SingleChildScrollView(
-            physics: const BouncingScrollPhysics(),
-            child: Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: getHorizontalPadding(screenWidth),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(height: screenHeight * 0.02),
-                  _buildHeader(screenWidth),
-                  SizedBox(height: screenHeight * 0.02),
-                  _buildLocation(screenWidth),
-                  SizedBox(height: screenHeight * 0.04),
-                  _buildDescriptionSection(screenWidth),
-                  SizedBox(height: screenHeight * 0.04),
-                  _buildImageCarousel(screenWidth, screenHeight),
-                  SizedBox(height: screenHeight * 0.04),
-                  _buildKeyDataSection(screenWidth),
-                  SizedBox(height: screenHeight * 0.04),
-                  _buildLeadershipSection(screenWidth),
-                  SizedBox(height: screenHeight * 0.04),
-                  _buildContactSection(context, screenWidth),
-                  SizedBox(height: screenHeight * 0.08),
-                ],
+        child: Stack(
+          children: [
+            SafeArea(
+              child: SingleChildScrollView(
+                physics: const BouncingScrollPhysics(),
+                child: Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: getHorizontalPadding(screenWidth),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(height: screenHeight * 0.02),
+                      _buildHeader(screenWidth),
+                      SizedBox(height: screenHeight * 0.02),
+                      _buildLocation(screenWidth),
+                      SizedBox(height: screenHeight * 0.04),
+                      _buildDescriptionSection(screenWidth),
+                      SizedBox(height: screenHeight * 0.04),
+                      _buildImageCarousel(screenWidth, screenHeight),
+                      SizedBox(height: screenHeight * 0.04),
+                      _buildKeyDataSection(screenWidth),
+                      SizedBox(height: screenHeight * 0.04),
+                      _buildLeadershipSection(screenWidth),
+                      SizedBox(height: screenHeight * 0.04),
+                      _buildContactSection(context, screenWidth),
+                      SizedBox(height: screenHeight * 0.08),
+                    ],
+                  ),
+                ),
               ),
             ),
-          ),
+            Positioned(
+              top: 0,
+              left: 0,
+              child: SafeArea(
+                bottom: false,
+                child: BackButtonWidget(
+                  onPressed: () => Navigator.of(context).maybePop(),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

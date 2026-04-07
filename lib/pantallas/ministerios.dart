@@ -25,7 +25,7 @@ class Ministerios extends StatelessWidget {
         decoration: getGradientBackground(),
         child: SafeArea(
           child: SingleChildScrollView(
-            physics: const BouncingScrollPhysics(),
+            physics: const ClampingScrollPhysics(),
             child: Padding(
               padding: EdgeInsets.symmetric(
                 horizontal: getHorizontalPadding(screenWidth),

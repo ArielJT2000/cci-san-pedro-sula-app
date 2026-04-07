@@ -4,7 +4,11 @@ import '../navigation/main_navigation.dart';
 import '../utils/constants.dart';
 
 class WelcomeScreen extends StatefulWidget {
-  const WelcomeScreen({super.key});
+  /// Cuando viene desde el Splash (via Hero), evitamos la animación de entrada
+  /// para que el logo aterrice exactamente en su tamaño/posición final.
+  final bool fromSplash;
+
+  const WelcomeScreen({super.key, this.fromSplash = false});
 
   @override
   State<WelcomeScreen> createState() => _WelcomeScreenState();
@@ -49,7 +53,12 @@ class _WelcomeScreenState extends State<WelcomeScreen>
       ),
     );
 
-    _animationController.forward();
+    if (widget.fromSplash) {
+      // Salta la animación de entrada: el Hero define el movimiento inicial.
+      _animationController.value = 1.0;
+    } else {
+      _animationController.forward();
+    }
   }
 
   @override
@@ -62,6 +71,12 @@ class _WelcomeScreenState extends State<WelcomeScreen>
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
+    final effectiveScale =
+        widget.fromSplash ? const AlwaysStoppedAnimation<double>(1.0) : _scaleAnimation;
+    final effectiveSlide =
+        widget.fromSplash ? const AlwaysStoppedAnimation<Offset>(Offset.zero) : _slideAnimation;
+    final effectiveFade =
+        widget.fromSplash ? const AlwaysStoppedAnimation<double>(1.0) : _fadeAnimation;
 
     return Scaffold(
       body: Container(
@@ -73,7 +88,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
             animation: _animationController,
             builder: (context, child) {
               return FadeTransition(
-                opacity: _fadeAnimation,
+                opacity: effectiveFade,
                 child: Container(
                   width: double.infinity,
                   height: double.infinity,
@@ -86,9 +101,9 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                       const Spacer(flex: 2),
                       // Logo con texto y Hero para transición 3D
                       ScaleTransition(
-                        scale: _scaleAnimation,
+                        scale: effectiveScale,
                         child: SlideTransition(
-                          position: _slideAnimation,
+                          position: effectiveSlide,
                           child: Material(
                             color: Colors.transparent,
                             child: Hero(
@@ -100,6 +115,18 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                                 BuildContext fromHeroContext,
                                 BuildContext toHeroContext,
                               ) {
+                                // Si venimos desde el Splash, NO aplicar el scale (0.85) que
+                                // usamos para Welcome -> Inicio. Aquí queremos que el logo
+                                // aterrice exactamente en el tamaño/posición del Welcome.
+                                final fromHero = fromHeroContext.widget as Hero;
+                                if (fromHero.key ==
+                                    const ValueKey('splash_app_logo_hero')) {
+                                  if (toHeroContext.widget is Hero) {
+                                    return (toHeroContext.widget as Hero).child;
+                                  }
+                                  return fromHero.child;
+                                }
+
                                 final Hero toHero =
                                     toHeroContext.widget as Hero;
                                 // Transición suave del logo con escala y opacidad
@@ -143,19 +170,23 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                       // Título con animación
                       SlideTransition(
                         position: _slideAnimation,
-                        child: Column(
-                          children: [
-                            Text(
-                              "San Pedro",
-                              style: getTitulo(screenWidth),
-                              textAlign: TextAlign.center,
+                        child: Center(
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: getHorizontalPadding(screenWidth),
                             ),
-                            Text(
-                              "Sula",
-                              style: getTitulo(screenWidth),
-                              textAlign: TextAlign.center,
+                            child: FittedBox(
+                              fit: BoxFit.scaleDown,
+                              child: Text(
+                                "San Pedro Sula",
+                                style: getTitulo(screenWidth),
+                                textAlign: TextAlign.center,
+                                maxLines: 1,
+                                overflow: TextOverflow.visible,
+                                softWrap: false,
+                              ),
                             ),
-                          ],
+                          ),
                         ),
                       ),
                       SizedBox(height: screenHeight * 0.04),

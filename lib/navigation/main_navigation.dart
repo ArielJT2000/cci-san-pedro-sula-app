@@ -11,6 +11,7 @@ import '../pantallas/welcome_screen.dart';
 import '../pantallas/ubicacion.dart';
 import '../utils/constants.dart';
 import '../utils/fcm_service.dart';
+import '../widgets/back_button_widget.dart';
 
 class MainNavigation extends StatefulWidget {
   const MainNavigation({super.key});
@@ -82,10 +83,65 @@ class _MainNavigationState extends State<MainNavigation> {
     }
   }
 
+  /// Vuelve a la pantalla de bienvenida (mismo criterio que deslizar atrás en el tab Inicio).
+  void _handleBackToWelcome(BuildContext context) {
+    if (Navigator.of(context).canPop()) {
+      Navigator.of(context).pop();
+      return;
+    }
+    Navigator.of(context).pushReplacement(
+      PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) =>
+            const WelcomeScreen(),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          final blurValue = (1 - animation.value) * 15.0;
+          return Stack(
+            children: [
+              if (animation.value < 1.0)
+                ClipRect(
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(
+                      sigmaX: blurValue,
+                      sigmaY: blurValue,
+                    ),
+                    child: Container(
+                      color: Colors.black.withValues(
+                          alpha: (0.3 * (1 - animation.value))
+                              .clamp(0.0, 1.0)),
+                    ),
+                  ),
+                ),
+              FadeTransition(
+                opacity: animation,
+                child: SlideTransition(
+                  position: Tween<Offset>(
+                    begin: const Offset(-0.03, 0.0),
+                    end: Offset.zero,
+                  ).animate(
+                    CurvedAnimation(
+                      parent: animation,
+                      curve: curvaSuave,
+                    ),
+                  ),
+                  child: child,
+                ),
+              ),
+            ],
+          );
+        },
+        transitionDuration: duracionLarga,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
+      body: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          Positioned.fill(
+            child: Container(
         width: double.infinity,
         height: double.infinity,
         decoration: getGradientBackground(),
@@ -129,53 +185,7 @@ class _MainNavigationState extends State<MainNavigation> {
               if (_currentIndex > 0) {
                 _navigateToPage(_currentIndex - 1);
               } else {
-                // Si está en la primera pantalla, ir a welcome screen
-                Navigator.of(context).pushReplacement(
-                  PageRouteBuilder(
-                    pageBuilder: (context, animation, secondaryAnimation) =>
-                        const WelcomeScreen(),
-                    transitionsBuilder:
-                        (context, animation, secondaryAnimation, child) {
-                      // Efecto blur progresivo
-                      final blurValue = (1 - animation.value) * 15.0;
-                      
-                      return Stack(
-                        children: [
-                          // Fondo con blur que simula la pantalla anterior borrosa
-                          if (animation.value < 1.0)
-                            ClipRect(
-                              child: BackdropFilter(
-                                filter: ImageFilter.blur(
-                                  sigmaX: blurValue,
-                                  sigmaY: blurValue,
-                                ),
-                                child: Container(
-                                  color: Colors.black.withValues(alpha: (0.3 * (1 - animation.value)).clamp(0.0, 1.0)),
-                                ),
-                              ),
-                            ),
-                          // Nueva pantalla con fade y slide
-                          FadeTransition(
-                            opacity: animation,
-                            child: SlideTransition(
-                              position: Tween<Offset>(
-                                begin: const Offset(-0.03, 0.0),
-                                end: Offset.zero,
-                              ).animate(
-                                CurvedAnimation(
-                                  parent: animation,
-                                  curve: curvaSuave,
-                                ),
-                              ),
-                              child: child,
-                            ),
-                          ),
-                        ],
-                      );
-                    },
-                    transitionDuration: duracionLarga,
-                  ),
-                );
+                _handleBackToWelcome(context);
               }
             }
             // Resetear valores
@@ -195,6 +205,20 @@ class _MainNavigationState extends State<MainNavigation> {
             }).toList(),
           ),
         ),
+            ),
+          ),
+          if (_currentIndex > 0)
+            Positioned(
+              top: 0,
+              left: 0,
+              child: SafeArea(
+                bottom: false,
+                child: BackButtonWidget(
+                  onPressed: () => _navigateToPage(0),
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }
