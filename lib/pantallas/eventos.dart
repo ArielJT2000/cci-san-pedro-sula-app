@@ -1,7 +1,6 @@
 // Eventos general: pantalla principal de eventos (AWS + notificaciones locales/push).
 // Otras pantallas (Next, Alive, Shift) tienen su propia sección "Información" con eventos por categoría.
 import 'package:flutter/material.dart';
-import '../Informacion/actividades_externas.dart';
 import '../utils/constants.dart';
 import '../widgets/swipe_back_wrapper.dart';
 import '../utils/aws_events_service.dart';
@@ -148,9 +147,21 @@ class _EventosState extends State<Eventos> {
   }
 
   Widget _buildHeader(double screenWidth) {
-    return Text(
-      "Eventos",
-      style: getTitulo(screenWidth),
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
+          child: Text(
+            "Eventos",
+            style: getTitulo(screenWidth),
+          ),
+        ),
+        IconButton(
+          icon: const Icon(Icons.refresh, color: blanco),
+          onPressed: _refreshEvents,
+          tooltip: 'Actualizar eventos',
+        ),
+      ],
     );
   }
 
@@ -171,12 +182,6 @@ class _EventosState extends State<Eventos> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          "EVENTOS Y ACTIVIDADES",
-          overflow: TextOverflow.visible,
-          style: getHeroSubtitle(screenWidth),
-        ),
-        SizedBox(height: screenHeight * 0.02),
         Text(
           "Mantente al día con nuestros eventos",
           overflow: TextOverflow.visible,
@@ -203,29 +208,6 @@ class _EventosState extends State<Eventos> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              "Próximos Eventos",
-              overflow: TextOverflow.visible,
-              style: TextStyle(
-                fontFamily: 'SF Pro Display',
-                color: blanco,
-                fontSize: screenWidth < 360 ? 24 : 32,
-                fontWeight: FontWeight.w700,
-                letterSpacing: -0.5,
-                height: 1.1,
-              ),
-            ),
-            IconButton(
-              icon: const Icon(Icons.refresh, color: blanco),
-              onPressed: _refreshEvents,
-              tooltip: 'Actualizar eventos',
-            ),
-          ],
-        ),
-        SizedBox(height: screenHeight * 0.04),
         if (_events.isEmpty && !_isLoading)
           Center(
             child: Padding(
@@ -263,44 +245,7 @@ class _EventosState extends State<Eventos> {
                   ),
                 );
               }),
-        SizedBox(height: screenHeight * 0.03),
-        // CCI San Pedro Sula
-        _buildExternalActivitiesCard(screenWidth, screenHeight),
       ],
-    );
-  }
-
-  Widget _buildExternalActivitiesCard(double screenWidth, double screenHeight) {
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.all(screenWidth * 0.05),
-      decoration: BoxDecoration(
-        color: grisCard,
-        borderRadius: BorderRadius.circular(borderRadius),
-        border: Border.all(
-          color: colorWithOpacity(blanco, 0.1),
-          width: 0.5,
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            "CCI San Pedro Sula",
-            overflow: TextOverflow.visible,
-            style: TextStyle(
-              fontFamily: 'SF Pro Display',
-              color: blanco,
-              fontSize: screenWidth < 360 ? 20 : 24,
-              fontWeight: FontWeight.w600,
-              letterSpacing: -0.5,
-              height: 1.2,
-            ),
-          ),
-          SizedBox(height: screenHeight * 0.02),
-          ActividadesExternas(),
-        ],
-      ),
     );
   }
 }

@@ -16,7 +16,7 @@ class Alive extends StatelessWidget {
       imagePath: 'assets/images/alive.png',
       additionalInfo:
           "Únete a Alive y sé parte de una comunidad vibrante para jóvenes.",
-      socialWidget: const IgAlive('Instagram'),
+      socialWidget: const IgAlive('Instagram', visualScale: 0.7),
       informationSection: const MinistryEventsSection(category: 'alive'),
     );
   }

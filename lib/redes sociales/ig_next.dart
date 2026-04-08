@@ -4,7 +4,8 @@ import '../utils/social_link.dart';
 
 class IgNext extends StatelessWidget {
   final String socialId;
-  const IgNext(this.socialId, {super.key});
+  final double visualScale;
+  const IgNext(this.socialId, {super.key, this.visualScale = 1.0});
 
   @override
   Widget build(BuildContext context) {
@@ -12,6 +13,7 @@ class IgNext extends StatelessWidget {
       socialId: socialId,
       url: 'https://www.instagram.com/nxt_yth/',
       platform: 'Instagram',
+      visualScale: visualScale,
     );
   }
 }

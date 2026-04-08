@@ -78,6 +78,20 @@ class _WelcomeScreenState extends State<WelcomeScreen>
     final effectiveFade =
         widget.fromSplash ? const AlwaysStoppedAnimation<double>(1.0) : _fadeAnimation;
 
+    final tituloBase = getTitulo(screenWidth);
+    // ~30 % más grande que el título welcome anterior (1.18 × 1.30 sobre getTitulo).
+    final welcomeTituloStyle = tituloBase.copyWith(
+      fontSize: (tituloBase.fontSize ?? 48) * 1.18 * 1.30,
+      height: 1.05,
+    );
+    final subtituloBase = getSubtitulo(screenWidth);
+    final welcomeSubtituloStyle = subtituloBase.copyWith(
+      color: grisMedio,
+      fontSize: (subtituloBase.fontSize ?? 22) * 0.72,
+      fontWeight: FontWeight.w400,
+      letterSpacing: 0.2,
+    );
+
     return Scaffold(
       body: Container(
         width: double.infinity,
@@ -167,7 +181,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                         ),
                       ),
                       SizedBox(height: screenHeight * 0.06),
-                      // Título con animación
+                      // Título con animación (más grande que getTitulo estándar)
                       SlideTransition(
                         position: _slideAnimation,
                         child: Center(
@@ -177,27 +191,39 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                             ),
                             child: FittedBox(
                               fit: BoxFit.scaleDown,
-                              child: Text(
-                                "San Pedro Sula",
-                                style: getTitulo(screenWidth),
-                                textAlign: TextAlign.center,
-                                maxLines: 1,
-                                overflow: TextOverflow.visible,
-                                softWrap: false,
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    'Centro Cristiano',
+                                    style: welcomeTituloStyle,
+                                    textAlign: TextAlign.center,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.visible,
+                                    softWrap: false,
+                                  ),
+                                  SizedBox(height: screenHeight * 0.006),
+                                  Text(
+                                    'Internacional',
+                                    style: welcomeTituloStyle,
+                                    textAlign: TextAlign.center,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.visible,
+                                    softWrap: false,
+                                  ),
+                                ],
                               ),
                             ),
                           ),
                         ),
                       ),
                       SizedBox(height: screenHeight * 0.04),
-                      // Subtítulo
+                      // Subtítulo (más pequeño que getSubtitulo estándar)
                       SlideTransition(
                         position: _slideAnimation,
                         child: Text(
-                          "Bienvenido a CCI Móvil",
-                          style: getSubtitulo(screenWidth).copyWith(
-                            color: grisMedio,
-                          ),
+                          "San Pedro Sula",
+                          style: welcomeSubtituloStyle,
                           textAlign: TextAlign.center,
                         ),
                       ),

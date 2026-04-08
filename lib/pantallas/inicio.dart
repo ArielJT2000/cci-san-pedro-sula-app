@@ -11,6 +11,7 @@ import 'transmisiones.dart';
 import 'ofrendas.dart';
 import 'youth.dart';
 import 'ubicacion.dart';
+import '../Informacion/actividades_externas.dart';
 
 class Inicio extends StatefulWidget {
   const Inicio({super.key});
@@ -246,9 +247,11 @@ class _InicioState extends State<Inicio> with TickerProviderStateMixin {
                 ),
                 SizedBox(height: screenHeight * 0.06),
                 _buildHeroSection(screenWidth, screenHeight),
-                SizedBox(height: screenHeight * 0.08),
+                SizedBox(height: screenHeight * 0.03),
                 _buildMenuGrid(context, screenWidth, screenHeight),
-                SizedBox(height: screenHeight * 0.08),
+                SizedBox(height: screenHeight * 0.06),
+                const ChurchSocialLinksCard(),
+                SizedBox(height: screenHeight * 0.06),
               ],
             ),
           ),
@@ -344,7 +347,7 @@ class _InicioState extends State<Inicio> with TickerProviderStateMixin {
           featuredAccent: true,
         ),
         SizedBox(height: _bentoGap),
-        // Segunda fila: En vivo y Dar como botones pequeños
+        // Segunda fila: En vivo y Contribuir como botones pequeños
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -370,8 +373,8 @@ class _InicioState extends State<Inicio> with TickerProviderStateMixin {
                 screenWidth: screenWidth,
                 screenHeight: screenHeight,
                 icon: Icons.favorite_outline,
-                title: 'Dar',
-                subtitle: 'Ofrendas y donaciones',
+                title: 'Contribuir',
+                subtitle: 'Apoya la obra y expande el mensaje',
                 screen: const Ofrendas(),
                 titleStyle: titleStyle,
                 subtitleStyle: subtitleStyle,
@@ -386,13 +389,14 @@ class _InicioState extends State<Inicio> with TickerProviderStateMixin {
           context: context,
           screenWidth: screenWidth,
           screenHeight: screenHeight,
-          icon: Icons.volunteer_activism_outlined,
-          title: 'Fundación Puertas Abiertas',
-          subtitle: 'Conoce más sobre nuestra fundación',
-          screen: const PuertasAbiertas(),
+          icon: Icons.people_outline,
+          title: 'Ministerios CCI',
+          subtitle: 'Nuestros ministerios',
+          screen: const Ministerios(),
           titleStyle: titleStyle,
           subtitleStyle: subtitleStyle,
           minHeight: 108,
+          featuredAccent: true,
         ),
         SizedBox(height: _bentoGap),
         // Eventos como botón pequeño
@@ -437,14 +441,13 @@ class _InicioState extends State<Inicio> with TickerProviderStateMixin {
           context: context,
           screenWidth: screenWidth,
           screenHeight: screenHeight,
-          icon: Icons.people_outline,
-          title: 'Ministerios CCI',
-          subtitle: 'Nuestros ministerios',
-          screen: const Ministerios(),
+          icon: Icons.volunteer_activism_outlined,
+          title: 'Fundación Puertas Abiertas',
+          subtitle: 'Conoce más sobre nuestra fundación',
+          screen: const PuertasAbiertas(),
           titleStyle: titleStyle,
           subtitleStyle: subtitleStyle,
           minHeight: 108,
-          featuredAccent: true,
         ),
         SizedBox(height: _bentoGap),
         _buildBentoNavTile(

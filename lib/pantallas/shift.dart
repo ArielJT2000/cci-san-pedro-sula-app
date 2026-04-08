@@ -16,7 +16,7 @@ class Shift extends StatelessWidget {
       imagePath: 'assets/images/shift.png',
       additionalInfo:
           "Únete a Shift y sé parte de un ministerio para jóvenes adultos.",
-      socialWidget: const IgShift('Instagram'),
+      socialWidget: const IgShift('Instagram', visualScale: 0.7),
       informationSection: const MinistryEventsSection(category: 'shift'),
     );
   }

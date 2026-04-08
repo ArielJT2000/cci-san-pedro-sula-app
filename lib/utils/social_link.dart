@@ -7,20 +7,27 @@ class SocialLink extends StatelessWidget {
   final String socialId;
   final String url;
   final String platform;
+  /// 1.0 por defecto; p. ej. 0.7 para icono y texto un 30 % más pequeños.
+  final double visualScale;
+  /// Si es null, se usa el texto por defecto ("Conoce más de nosotros!").
+  final String? label;
 
   const SocialLink({
     required this.socialId,
     required this.url,
     required this.platform,
+    this.visualScale = 1.0,
+    this.label,
     super.key,
   });
 
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
+    final s = visualScale;
 
     return Container(
-      padding: EdgeInsets.symmetric(vertical: screenWidth * 0.02),
+      padding: EdgeInsets.symmetric(vertical: screenWidth * 0.02 * s),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
@@ -28,8 +35,8 @@ class SocialLink extends StatelessWidget {
           borderRadius: BorderRadius.circular(borderRadius),
           child: Container(
             padding: EdgeInsets.symmetric(
-              horizontal: screenWidth * 0.04,
-              vertical: screenWidth * 0.02,
+              horizontal: screenWidth * 0.04 * s,
+              vertical: screenWidth * 0.02 * s,
             ),
             decoration: BoxDecoration(
               color: colorWithOpacity(blanco, 0.1),
@@ -45,15 +52,15 @@ class SocialLink extends StatelessWidget {
                   Icon(
                     _getPlatformIcon(platform),
                     color: blanco,
-                    size: screenWidth < 360 ? 18 : 20,
+                    size: (screenWidth < 360 ? 18 : 20) * s,
                   ),
-                  SizedBox(width: screenWidth * 0.02),
+                  SizedBox(width: screenWidth * 0.02 * s),
                   Text(
-                    'Conoce más de nosotros!',
+                    label ?? 'Conoce más de nosotros!',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       color: blanco,
-                      fontSize: screenWidth < 360 ? 14 : 16,
+                      fontSize: (screenWidth < 360 ? 14 : 16) * s,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -76,6 +83,8 @@ class SocialLink extends StatelessWidget {
         return SimpleIcons.youtube;
       case 'whatsapp':
         return Icons.chat;
+      case 'tiktok':
+        return SimpleIcons.tiktok;
       default:
         return Icons.link;
     }

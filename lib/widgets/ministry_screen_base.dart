@@ -119,10 +119,12 @@ class MinistryScreenBase extends StatelessWidget {
   /// Misma proporción y presentación que el logo en Ministerios CCI (545×249).
   static const double _logoDesignWidth = 545.0;
   static const double _logoDesignHeight = 249.0;
+  /// Next / Alive / Shift: logos un 30 % más pequeños que la referencia de Ministerios.
+  static const double _ministryLogoScale = 0.7;
 
   Widget _buildLogoLikeMinisterios(double screenWidth) {
     if (imagePath == null) return const SizedBox.shrink();
-    final maxWidth = screenWidth * 0.88;
+    final maxWidth = screenWidth * 0.88 * _ministryLogoScale;
     final width = maxWidth.clamp(0.0, _logoDesignWidth);
     final height = width * (_logoDesignHeight / _logoDesignWidth);
     return Center(

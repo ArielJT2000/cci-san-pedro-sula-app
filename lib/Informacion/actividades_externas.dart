@@ -3,6 +3,49 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:simple_icons/simple_icons.dart';
 import '../utils/constants.dart';
 
+/// Tarjeta con título + botones Facebook / Instagram / YouTube (mismo diseño que en Eventos).
+class ChurchSocialLinksCard extends StatelessWidget {
+  const ChurchSocialLinksCard({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.all(screenWidth * 0.05),
+      decoration: BoxDecoration(
+        color: grisCard,
+        borderRadius: BorderRadius.circular(borderRadius),
+        border: Border.all(
+          color: colorWithOpacity(blanco, 0.1),
+          width: 0.5,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'CCI San Pedro Sula',
+            overflow: TextOverflow.visible,
+            style: TextStyle(
+              fontFamily: 'SF Pro Display',
+              color: blanco,
+              fontSize: screenWidth < 360 ? 20 : 24,
+              fontWeight: FontWeight.w600,
+              letterSpacing: -0.5,
+              height: 1.2,
+            ),
+          ),
+          SizedBox(height: screenHeight * 0.02),
+          const ActividadesExternas(),
+        ],
+      ),
+    );
+  }
+}
+
 class ActividadesExternas extends StatelessWidget {
   const ActividadesExternas({super.key});
 

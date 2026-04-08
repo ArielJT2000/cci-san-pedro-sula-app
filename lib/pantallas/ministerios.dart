@@ -9,6 +9,7 @@ import '../redes sociales/ig_matrimonios.dart';
 import '../redes sociales/ig_mujeres.dart';
 import '../redes sociales/ig_shift.dart';
 import '../redes sociales/fb_hombres.dart';
+import '../redes sociales/tiktok_comunicaciones.dart';
 
 class Ministerios extends StatelessWidget {
   const Ministerios({super.key});
@@ -87,10 +88,6 @@ class Ministerios extends StatelessWidget {
     );
   }
 
-  static const String _formAlabanzaComunicacionesUrl =
-      'https://ccisanpedrosula.org/comunicaciones-alabanza/';
-  static const String _formComunicacionesServidoresUrl =
-      'https://ccisanpedrosula.org/comunicaciones-servidores/';
   static const String _formEbdUrl =
       'https://ccisanpedrosula.org/discipulado-app-cci/';
   static const String _formCciKidsUrl =
@@ -159,48 +156,6 @@ class Ministerios extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  Future<void> _launchComunicacionesUrl(BuildContext context) async {
-    final uri = Uri.parse(_formComunicacionesServidoresUrl);
-    try {
-      if (await canLaunchUrl(uri)) {
-        await launchUrl(uri, mode: LaunchMode.externalApplication);
-      } else {
-        throw 'No se puede abrir el enlace';
-      }
-    } catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('No se pudo abrir el enlace'),
-            backgroundColor: Colors.red,
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
-      }
-    }
-  }
-
-  Future<void> _launchFormUrl(BuildContext context) async {
-    final uri = Uri.parse(_formAlabanzaComunicacionesUrl);
-    try {
-      if (await canLaunchUrl(uri)) {
-        await launchUrl(uri, mode: LaunchMode.externalApplication);
-      } else {
-        throw 'No se puede abrir el enlace';
-      }
-    } catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('No se pudo abrir el enlace'),
-            backgroundColor: Colors.red,
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
-      }
-    }
   }
 
   Future<void> _launchEbdUrl(BuildContext context) async {
@@ -364,28 +319,25 @@ class Ministerios extends StatelessWidget {
           screenHeight,
         )),
         RepaintBoundary(
-            child: _buildMinisterioItem(
+            child: _buildMinisterioSocialItem(
           "produccion",
           "Ser un ministerio que comunica el mensaje del Evangelio con excelencia y creatividad, "
               "utilizando los medios y la producción audiovisual para apoyar la visión de la iglesia "
               "y facilitar encuentros claros y efectivos con Dios.",
-          () => _launchComunicacionesUrl(context),
-          "Forma parte de nuestro equipo!",
+          const TiktokComunicaciones(),
           screenWidth,
           screenHeight,
         )),
         RepaintBoundary(
-            child: _buildMinisterioItem(
+            child: _buildMinisterioSocialItem(
           "alabanza",
           "Ser un ministerio entendido de nuestra función como siervos que disciernen "
               "la voluntad de Dios, el mover del Espíritu Santo y que ejercen su sacerdocio "
               "guiando al pueblo a una alabanza y adoración genuina, recordándoles Quién es "
               "Él y lo que ha hecho por nosotros.",
-          () => _launchFormUrl(context),
-          "Forma parte de nuestro equipo!",
+          const IgAlabanza('Instagram'),
           screenWidth,
           screenHeight,
-          socialWidget: const IgAlabanza('Instagram'),
         )),
         RepaintBoundary(
             child: _buildMinisterioSocialItem(

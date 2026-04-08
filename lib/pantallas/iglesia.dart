@@ -3,7 +3,6 @@ import 'dart:ui';
 import '../utils/constants.dart';
 import '../widgets/swipe_back_wrapper.dart';
 import 'red_cci.dart';
-import 'puertas_abiertas.dart';
 
 class Iglesia extends StatelessWidget {
   const Iglesia({super.key});
@@ -37,8 +36,6 @@ class Iglesia extends StatelessWidget {
                   _buildVisionMisionSection(screenWidth),
                   _buildPastoresSection(screenWidth, screenHeight),
                   _buildRedCCISection(context, screenWidth, screenHeight),
-                  _buildPuertasAbiertasSection(
-                      context, screenWidth, screenHeight),
                   SizedBox(height: screenHeight * 0.08),
                 ],
               ),
@@ -227,99 +224,6 @@ class Iglesia extends StatelessWidget {
     );
   }
 
-  Widget _buildPuertasAbiertasSection(
-      BuildContext context, double screenWidth, double screenHeight) {
-    return Column(
-      children: [
-        SizedBox(height: screenHeight * 0.04),
-        Text(
-          "Fundación Puertas Abiertas",
-          style: TextStyle(
-            fontFamily: 'SF Pro Display',
-            color: blanco,
-            fontSize: screenWidth < 360 ? 20 : 24,
-            fontWeight: FontWeight.w600,
-            letterSpacing: -0.5,
-            height: 1.2,
-          ),
-        ),
-        SizedBox(height: screenHeight * 0.03),
-        Material(
-          color: Colors.transparent,
-          child: InkWell(
-            onTap: () => _navigateToPuertasAbiertas(context),
-            borderRadius: BorderRadius.circular(borderRadius),
-            child: Container(
-              width: double.infinity,
-              padding: EdgeInsets.all(screenWidth * 0.05),
-              decoration: BoxDecoration(
-                color: grisCard,
-                borderRadius: BorderRadius.circular(borderRadius),
-                border: Border.all(
-                  color: colorWithOpacity(blanco, 0.1),
-                  width: 0.5,
-                ),
-              ),
-              child: Row(
-                children: [
-                  Container(
-                    width: 56,
-                    height: 56,
-                    decoration: BoxDecoration(
-                      color: colorWithOpacity(blanco, 0.1),
-                      borderRadius: BorderRadius.circular(borderRadiusSmall),
-                    ),
-                    child: Icon(
-                      Icons.volunteer_activism_outlined,
-                      color: blanco,
-                      size: 28,
-                    ),
-                  ),
-                  SizedBox(width: screenWidth * 0.05),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "Conoce más sobre Puertas Abiertas",
-                          style: TextStyle(
-                            fontFamily: 'SF Pro Display',
-                            color: blanco,
-                            fontSize: screenWidth < 360 ? 16 : 18,
-                            fontWeight: FontWeight.w600,
-                            letterSpacing: -0.41,
-                            height: 1.2,
-                          ),
-                        ),
-                        SizedBox(height: screenHeight * 0.006),
-                        Text(
-                          "Serviendo a familias vulnerables desde 2010",
-                          style: TextStyle(
-                            fontFamily: 'SF Pro Display',
-                            color: grisMedio,
-                            fontSize: screenWidth < 360 ? 13 : 15,
-                            fontWeight: FontWeight.w400,
-                            letterSpacing: -0.24,
-                            height: 1.4,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Icon(
-                    Icons.arrow_forward_ios_rounded,
-                    color: grisMedio,
-                    size: 16,
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
   void _navigateToRedCCI(BuildContext context) {
     Navigator.of(context).push(
       PageRouteBuilder(
@@ -365,50 +269,6 @@ class Iglesia extends StatelessWidget {
     );
   }
 
-  void _navigateToPuertasAbiertas(BuildContext context) {
-    Navigator.of(context).push(
-      PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) =>
-            const PuertasAbiertas(),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          final blurValue = (1 - animation.value) * 15.0;
-          return Stack(
-            children: [
-              if (animation.value < 1.0)
-                ClipRect(
-                  child: BackdropFilter(
-                    filter: ImageFilter.blur(
-                      sigmaX: blurValue,
-                      sigmaY: blurValue,
-                    ),
-                    child: Container(
-                      color: Colors.black.withValues(
-                          alpha: (0.3 * (1 - animation.value)).clamp(0.0, 1.0)),
-                    ),
-                  ),
-                ),
-              FadeTransition(
-                opacity: animation,
-                child: SlideTransition(
-                  position: Tween<Offset>(
-                    begin: const Offset(0.0, 0.03),
-                    end: Offset.zero,
-                  ).animate(
-                    CurvedAnimation(
-                      parent: animation,
-                      curve: Curves.easeOutCubic,
-                    ),
-                  ),
-                  child: child,
-                ),
-              ),
-            ],
-          );
-        },
-        transitionDuration: duracionLarga,
-      ),
-    );
-  }
 }
 
 class _MisionSection extends StatelessWidget {
@@ -548,29 +408,44 @@ class _PastorImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final double size = screenHeight * 0.13;
     return GestureDetector(
       onTap: () => _showPastorInfo(context, name),
       child: Container(
-        margin: EdgeInsets.symmetric(horizontal: 8),
-        width: screenHeight * 0.13,
-        height: screenHeight * 0.13,
+        margin: EdgeInsets.symmetric(horizontal: 8 * 0.95),
+        width: size,
+        height: size,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          // Fondo oscuro para evitar que transparencias se vean “blancas”.
-          color: colorWithOpacity(negro, 0.25),
-          border: Border.all(color: colorWithOpacity(blanco, 0.2)),
+          border: Border.all(
+            color: colorWithOpacity(blanco, 0.2),
+            width: 1,
+          ),
         ),
+        padding: const EdgeInsets.all(2),
         child: ClipOval(
-          child: Image.asset(
-            "assets/images/$name.png",
-            fit: BoxFit.cover,
-            errorBuilder: (context, error, stackTrace) {
-              return Icon(
-                Icons.person,
-                size: screenHeight * 0.08,
-                color: colorWithOpacity(blanco, 0.5),
-              );
-            },
+          clipBehavior: Clip.hardEdge,
+          child: ColoredBox(
+            color: negro,
+            child: Transform.scale(
+              scale: 1.06,
+              alignment: Alignment.center,
+              child: Image.asset(
+                "assets/images/$name.png",
+                fit: BoxFit.cover,
+                width: size,
+                height: size,
+                alignment: Alignment.center,
+                filterQuality: FilterQuality.medium,
+                errorBuilder: (context, error, stackTrace) {
+                  return Icon(
+                    Icons.person,
+                    size: screenHeight * 0.08,
+                    color: colorWithOpacity(blanco, 0.5),
+                  );
+                },
+              ),
+            ),
           ),
         ),
       ),

@@ -16,7 +16,7 @@ class Next extends StatelessWidget {
       imagePath: 'assets/images/next.png',
       additionalInfo:
           "Únete a Next y sé parte de una comunidad para jóvenes como tú.",
-      socialWidget: const IgNext('Instagram'),
+      socialWidget: const IgNext('Instagram', visualScale: 0.7),
       informationSection: const MinistryEventsSection(category: 'next'),
     );
   }
