@@ -98,22 +98,6 @@ class EventCard extends StatelessWidget {
                 SizedBox(height: screenHeight * 0.02),
                 Row(
                   children: [
-                    Icon(Icons.location_on_outlined, color: grisMedio, size: 18),
-                    SizedBox(width: screenWidth * 0.02),
-                    Expanded(
-                      child: Text(
-                        event.location,
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 1,
-                        style: TextStyle(
-                          fontFamily: 'SF Pro Display',
-                          color: grisMedio,
-                          fontSize: screenWidth < 360 ? 13 : 15,
-                          fontWeight: FontWeight.w400,
-                        ),
-                      ),
-                    ),
-                    SizedBox(width: screenWidth * 0.04),
                     Container(
                       padding: EdgeInsets.symmetric(
                         horizontal: screenWidth * 0.03,

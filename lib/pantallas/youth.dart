@@ -195,7 +195,6 @@ class _YouthState extends State<Youth> with TickerProviderStateMixin {
                 SizedBox(height: screenHeight * 0.012),
                 _buildHeader(screenWidth),
                 SizedBox(height: screenHeight * 0.008),
-                _buildLocation(screenWidth),
                 SizedBox(height: screenHeight * 0.016),
                 _buildDescription(screenWidth),
                 SizedBox(height: screenHeight * 0.012),
@@ -233,32 +232,14 @@ class _YouthState extends State<Youth> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildLocation(double screenWidth) {
+  Widget _buildDescription(double screenWidth) {
     return Text(
-      "San Pedro Sula",
+      "Conoce nuestros ministerios para jóvenes y elige el que mejor se adapte a ti.",
       overflow: TextOverflow.visible,
       style: TextStyle(
-        fontFamily: 'SF Pro Display',
-        color: grisMedio,
-        fontSize: screenWidth < 360 ? 15 : 17,
-        fontWeight: FontWeight.w400,
-        letterSpacing: -0.41,
-      ),
-    );
-  }
-
-  Widget _buildDescription(double screenWidth) {
-    return Padding(
-      padding: EdgeInsets.symmetric(
-          horizontal: getHorizontalPadding(screenWidth) * 0.6),
-      child: Text(
-        "Conoce nuestros ministerios para jóvenes y elige el que mejor se adapte a ti.",
-        overflow: TextOverflow.visible,
-        style: TextStyle(
-          height: 1.5,
-          fontSize: screenWidth < 360 ? 16 : 18,
-          color: blanco,
-        ),
+        height: 1.5,
+        fontSize: screenWidth < 360 ? 16 : 18,
+        color: blanco,
       ),
     );
   }

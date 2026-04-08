@@ -17,28 +17,26 @@ class Iglesia extends StatelessWidget {
         width: double.infinity,
         height: double.infinity,
         decoration: getGradientBackground(),
-        child: SafeArea(
-          child: SingleChildScrollView(
-            physics: const ClampingScrollPhysics(),
-            child: Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: getHorizontalPadding(screenWidth),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
+        child: SingleChildScrollView(
+          physics: const ClampingScrollPhysics(),
+          child: Padding(
+            padding: scrollScreenPadding(
+              context,
+              screenWidth,
+              topExtra: screenHeight * 0.02,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildHeader(screenWidth),
                   SizedBox(height: screenHeight * 0.02),
-                  _buildHeader(screenWidth),
-                  SizedBox(height: screenHeight * 0.02),
-                  _buildLocation(screenWidth),
                   SizedBox(height: screenHeight * 0.04),
                   _buildIntroText(screenWidth),
                   _buildVisionMisionSection(screenWidth),
                   _buildPastoresSection(screenWidth, screenHeight),
                   _buildRedCCISection(context, screenWidth, screenHeight),
-                  SizedBox(height: screenHeight * 0.08),
-                ],
-              ),
+                SizedBox(height: screenHeight * 0.08),
+              ],
             ),
           ),
         ),
@@ -50,19 +48,6 @@ class Iglesia extends StatelessWidget {
     return Text(
       "Seamos Iglesia",
       style: getTitulo(screenWidth),
-    );
-  }
-
-  Widget _buildLocation(double screenWidth) {
-    return Text(
-      "San Pedro Sula",
-      style: TextStyle(
-        fontFamily: 'SF Pro Display',
-        color: grisMedio,
-        fontSize: screenWidth < 360 ? 15 : 17,
-        fontWeight: FontWeight.w400,
-        letterSpacing: -0.41,
-      ),
     );
   }
 
@@ -268,7 +253,6 @@ class Iglesia extends StatelessWidget {
       ),
     );
   }
-
 }
 
 class _MisionSection extends StatelessWidget {
@@ -382,7 +366,7 @@ class _PastorImage extends StatelessWidget {
     "rosa": {
       "nombre": "Rosa de Tábora",
       "titulo": "Pastora adjunta 9:00 A.M.",
-      "info": "Pastora titular del servicio de las 9:00 A.M. "
+      "info": "Pastora adjunta del servicio de las 9:00 A.M. "
           "Con un corazón por la adoración y el acompañamiento pastoral.",
     },
     "juanca": {
@@ -395,7 +379,7 @@ class _PastorImage extends StatelessWidget {
     "kensy": {
       "nombre": "Kensy de Vallecillo",
       "titulo": "Pastora adjunta 11:30 A.M.",
-      "info": "Pastora titular del servicio de las 11:30 A.M. "
+      "info": "Pastora adjunta del servicio de las 11:30 A.M. "
           "Comprometida con la formación espiritual y el cuidado de las familias.",
     },
     "enrique": {

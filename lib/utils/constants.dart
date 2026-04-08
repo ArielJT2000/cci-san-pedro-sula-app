@@ -168,6 +168,25 @@ EdgeInsets getSafeAreaPadding(BuildContext context) {
   );
 }
 
+/// Inset del sistema + márgenes horizontales estándar **dentro** del scroll.
+/// Sustituye un [SafeArea] que envuelve el [SingleChildScrollView]: al desplazar,
+/// el contenido sube y no queda una franja estática bajo la barra de estado
+/// (efecto tipo AppBar). [topExtra] suele ser el primer [SizedBox] que había bajo el SafeArea.
+EdgeInsets scrollScreenPadding(
+  BuildContext context,
+  double screenWidth, {
+  double topExtra = 0,
+  double bottomExtra = 16,
+}) {
+  final mq = MediaQuery.of(context);
+  return EdgeInsets.only(
+    left: getHorizontalPadding(screenWidth),
+    right: getHorizontalPadding(screenWidth),
+    top: mq.padding.top + topExtra,
+    bottom: mq.padding.bottom + bottomExtra,
+  );
+}
+
 // Constantes para diferentes tamaños de pantalla
 const double smallScreenWidth = 360;
 const double mediumScreenWidth = 600;

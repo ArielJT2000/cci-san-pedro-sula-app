@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:ui';
+import 'dart:async';
 import '../pantallas/welcome_screen.dart';
 import '../navigation/main_navigation.dart';
 import '../utils/fcm_service.dart';
@@ -17,6 +18,7 @@ class SplashScreenState extends State<SplashScreen>
   static const _splashHeroKey = ValueKey('splash_app_logo_hero');
   late AnimationController _animationController;
   late Animation<double> _scaleAnimation;
+  bool _navigated = false;
 
   @override
   void initState() {
@@ -38,71 +40,86 @@ class SplashScreenState extends State<SplashScreen>
 
     _animationController.forward();
 
-    Future.delayed(const Duration(seconds: 2), () async {
-      if (!mounted) return;
-      await FCMService().ensureInitialMessage();
-      if (!mounted) return;
-      final openFromNotification = FCMService.hasPendingNotification;
-      if (openFromNotification) {
-          print('SplashScreen: Abierto desde notificación, yendo a MainNavigation');
-          Navigator.of(context).pushReplacement(
-            PageRouteBuilder(
-              pageBuilder: (context, animation, secondaryAnimation) =>
-                  const MainNavigation(),
-              transitionsBuilder:
-                  (context, animation, secondaryAnimation, child) {
-                return FadeTransition(opacity: animation, child: child);
-              },
-              transitionDuration: const Duration(milliseconds: 400),
-            ),
-          );
-        } else {
-          print('SplashScreen: Navegando a WelcomeScreen');
-          Navigator.of(context).pushReplacement(
-            PageRouteBuilder(
-              pageBuilder: (context, animation, secondaryAnimation) =>
-                  const WelcomeScreen(fromSplash: true),
-            transitionsBuilder:
-                (context, animation, secondaryAnimation, child) {
-              // Efecto blur progresivo
-              final blurValue = (1 - animation.value) * 15.0;
-              
-              return Stack(
-                children: [
-                  // Fondo con blur que simula la pantalla anterior borrosa
-                  if (animation.value < 1.0)
-                    ClipRect(
-                      child: BackdropFilter(
-                        filter: ImageFilter.blur(
-                          sigmaX: blurValue,
-                          sigmaY: blurValue,
-                        ),
-                        child: Container(
-                          color: Colors.black.withValues(alpha: (0.3 * (1 - animation.value)).clamp(0.0, 1.0)),
+    unawaited(_continueAfterBoot());
+  }
+
+  Future<void> _continueAfterBoot() async {
+    // Mantener un mínimo de tiempo visible para evitar “flashes”.
+    await Future.delayed(const Duration(milliseconds: 900));
+    if (!mounted || _navigated) return;
+
+    // Esperar un poco a que FCM termine de inicializar (sin bloquear indefinidamente).
+    try {
+      await FCMService().ready.timeout(const Duration(milliseconds: 1500));
+    } catch (_) {
+      // Ignorar timeout: continuamos igual.
+    }
+    if (!mounted || _navigated) return;
+
+    await FCMService().ensureInitialMessage();
+    if (!mounted || _navigated) return;
+
+    final openFromNotification = FCMService.hasPendingNotification;
+    if (openFromNotification) {
+      _navigated = true;
+      print('SplashScreen: Abierto desde notificación, yendo a MainNavigation');
+      Navigator.of(context).pushReplacement(
+        PageRouteBuilder(
+          pageBuilder: (context, animation, secondaryAnimation) =>
+              const MainNavigation(),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return FadeTransition(opacity: animation, child: child);
+          },
+          transitionDuration: const Duration(milliseconds: 400),
+        ),
+      );
+    } else {
+      _navigated = true;
+      print('SplashScreen: Navegando a WelcomeScreen');
+      Navigator.of(context).pushReplacement(
+        PageRouteBuilder(
+          pageBuilder: (context, animation, secondaryAnimation) =>
+              const WelcomeScreen(fromSplash: true),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            // Efecto blur progresivo
+            final blurValue = (1 - animation.value) * 15.0;
+
+            return Stack(
+              children: [
+                if (animation.value < 1.0)
+                  ClipRect(
+                    child: BackdropFilter(
+                      filter: ImageFilter.blur(
+                        sigmaX: blurValue,
+                        sigmaY: blurValue,
+                      ),
+                      child: Container(
+                        color: Colors.black.withValues(
+                          alpha:
+                              (0.3 * (1 - animation.value)).clamp(0.0, 1.0),
                         ),
                       ),
-                    ),
-                  // Nueva pantalla con fade y scale
-                  FadeTransition(
-                    opacity: animation,
-                    child: ScaleTransition(
-                      scale: Tween<double>(begin: 0.96, end: 1.0).animate(
-                        CurvedAnimation(
-                          parent: animation,
-                          curve: Curves.easeOutCubic,
-                        ),
-                      ),
-                      child: child,
                     ),
                   ),
-                ],
-              );
-            },
-              transitionDuration: const Duration(seconds: 1),
-            ),
-          );
-        }
-    });
+                FadeTransition(
+                  opacity: animation,
+                  child: ScaleTransition(
+                    scale: Tween<double>(begin: 0.96, end: 1.0).animate(
+                      CurvedAnimation(
+                        parent: animation,
+                        curve: Curves.easeOutCubic,
+                      ),
+                    ),
+                    child: child,
+                  ),
+                ),
+              ],
+            );
+          },
+          transitionDuration: const Duration(seconds: 1),
+        ),
+      );
+    }
   }
 
   @override

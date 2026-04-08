@@ -5,8 +5,7 @@ import '../utils/social_link.dart';
 class TiktokComunicaciones extends StatelessWidget {
   const TiktokComunicaciones({super.key});
 
-  static const String _url =
-      'https://www.tiktok.com/@ccimedia?_r=1&_t=ZS-95LgpbllbWf';
+  static const String _url = 'https://www.tiktok.com/@ccimedia';
 
   @override
   Widget build(BuildContext context) {

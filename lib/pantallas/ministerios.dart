@@ -24,26 +24,24 @@ class Ministerios extends StatelessWidget {
         width: double.infinity,
         height: double.infinity,
         decoration: getGradientBackground(),
-        child: SafeArea(
-          child: SingleChildScrollView(
-            physics: const ClampingScrollPhysics(),
-            child: Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: getHorizontalPadding(screenWidth),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
+        child: SingleChildScrollView(
+          physics: const ClampingScrollPhysics(),
+          child: Padding(
+            padding: scrollScreenPadding(
+              context,
+              screenWidth,
+              topExtra: screenHeight * 0.02,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildHeader(screenWidth),
                   SizedBox(height: screenHeight * 0.02),
-                  _buildHeader(screenWidth),
-                  SizedBox(height: screenHeight * 0.02),
-                  _buildLocation(screenWidth),
                   SizedBox(height: screenHeight * 0.04),
                   _buildDescription(screenWidth),
                   _buildMinisteriosList(context, screenWidth, screenHeight),
-                  SizedBox(height: screenHeight * 0.08),
-                ],
-              ),
+                SizedBox(height: screenHeight * 0.08),
+              ],
             ),
           ),
         ),
@@ -58,32 +56,15 @@ class Ministerios extends StatelessWidget {
     );
   }
 
-  Widget _buildLocation(double screenWidth) {
-    return Text(
-      "San Pedro Sula",
-      style: TextStyle(
-        fontFamily: 'SF Pro Display',
-        color: grisMedio,
-        fontSize: screenWidth < 360 ? 15 : 17,
-        fontWeight: FontWeight.w400,
-        letterSpacing: -0.41,
-      ),
-    );
-  }
-
   Widget _buildDescription(double screenWidth) {
-    return Padding(
-      padding: EdgeInsets.symmetric(
-          horizontal: getHorizontalPadding(screenWidth) * 0.6),
-      child: Text(
-        "La comunidad de CCI en San Pedro Sula está compuesta por muchos Ministerios "
-        "con el fin de poder responder a las necesidades que cada etapa de la vida "
-        "nos presenta. Te invitamos a conocerlos para que puedas ser parte también!",
-        style: TextStyle(
-          height: 1.5,
-          fontSize: screenWidth < 360 ? 16 : 18,
-          color: blanco,
-        ),
+    return Text(
+      "La comunidad de CCI en San Pedro Sula está compuesta por muchos Ministerios "
+      "con el fin de poder responder a las necesidades que cada etapa de la vida "
+      "nos presenta. Te invitamos a conocerlos para que puedas ser parte también!",
+      style: TextStyle(
+        height: 1.5,
+        fontSize: screenWidth < 360 ? 16 : 18,
+        color: blanco,
       ),
     );
   }
@@ -411,7 +392,7 @@ class Ministerios extends StatelessWidget {
     Widget? socialWidget,
   }) {
     return Padding(
-      padding: EdgeInsets.all(screenWidth * 0.07),
+      padding: EdgeInsets.symmetric(vertical: screenWidth * 0.055),
       child: Column(
         children: [
           _buildMinisterioLogo(image, screenWidth, screenHeight),
@@ -471,7 +452,7 @@ class Ministerios extends StatelessWidget {
     double screenHeight,
   ) {
     return Padding(
-      padding: EdgeInsets.all(screenWidth * 0.07),
+      padding: EdgeInsets.symmetric(vertical: screenWidth * 0.055),
       child: Column(
         children: [
           _buildMinisterioLogo(image, screenWidth, screenHeight),

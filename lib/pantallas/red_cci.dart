@@ -27,20 +27,19 @@ class _RedCCIState extends State<RedCCI> {
         decoration: getGradientBackground(),
         child: Stack(
           children: [
-            SafeArea(
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                child: Padding(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: getHorizontalPadding(screenWidth),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
+            SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              child: Padding(
+                padding: scrollScreenPadding(
+                  context,
+                  screenWidth,
+                  topExtra: screenHeight * 0.02,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildHeader(screenWidth),
                       SizedBox(height: screenHeight * 0.02),
-                      _buildHeader(screenWidth),
-                      SizedBox(height: screenHeight * 0.02),
-                      _buildLocation(screenWidth),
                       SizedBox(height: screenHeight * 0.04),
                       _buildDescriptionSection(screenWidth),
                       SizedBox(height: screenHeight * 0.04),
@@ -51,9 +50,8 @@ class _RedCCIState extends State<RedCCI> {
                       _buildLeadershipSection(screenWidth),
                       SizedBox(height: screenHeight * 0.04),
                       _buildContactSection(context, screenWidth),
-                      SizedBox(height: screenHeight * 0.08),
-                    ],
-                  ),
+                    SizedBox(height: screenHeight * 0.08),
+                  ],
                 ),
               ),
             ),
@@ -78,20 +76,6 @@ class _RedCCIState extends State<RedCCI> {
       "Red Misionera Global CCI",
       overflow: TextOverflow.visible,
       style: getTitulo(screenWidth),
-    );
-  }
-
-  Widget _buildLocation(double screenWidth) {
-    return Text(
-      "San Pedro Sula",
-      overflow: TextOverflow.visible,
-      style: TextStyle(
-        fontFamily: 'SF Pro Display',
-        color: grisMedio,
-        fontSize: screenWidth < 360 ? 15 : 17,
-        fontWeight: FontWeight.w400,
-        letterSpacing: -0.41,
-      ),
     );
   }
 
@@ -412,11 +396,16 @@ class _RedCCIState extends State<RedCCI> {
   }
 
   Widget _buildContactSection(BuildContext context, double screenWidth) {
+    final contentW =
+        screenWidth - 2 * getHorizontalPadding(screenWidth);
+    final cardW = (contentW * 0.88).clamp(260.0, 420.0);
+
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(
           "Contacto",
+          textAlign: TextAlign.center,
           style: TextStyle(
             fontFamily: 'SF Pro Display',
             color: blanco,
@@ -427,47 +416,51 @@ class _RedCCIState extends State<RedCCI> {
           ),
         ),
         SizedBox(height: screenWidth * 0.03),
-        Container(
-          width: double.infinity,
-          padding: EdgeInsets.all(screenWidth * 0.05),
-          decoration: BoxDecoration(
-            color: grisCard,
-            borderRadius: BorderRadius.circular(borderRadius),
-            border: Border.all(
-              color: colorWithOpacity(blanco, 0.1),
-              width: 0.5,
+        Center(
+          child: SizedBox(
+            width: cardW,
+            child: Container(
+              padding: EdgeInsets.all(screenWidth * 0.05),
+              decoration: BoxDecoration(
+                color: grisCard,
+                borderRadius: BorderRadius.circular(borderRadius),
+                border: Border.all(
+                  color: colorWithOpacity(blanco, 0.1),
+                  width: 0.5,
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  _buildContactItem(
+                    context,
+                    screenWidth,
+                    icon: Icons.language_outlined,
+                    label: "Sitio web",
+                    value: "www.redglobalcci.org",
+                    onTap: () => _launchURL("https://www.redglobalcci.org"),
+                  ),
+                  SizedBox(height: screenWidth * 0.04),
+                  _buildContactItem(
+                    context,
+                    screenWidth,
+                    icon: Icons.email_outlined,
+                    label: "Correo electrónico",
+                    value: "redmisionera@ccihonduras.org",
+                    onTap: () => _launchURL("mailto:redmisionera@ccihonduras.org"),
+                  ),
+                  SizedBox(height: screenWidth * 0.04),
+                  _buildContactItem(
+                    context,
+                    screenWidth,
+                    icon: Icons.phone_outlined,
+                    label: "Teléfono / WhatsApp",
+                    value: "+504 9905-1162",
+                    onTap: () => _launchURL("tel:+50499051162"),
+                  ),
+                ],
+              ),
             ),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildContactItem(
-                context,
-                screenWidth,
-                icon: Icons.language_outlined,
-                label: "Sitio web",
-                value: "www.redglobalcci.org",
-                onTap: () => _launchURL("https://www.redglobalcci.org"),
-              ),
-              SizedBox(height: screenWidth * 0.04),
-              _buildContactItem(
-                context,
-                screenWidth,
-                icon: Icons.email_outlined,
-                label: "Correo electrónico",
-                value: "redmisionera@ccihonduras.org",
-                onTap: () => _launchURL("mailto:redmisionera@ccihonduras.org"),
-              ),
-              SizedBox(height: screenWidth * 0.04),
-              _buildContactItem(
-                context,
-                screenWidth,
-                icon: Icons.phone_outlined,
-                label: "Teléfono / WhatsApp",
-                value: "+504 9905-1162",
-                onTap: () => _launchURL("tel:+50499051162"),
-              ),
-            ],
           ),
         ),
       ],

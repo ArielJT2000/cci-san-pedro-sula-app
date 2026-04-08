@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'notification_service.dart';
 import '../navigation/main_navigation.dart';
@@ -48,6 +49,7 @@ class FCMService {
   FirebaseMessaging? _messaging;
   String? _fcmToken;
   bool _initialized = false;
+  final Completer<void> _readyCompleter = Completer<void>();
   GlobalKey<NavigatorState>? _navigatorKey;
   
   // Guardar mensaje inicial para navegar cuando MainNavigation esté listo
@@ -96,9 +98,15 @@ class FCMService {
     _navigatorKey = navigatorKey;
   }
 
+  /// Se completa cuando `initialize()` terminó (con éxito o no).
+  Future<void> get ready => _readyCompleter.future;
+
   /// Inicializa el servicio FCM
   Future<void> initialize() async {
-    if (_initialized) return;
+    if (_initialized) {
+      if (!_readyCompleter.isCompleted) _readyCompleter.complete();
+      return;
+    }
 
     try {
       _messaging = FirebaseMessaging.instance;
@@ -154,6 +162,8 @@ class FCMService {
     } catch (e) {
       debugPrint('Error inicializando FCM: $e');
       _initialized = true; // Marcar como inicializado para no intentar de nuevo
+    } finally {
+      if (!_readyCompleter.isCompleted) _readyCompleter.complete();
     }
   }
 

@@ -47,6 +47,13 @@ void main() async {
     ),
   );
 
+  runApp(const _ForceDisableDebugOverlays(child: MyApp()));
+  // Arrancar servicios en segundo plano para no demorar el primer frame (evita “flash”
+  // de pantallas antiguas al abrir desde notificación en iOS).
+  unawaited(_bootstrapServices());
+}
+
+Future<void> _bootstrapServices() async {
   // Inicializar Firebase en Android e iOS
   try {
     await Firebase.initializeApp(
@@ -56,7 +63,7 @@ void main() async {
         'Firebase inicializado correctamente en ${Platform.isAndroid ? "Android" : "iOS"}');
   } catch (e) {
     debugPrint('Error inicializando Firebase: $e');
-    // Continuar sin Firebase si hay error (puede ser por Xcode antiguo)
+    // Continuar sin Firebase si hay error
   }
 
   // Configuración de notificaciones locales
@@ -78,13 +85,7 @@ void main() async {
         'FCM inicializado correctamente en ${Platform.isAndroid ? "Android" : "iOS"}');
   } catch (e) {
     debugPrint('Error inicializando FCM: $e');
-    // Continuar sin FCM si hay error (puede ser por Xcode antiguo o falta de APNs)
   }
-
-  // Monitoreo manual: el usuario usa el botón "Probar" en Transmisiones
-  // para verificar cuando hay transmisión en vivo (sin polling automático)
-
-  runApp(const _ForceDisableDebugOverlays(child: MyApp()));
 }
 
 /// En algunas sesiones, DevTools puede dejar activados overlays (baselines,

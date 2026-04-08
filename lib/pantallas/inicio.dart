@@ -54,16 +54,14 @@ class _InicioState extends State<Inicio> with TickerProviderStateMixin {
       ),
     );
 
-    // Animación para mover el logo y texto a su posición final
     _logoPositionController = AnimationController(
       duration: const Duration(milliseconds: 800),
       vsync: this,
     );
 
-    // Animación de posición del logo: desde el centro hacia la derecha
     _logoPositionAnimation = Tween<Offset>(
-      begin: const Offset(0.0, 0.0), // Posición inicial centrada
-      end: const Offset(1.25, 0.0), // Posición final: a la derecha
+      begin: const Offset(0.0, 0.0),
+      end: const Offset(1.25, 0.0),
     ).animate(
       CurvedAnimation(
         parent: _logoPositionController,
@@ -71,11 +69,9 @@ class _InicioState extends State<Inicio> with TickerProviderStateMixin {
       ),
     );
 
-    // Animación de posición del texto: desde el centro hacia la izquierda
     _textPositionAnimation = Tween<Offset>(
-      begin: const Offset(0.0, 0.0), // Posición inicial centrada
-      end:
-          const Offset(-0.65, 0.0), // Posición final: a la izquierda (ajustado)
+      begin: const Offset(0.0, 0.0),
+      end: const Offset(-0.65, 0.0),
     ).animate(
       CurvedAnimation(
         parent: _logoPositionController,
@@ -83,10 +79,9 @@ class _InicioState extends State<Inicio> with TickerProviderStateMixin {
       ),
     );
 
-    // Escala del logo: mismo tamaño que al finalizar el Hero (0.85)
     _logoPositionScaleAnimation = Tween<double>(
-      begin: 0.85, // Igual al tamaño final del Hero para transición continua
-      end: 0.85, // Tamaño final en header
+      begin: 0.85,
+      end: 0.85,
     ).animate(
       CurvedAnimation(
         parent: _logoPositionController,
@@ -97,13 +92,10 @@ class _InicioState extends State<Inicio> with TickerProviderStateMixin {
     // Delay para que la transición Hero se complete primero
     Future.delayed(const Duration(milliseconds: 600), () {
       if (mounted) {
-        // El logo ya está en posición centrada después del Hero
         _heroAnimationController.forward();
-        // Iniciar animación del texto inmediatamente (aparece centrado)
         Future.delayed(const Duration(milliseconds: 100), () {
           if (mounted) {
             _textAnimationController.forward();
-            // Después de 0.5s, mover todo desde el centro hacia la izquierda
             Future.delayed(const Duration(milliseconds: 500), () {
               if (mounted) {
                 _logoPositionController.forward();
@@ -145,7 +137,6 @@ class _InicioState extends State<Inicio> with TickerProviderStateMixin {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Logo y texto - Inicialmente centrados, luego se separan
                 ScaleTransition(
                   scale: _logoPositionScaleAnimation,
                   child: Center(
@@ -153,11 +144,10 @@ class _InicioState extends State<Inicio> with TickerProviderStateMixin {
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Texto que se mueve a la izquierda con efecto wipe
                         SlideTransition(
                           position: _textPositionAnimation,
                           child: Padding(
-                            padding: EdgeInsets.only(top: screenWidth * 0.02),
+                            padding: EdgeInsets.only(top: screenWidth * 0.008),
                             child: AnimatedBuilder(
                               animation: _textOpacityAnimation,
                               builder: (context, child) {
@@ -175,7 +165,7 @@ class _InicioState extends State<Inicio> with TickerProviderStateMixin {
                                           overflow: TextOverflow.visible,
                                           style: TextStyle(
                                             fontFamily: kFontFamily,
-                                            color: blanco,
+                                            color: grisMedio,
                                             fontSize: getFontSizeBodySmall(
                                                 screenWidth),
                                             fontWeight: fontWeightBold,
@@ -188,28 +178,12 @@ class _InicioState extends State<Inicio> with TickerProviderStateMixin {
                                           overflow: TextOverflow.visible,
                                           style: TextStyle(
                                             fontFamily: kFontFamily,
-                                            color: blanco,
+                                            color: grisMedio,
                                             fontSize: getFontSizeBodySmall(
                                                 screenWidth),
                                             fontWeight: fontWeightBold,
                                             letterSpacing: letterSpacingWider,
                                             height: lineHeightNormal,
-                                          ),
-                                        ),
-                                        SizedBox(
-                                            height:
-                                                screenWidth * widthSpacingXS),
-                                        Text(
-                                          kChurchCity,
-                                          overflow: TextOverflow.visible,
-                                          style: TextStyle(
-                                            fontFamily: kFontFamily,
-                                            color: grisMedio,
-                                            fontSize:
-                                                getFontSizeSmall(screenWidth),
-                                            fontWeight: fontWeightRegular,
-                                            letterSpacing: letterSpacingWide,
-                                            height: lineHeightLoose,
                                           ),
                                         ),
                                       ],
@@ -221,7 +195,6 @@ class _InicioState extends State<Inicio> with TickerProviderStateMixin {
                           ),
                         ),
                         SizedBox(width: screenWidth * 0.04),
-                        // Logo que se mueve a la derecha
                         SlideTransition(
                           position: _logoPositionAnimation,
                           child: Hero(
@@ -245,7 +218,7 @@ class _InicioState extends State<Inicio> with TickerProviderStateMixin {
                     ),
                   ),
                 ),
-                SizedBox(height: screenHeight * 0.06),
+                SizedBox(height: screenHeight * 0.018),
                 _buildHeroSection(screenWidth, screenHeight),
                 SizedBox(height: screenHeight * 0.03),
                 _buildMenuGrid(context, screenWidth, screenHeight),

@@ -42,20 +42,19 @@ class MinistryScreenBase extends StatelessWidget {
         decoration: getGradientBackground(),
         child: Stack(
           children: [
-            SafeArea(
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                child: Padding(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: getHorizontalPadding(screenWidth),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
+            SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              child: Padding(
+                padding: scrollScreenPadding(
+                  context,
+                  screenWidth,
+                  topExtra: screenHeight * 0.02,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildHeader(screenWidth),
                       SizedBox(height: screenHeight * 0.02),
-                      _buildHeader(screenWidth),
-                      SizedBox(height: screenHeight * 0.02),
-                      _buildLocation(screenWidth),
                       SizedBox(height: screenHeight * 0.04),
                       _buildDescription(screenWidth),
                       _buildMinistryInfo(screenWidth, screenHeight),
@@ -63,9 +62,8 @@ class MinistryScreenBase extends StatelessWidget {
                         SizedBox(height: screenHeight * 0.03),
                         informationSection!,
                       ],
-                      SizedBox(height: screenHeight * 0.08),
-                    ],
-                  ),
+                    SizedBox(height: screenHeight * 0.08),
+                  ],
                 ),
               ),
             ),
@@ -93,25 +91,12 @@ class MinistryScreenBase extends StatelessWidget {
     );
   }
 
-  Widget _buildLocation(double screenWidth) {
-    return Text(
-      kLocationName,
-      overflow: TextOverflow.visible,
-      style: getLocationTextStyle(screenWidth),
-    );
-  }
-
   Widget _buildDescription(double screenWidth) {
-    return Padding(
-      padding: EdgeInsets.symmetric(
-        horizontal: getHorizontalPadding(screenWidth) * 0.6,
-      ),
-      child: Text(
-        description,
-        overflow: TextOverflow.visible,
-        style: getBodyLargeTextStyle(screenWidth).copyWith(
-          height: 1.5,
-        ),
+    return Text(
+      description,
+      overflow: TextOverflow.visible,
+      style: getBodyLargeTextStyle(screenWidth).copyWith(
+        height: 1.5,
       ),
     );
   }
@@ -154,7 +139,7 @@ class MinistryScreenBase extends StatelessWidget {
 
   Widget _buildMinistryInfo(double screenWidth, double screenHeight) {
     return Padding(
-      padding: EdgeInsets.all(screenWidth * 0.07),
+      padding: EdgeInsets.symmetric(vertical: screenWidth * 0.055),
       child: Column(
         children: [
           if (headerWidget != null)

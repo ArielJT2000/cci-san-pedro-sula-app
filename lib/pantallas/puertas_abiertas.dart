@@ -21,20 +21,19 @@ class PuertasAbiertas extends StatelessWidget {
         decoration: getGradientBackground(),
         child: Stack(
           children: [
-            SafeArea(
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                child: Padding(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: getHorizontalPadding(screenWidth),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
+            SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              child: Padding(
+                padding: scrollScreenPadding(
+                  context,
+                  screenWidth,
+                  topExtra: screenHeight * 0.02,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildHeaderWithLogo(screenWidth),
                       SizedBox(height: screenHeight * 0.02),
-                      _buildHeaderWithLogo(screenWidth),
-                      SizedBox(height: screenHeight * 0.02),
-                      _buildLocation(screenWidth),
                       SizedBox(height: screenHeight * 0.04),
                       _buildDescriptionSection(screenWidth),
                       SizedBox(height: screenHeight * 0.04),
@@ -45,9 +44,8 @@ class PuertasAbiertas extends StatelessWidget {
                       _buildContactSection(context, screenWidth),
                       SizedBox(height: screenHeight * 0.04),
                       _buildWebsiteButton(context, screenWidth),
-                      SizedBox(height: screenHeight * 0.08),
-                    ],
-                  ),
+                    SizedBox(height: screenHeight * 0.08),
+                  ],
                 ),
               ),
             ),
@@ -140,20 +138,6 @@ class PuertasAbiertas extends StatelessWidget {
           ],
         );
       },
-    );
-  }
-
-  Widget _buildLocation(double screenWidth) {
-    return Text(
-      "San Pedro Sula",
-      overflow: TextOverflow.visible,
-      style: TextStyle(
-        fontFamily: 'SF Pro Display',
-        color: grisMedio,
-        fontSize: screenWidth < 360 ? 15 : 17,
-        fontWeight: FontWeight.w400,
-        letterSpacing: -0.41,
-      ),
     );
   }
 

@@ -103,7 +103,6 @@ class _EventosState extends State<Eventos> {
         width: double.infinity,
         height: double.infinity,
         decoration: getGradientBackground(),
-        child: SafeArea(
         child: Stack(
           clipBehavior: Clip.none,
           children: [
@@ -111,21 +110,20 @@ class _EventosState extends State<Eventos> {
               controller: _scrollController,
               physics: const ClampingScrollPhysics(),
               child: Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: getHorizontalPadding(screenWidth),
+                padding: scrollScreenPadding(
+                  context,
+                  screenWidth,
+                  topExtra: screenHeight * 0.016,
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    SizedBox(height: screenHeight * 0.02),
                     _buildHeader(screenWidth),
-                    SizedBox(height: screenHeight * 0.04),
-                    _buildLocation(screenWidth),
-                    SizedBox(height: screenHeight * 0.06),
+                    SizedBox(height: screenHeight * 0.016),
                     _buildHeroSection(screenWidth, screenHeight),
-                    SizedBox(height: screenHeight * 0.08),
+                    SizedBox(height: screenHeight * 0.026),
                     _buildEventsSection(screenWidth, screenHeight),
-                    SizedBox(height: screenHeight * 0.08),
+                    SizedBox(height: screenHeight * 0.045),
                   ],
                 ),
               ),
@@ -142,7 +140,6 @@ class _EventosState extends State<Eventos> {
           ],
         ),
       ),
-    ),
     );
   }
 
@@ -165,19 +162,6 @@ class _EventosState extends State<Eventos> {
     );
   }
 
-  Widget _buildLocation(double screenWidth) {
-    return Text(
-      "San Pedro Sula",
-      style: TextStyle(
-        fontFamily: 'SF Pro Display',
-        color: grisMedio,
-        fontSize: screenWidth < 360 ? 15 : 17,
-        fontWeight: FontWeight.w400,
-        letterSpacing: 0.0,
-      ),
-    );
-  }
-
   Widget _buildHeroSection(double screenWidth, double screenHeight) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -194,7 +178,7 @@ class _EventosState extends State<Eventos> {
             height: 1.4,
           ),
         ),
-        SizedBox(height: screenHeight * 0.02),
+        SizedBox(height: screenHeight * 0.012),
         Text(
           "Descubre las próximas actividades, series especiales y eventos que tenemos preparados para ti y tu familia. Cada evento está diseñado para fortalecer nuestra comunidad y enriquecer tu experiencia espiritual.",
           overflow: TextOverflow.visible,
@@ -237,7 +221,7 @@ class _EventosState extends State<Eventos> {
                 _eventKeys[event.eventId] ??= GlobalKey();
                 return Padding(
                   key: _eventKeys[event.eventId],
-                  padding: EdgeInsets.only(bottom: screenHeight * 0.03),
+                  padding: EdgeInsets.only(bottom: screenHeight * 0.022),
                   child: EventCard(
                     event: event,
                     screenWidth: screenWidth,

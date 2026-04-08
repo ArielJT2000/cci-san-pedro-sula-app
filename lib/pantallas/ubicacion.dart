@@ -284,19 +284,19 @@ class _UbicacionState extends State<Ubicacion> {
         width: double.infinity,
         height: double.infinity,
         decoration: getGradientBackground(),
-        child: SafeArea(
-          child: SingleChildScrollView(
-            physics: const ClampingScrollPhysics(),
-            child: Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: getHorizontalPadding(screenWidth),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(height: screenHeight * 0.02),
-                  // Header
-                  _buildHeader(screenWidth),
+        child: SingleChildScrollView(
+          physics: const ClampingScrollPhysics(),
+          child: Padding(
+            padding: scrollScreenPadding(
+              context,
+              screenWidth,
+              topExtra: screenHeight * 0.02,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Header
+                _buildHeader(screenWidth),
                   SizedBox(height: screenHeight * 0.03),
 
                   // Location Card
@@ -311,7 +311,6 @@ class _UbicacionState extends State<Ubicacion> {
                   _buildCountdownCard(screenWidth, screenHeight, countdown),
                   SizedBox(height: screenHeight * 0.08),
                 ],
-              ),
             ),
           ),
         ),

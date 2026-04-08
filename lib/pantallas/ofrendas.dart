@@ -16,27 +16,25 @@ class Ofrendas extends StatelessWidget {
         width: double.infinity,
         height: double.infinity,
         decoration: getGradientBackground(),
-        child: SafeArea(
-          child: SingleChildScrollView(
-            physics: const ClampingScrollPhysics(),
-            child: Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: getHorizontalPadding(screenWidth),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
+        child: SingleChildScrollView(
+          physics: const ClampingScrollPhysics(),
+          child: Padding(
+            padding: scrollScreenPadding(
+              context,
+              screenWidth,
+              topExtra: screenHeight * 0.02,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildHeader(screenWidth),
                   SizedBox(height: screenHeight * 0.02),
-                  _buildHeader(screenWidth),
-                  SizedBox(height: screenHeight * 0.02),
-                  _buildLocation(screenWidth),
                   SizedBox(height: screenHeight * 0.04),
                   _buildDescription(screenWidth),
                   _buildBiblicalQuote(screenWidth),
                   _buildBankAccounts(context, screenWidth, screenHeight),
-                  SizedBox(height: screenHeight * 0.08),
-                ],
-              ),
+                SizedBox(height: screenHeight * 0.08),
+              ],
             ),
           ),
         ),
@@ -52,35 +50,20 @@ class Ofrendas extends StatelessWidget {
     );
   }
 
-  Widget _buildLocation(double screenWidth) {
-    return Text(
-      kLocationName,
-      overflow: TextOverflow.visible,
-      style: getLocationTextStyle(screenWidth),
-    );
-  }
-
   Widget _buildDescription(double screenWidth) {
-    return Padding(
-      padding: EdgeInsets.symmetric(
-          horizontal: getHorizontalPadding(screenWidth) * 0.6),
-      child: Text(
-        "La generosidad es una expresión de nuestro amor hacia Dios y hacia los demás. "
-        "En CCI creemos que dar es un acto de adoración que nos permite ser parte de la "
-        "obra de Dios en nuestra comunidad y en el mundo.",
-        overflow: TextOverflow.visible,
-        style: getBodyLargeTextStyle(screenWidth, color: blanco).copyWith(
-          height: lineHeightVeryRelaxed,
-        ),
+    return Text(
+      "La generosidad es una expresión de nuestro amor hacia Dios y hacia los demás. "
+      "En CCI creemos que dar es un acto de adoración que nos permite ser parte de la "
+      "obra de Dios en nuestra comunidad y en el mundo.",
+      overflow: TextOverflow.visible,
+      style: getBodyLargeTextStyle(screenWidth, color: blanco).copyWith(
+        height: lineHeightVeryRelaxed,
       ),
     );
   }
 
   Widget _buildBiblicalQuote(double screenWidth) {
-    return Padding(
-      padding: EdgeInsets.symmetric(
-          horizontal: getHorizontalPadding(screenWidth) * 0.6),
-      child: Container(
+    return Container(
         margin: EdgeInsets.symmetric(vertical: screenWidth * 0.05),
         padding: EdgeInsets.all(screenWidth * 0.04),
         decoration: BoxDecoration(
@@ -103,15 +86,11 @@ class Ofrendas extends StatelessWidget {
             ),
           ],
         ),
-      ),
     );
   }
 
   Widget _buildBankAccounts(BuildContext context, double screenWidth, double screenHeight) {
-    return Padding(
-      padding: EdgeInsets.symmetric(
-          horizontal: getHorizontalPadding(screenWidth) * 0.6),
-      child: Column(
+    return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
@@ -169,7 +148,6 @@ class Ofrendas extends StatelessWidget {
             ),
           ),
         ],
-      ),
     );
   }
 

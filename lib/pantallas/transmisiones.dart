@@ -26,9 +26,14 @@ class Transmisiones extends StatelessWidget {
         width: double.infinity,
         height: double.infinity,
         decoration: getGradientBackground(),
-        child: SafeArea(
-          child: SingleChildScrollView(
-            physics: const ClampingScrollPhysics(),
+        child: SingleChildScrollView(
+          physics: const ClampingScrollPhysics(),
+          child: Padding(
+            padding: EdgeInsets.only(
+              top: MediaQuery.paddingOf(context).top + screenHeight * 0.016,
+              bottom:
+                  MediaQuery.paddingOf(context).bottom + screenHeight * 0.032,
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -39,11 +44,8 @@ class Transmisiones extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      SizedBox(height: screenHeight * 0.02),
                       _buildHeader(screenWidth),
-                      SizedBox(height: screenHeight * 0.02),
-                      _buildLocation(screenWidth),
-                      SizedBox(height: screenHeight * 0.06),
+                      SizedBox(height: screenHeight * 0.012),
                     ],
                   ),
                 ),
@@ -55,14 +57,13 @@ class Transmisiones extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      SizedBox(height: screenHeight * 0.04),
+                      SizedBox(height: screenHeight * 0.018),
                       _buildWelcomeMessage(screenWidth, screenHeight),
-                      SizedBox(height: screenHeight * 0.04),
+                      SizedBox(height: screenHeight * 0.022),
                     ],
                   ),
                 ),
                 _buildYouTubeChannelSection(screenWidth, screenHeight),
-                SizedBox(height: screenHeight * 0.06),
               ],
             ),
           ),
@@ -75,20 +76,6 @@ class Transmisiones extends StatelessWidget {
     return Text(
       "En Vivo",
       style: getTitulo(screenWidth),
-    );
-  }
-
-  Widget _buildLocation(double screenWidth) {
-    return Text(
-      "San Pedro Sula",
-      style: TextStyle(
-        fontFamily: 'SF Pro Display',
-        color: grisMedio,
-        fontSize: screenWidth < 360 ? 15 : 17,
-        fontWeight: FontWeight.w400,
-        letterSpacing: 0.0,
-        decoration: TextDecoration.none,
-      ),
     );
   }
 
@@ -105,7 +92,7 @@ class Transmisiones extends StatelessWidget {
             style: getHeroSubtitle(screenWidth),
           ),
         ),
-        SizedBox(height: screenHeight * 0.02),
+        SizedBox(height: screenHeight * 0.01),
         const TransmisionLive(),
       ],
     );
@@ -188,7 +175,7 @@ class Transmisiones extends StatelessWidget {
               decoration: TextDecoration.none,
             ),
           ),
-          SizedBox(height: screenHeight * 0.02),
+          SizedBox(height: screenHeight * 0.014),
           Container(
             width: double.infinity,
             padding: EdgeInsets.all(screenWidth * 0.05),

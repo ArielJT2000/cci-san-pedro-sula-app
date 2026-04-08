@@ -129,7 +129,7 @@ class _YoutubePlayerBaseState extends State<YoutubePlayerBase> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -173,7 +173,7 @@ class _YoutubePlayerBaseState extends State<YoutubePlayerBase> {
               ),
             ),
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 6),
           Material(
             color: Colors.transparent,
             child: InkWell(
