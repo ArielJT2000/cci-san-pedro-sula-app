@@ -64,19 +64,26 @@ class FCMService {
   static bool get hasPendingNotification =>
       _pendingInitialMessage != null || _pendingNotificationPayload != null;
 
-  /// En Android getInitialMessage() a veces no está listo al inicio. Reintentar con delay.
+  /// En cold start [getInitialMessage] a veces devuelve null o [data] vacío hasta más tarde.
   Future<void> ensureInitialMessage() async {
     if (_pendingInitialMessage != null || _messaging == null) return;
     try {
-      RemoteMessage? message = await _messaging!.getInitialMessage();
-      if (message == null) {
-        await Future.delayed(const Duration(milliseconds: 800));
-        message = await _messaging!.getInitialMessage();
-      }
-      if (message != null) {
-        debugPrint('ensureInitialMessage: mensaje obtenido (cold start)');
-        debugPrint('Datos: ${message.data}');
-        _pendingInitialMessage = message;
+      const delays = [
+        Duration.zero,
+        Duration(milliseconds: 400),
+        Duration(milliseconds: 800),
+        Duration(milliseconds: 1400),
+      ];
+      for (final d in delays) {
+        if (_pendingInitialMessage != null) break;
+        if (d > Duration.zero) await Future.delayed(d);
+        final message = await _messaging!.getInitialMessage();
+        if (message != null) {
+          debugPrint('ensureInitialMessage: mensaje obtenido (cold start)');
+          debugPrint('Datos: ${message.data}');
+          _pendingInitialMessage = message;
+          break;
+        }
       }
     } catch (e) {
       debugPrint('ensureInitialMessage error: $e');
@@ -208,7 +215,18 @@ class FCMService {
     String? payload = _pendingNotificationPayload;
     
     if (message != null) {
-      _applyNavigationFromData(message.data);
+      final data = Map<String, dynamic>.from(message.data);
+      // Cold start: a veces FCM entrega `notification` pero `data` vacío al abrir desde la bandeja.
+      if (data.isEmpty && message.notification != null) {
+        final title = (message.notification!.title ?? '').toLowerCase();
+        if (title.contains('transmisión') ||
+            title.contains('transmision') ||
+            title.contains('en vivo') ||
+            title.contains('vivo')) {
+          data['type'] = 'live_stream';
+        }
+      }
+      _applyNavigationFromData(data);
       _pendingInitialMessage = null;
     } else if (payload != null) {
       debugPrint('Procesando navegación desde payload: $payload');
@@ -236,12 +254,21 @@ class FCMService {
   }
 
   void _applyNavigationFromData(Map<String, dynamic> data) {
-    final notificationType = data['type'];
+    final notificationType = data['type']?.toString();
     final category = (data['category'] ?? '').toString().toLowerCase();
     final eventId = (data['eventId'] ?? data['eventID'] ?? '').toString();
-    debugPrint('Navegación: type=$notificationType, category=$category, eventId=$eventId');
-    
-    if (notificationType == 'live_stream') {
+    final videoId = (data['videoId'] ?? '').toString();
+    debugPrint(
+        'Navegación: type=$notificationType, category=$category, eventId=$eventId, videoId=$videoId');
+
+    final isLiveByType = notificationType == 'live_stream';
+    // En algunos dispositivos al abrir desde notificación (app cerrada) el mapa
+    // `data` llega incompleto pero sí trae `videoId` desde FCM.
+    final isLiveByPayload = videoId.isNotEmpty &&
+        notificationType != 'new_event' &&
+        eventId.isEmpty;
+
+    if (isLiveByType || isLiveByPayload) {
       _navigateToScreen(4);
       return;
     }

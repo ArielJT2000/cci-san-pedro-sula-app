@@ -74,13 +74,23 @@ class _MainNavigationState extends State<MainNavigation> {
   }
 
   void _navigateToPage(int index) {
-    if (index != _currentIndex) {
+    if (index == _currentIndex) return;
+    var attempts = 0;
+    void tryNavigate() {
+      attempts++;
+      if (attempts > 24) return;
+      if (!_pageController.hasClients) {
+        WidgetsBinding.instance.addPostFrameCallback((_) => tryNavigate());
+        return;
+      }
       _pageController.animateToPage(
         index,
         duration: duracionLarga,
         curve: curvaSuave,
       );
     }
+
+    tryNavigate();
   }
 
   /// Vuelve a la pantalla de bienvenida (mismo criterio que deslizar atrás en el tab Inicio).
