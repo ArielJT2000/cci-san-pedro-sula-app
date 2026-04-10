@@ -2,18 +2,35 @@
 
 Cuenta principal (host): **ccisanpedrosula@gmail.com**
 
-Esta guía detalla los pasos para dejar la app lista para publicación en App Store y Google Play usando esa cuenta como titular.
+Esta guía detalla la identidad de la app, Firebase, firma Android y publicación en App Store y Google Play.
+
+---
+
+## Estado actual (actualiza esta sección cuando avances)
+
+| Área | Estado |
+|------|--------|
+| **Apple** | App creada en **App Store Connect**; instalación vía **TestFlight** operativa. **Pendiente:** completar la ficha de la versión (metadatos, capturas, privacidad, etc.) y **enviar a revisión** para App Store. |
+| **Google Play** | **Sin app en Play Console aún.** Objetivo: crear la aplicación, cumplir el panel de tareas y subir el primer **AAB** (hoy). |
+| **Firebase** | Proyecto **cci-app-5bac1**. Revisa que la app **Android** en Firebase use el mismo **package** que `applicationId` en Android (ver nota más abajo). |
+
+### Identificadores reales en el código
+
+| Plataforma | Identificador | Dónde se ve |
+|------------|----------------|-------------|
+| **iOS** | `com.ccisps.app` | Xcode (`PRODUCT_BUNDLE_IDENTIFIER`), `GoogleService-Info.plist`, App Store Connect / App ID |
+| **Android** | `org.ccisanpedrosula.app` | `android/app/build.gradle` → `applicationId` |
+
+> **Importante (Firebase Android):** En el repo, `android/app/google-services.json` aún puede listar un `package_name` distinto (p. ej. `com.example.cci_app`). Para que FCM y Analytics funcionen bien en release, en [Firebase Console](https://console.firebase.google.com) → **Project settings** → añade o usa una app Android con package **`org.ccisanpedrosula.app`**, descarga el `google-services.json` nuevo y sustituye el archivo. Luego opcionalmente: `dart run flutterfire configure`.
 
 ---
 
 ## Cambios ya aplicados en el proyecto
 
-- **Bundle ID (iOS):** `org.ccisanpedrosula.app` (antes `com.Arielito.cciApp`).
-- **Application ID (Android):** `org.ccisanpedrosula.app` (antes `com.example.cci_app`).
+- **Bundle ID (iOS):** `com.ccisps.app`.
+- **Application ID (Android):** `org.ccisanpedrosula.app` (`namespace` y `applicationId` en `android/app/build.gradle`).
 - **Push Notifications (iOS):** `RunnerDebug.entitlements` (development) y `RunnerRelease.entitlements` (production) con `aps-environment` para FCM/APNs.
-- **Firma en Xcode:** `DEVELOPMENT_TEAM` está vacío; **debes abrir Xcode, elegir el target Runner → Signing & Capabilities y seleccionar el Team** de la cuenta ccisanpedrosula@gmail.com (o la que uses como host).
-
-Después de elegir el Team en Xcode, el proyecto compilará y firmará correctamente.
+- **Firma en Xcode:** Si `DEVELOPMENT_TEAM` está vacío en git, en cada máquina abre **Xcode → Runner → Signing & Capabilities** y elige el **Team** de la cuenta host.
 
 ---
 
@@ -22,213 +39,156 @@ Después de elegir el Team en Xcode, el proyecto compilará y firmará correctam
 ### 1.1 Inscripción
 
 1. Entra a [developer.apple.com](https://developer.apple.com).
-2. Inicia sesión con **ccisanpedrosula@gmail.com** (o el Apple ID que uses como iCloud de la iglesia).
-3. Si no estás inscrito:
-   - **Account** → **Membership** → **Join the Apple Developer Program**.
-   - Cuota anual: 99 USD (tarjeta o método de pago de la organización).
-4. Completa datos legales (persona o organización). Para “CCI San Pedro Sula” suele usarse una **entidad legal** (asociación, iglesia, empresa).
+2. Inicia sesión con **ccisanpedrosula@gmail.com** (o el Apple ID del host).
+3. Si no estás inscrito: **Account** → **Membership** → **Join the Apple Developer Program** (cuota anual).
 
-### 1.2 Crear el App ID
+### 1.2 App ID
 
-1. En [Certificates, Identifiers & Profiles](https://developer.apple.com/account/resources/identifiers/list):
-   - **Identifiers** → **+**.
-   - Elige **App IDs** → **App**.
-2. Configura:
-   - **Description:** CCI San Pedro Sula.
-   - **Bundle ID:** **Explicit** → `org.ccisanpedrosula.app` (ya está en el proyecto).
-3. En **Capabilities** marca:
-   - **Push Notifications**.
-4. **Register**.
+1. En [Certificates, Identifiers & Profiles](https://developer.apple.com/account/resources/identifiers/list) → **Identifiers** → **+** → **App IDs** → **App**.
+2. **Bundle ID explícito:** `com.ccisps.app` (debe coincidir con Xcode y con la app en App Store Connect).
+3. Capabilities: **Push Notifications** si usas FCM vía APNs.
 
 ---
 
 ## 2. Xcode: equipo y firma
 
-1. Abre el proyecto en Xcode:
-   ```bash
-   open ios/Runner.xcworkspace
-   ```
-2. En el navegador izquierdo selecciona el proyecto **Runner** (icono azul).
-3. Selecciona el target **Runner**.
-4. Pestaña **Signing & Capabilities**:
-   - **Team:** elige el equipo asociado a **ccisanpedrosula@gmail.com** (si no aparece, añade la cuenta en **Xcode → Settings → Accounts**).
-   - Deja **Automatically manage signing** activado.
-   - Si Xcode muestra “No team”, haz clic y selecciona tu equipo para que genere perfiles y certificados.
-5. Comprueba que en **Capabilities** aparezca **Push Notifications** (el proyecto usa `RunnerDebug.entitlements` / `RunnerRelease.entitlements` con `aps-environment`).
+```bash
+open ios/Runner.xcworkspace
+```
 
-Con esto, el **host** de la app en Apple es la cuenta con la que elegiste el Team.
+**Runner** → **Signing & Capabilities** → **Team** de la cuenta host, **Automatically manage signing**, capacidad **Push Notifications** si aplica.
 
 ---
 
-## 3. Firebase (misma cuenta recomendada)
+## 3. Firebase
 
-### 3.1 Proyecto Firebase
-
-1. Entra a [console.firebase.google.com](https://console.firebase.google.com).
-2. Inicia sesión con **ccisanpedrosula@gmail.com** (o la cuenta que quieras como “dueña” del proyecto).
-3. Si ya existe un proyecto para CCI, úsalo. Si no:
-   - **Add project** → nombre ej. “CCI San Pedro Sula”.
-   - Sigue los pasos (Analytics opcional).
-
-### 3.2 Añadir la app iOS
-
-1. En el proyecto Firebase → **Project overview** (engranaje) → **Project settings**.
-2. En **Your apps**:
-   - Si ya hay una app iOS con bundle ID `org.ccisanpedrosula.app`, úsala.
-   - Si no: **Add app** → **iOS**.
-3. **Bundle ID:** `org.ccisanpedrosula.app` (igual que en Xcode).
-4. Descarga **GoogleService-Info.plist** y **sustituye** el que está en:
-   ```
-   ios/Runner/GoogleService-Info.plist
-   ```
-5. Regenera opciones de FlutterFire (en la raíz del proyecto):
-   ```bash
-   dart run flutterfire configure
-   ```
-   Elige el mismo proyecto Firebase y la app iOS. Esto actualiza `lib/firebase_options.dart` si hace falta.
-
-### 3.3 Notificaciones push (APNs) en iOS
-
-Para que Firebase pueda enviar notificaciones a dispositivos iOS:
-
-1. En **Apple Developer** → [Certificates, Identifiers & Profiles](https://developer.apple.com/account/resources/authkeys/list) → **Keys**.
-2. **+** para crear una nueva clave:
-   - **Key Name:** ej. “Firebase CCI APNs”.
-   - Activa **Apple Push Notifications service (APNs)**.
-   - **Continue** → **Register**.
-3. Descarga el archivo **.p8** (solo una vez; guárdalo en lugar seguro).
-4. Anota:
-   - **Key ID**
-   - **Team ID** (en Membership)
-   - **Bundle ID:** `org.ccisanpedrosula.app`
-5. En **Firebase Console** → **Project settings** → pestaña **Cloud Messaging**.
-6. En **Apple app configuration**:
-   - Sube el archivo **.p8**.
-   - Indica **Key ID**, **Team ID** y **Bundle ID**.
-   - Guarda.
-
-Desde ese momento, Firebase usa esa cuenta (y tu App ID) como “host” de la configuración de push en iOS.
+1. [console.firebase.google.com](https://console.firebase.google.com) — proyecto **cci-app-5bac1** (o el que uses).
+2. **iOS:** app con Bundle ID **`com.ccisps.app`** → `ios/Runner/GoogleService-Info.plist`.
+3. **Android:** app con package **`org.ccisanpedrosula.app`** → `android/app/google-services.json`.
+4. **Cloud Messaging:** clave APNs (.p8) en **Apple app configuration** para iOS. Detalle: **[docs/FIREBASE_PUSH_SETUP.md](docs/FIREBASE_PUSH_SETUP.md)**.
 
 ---
 
-## 4. Android (Google Play y firma)
+## 4. Android: firma de release (antes del primer AAB en Play)
 
-### 4.1 Firma de release (keystore)
+### 4.1 Keystore (solo una vez)
 
-1. En la raíz del proyecto (o en `android`), genera un keystore **solo una vez** (guarda contraseñas y alias en lugar seguro):
-   ```bash
-   keytool -genkey -v -keystore key.jks -keyalg RSA -keysize 2048 -validity 10000 -alias cci-app
-   ```
-   - Te pedirá contraseña del keystore y del alias (pueden ser la misma).
-   - Datos que pidas (nombre, organización, etc.) pueden ser “CCI San Pedro Sula”.
-2. Mueve `key.jks` a una ruta segura, por ejemplo:
-   ```
-   android/key.jks
-   ```
-   (O fuera del repo y ajusta la ruta en `build.gradle`.)
+```bash
+keytool -genkey -v -keystore key.jks -keyalg RSA -keysize 2048 -validity 10000 -alias cci-app
+```
 
-### 4.2 Configurar firma en el proyecto
+Guarda `key.jks` en lugar seguro, p. ej. `android/key.jks` (y añádelo a `.gitignore` si no está).
 
-1. Abre `android/app/build.gradle`.
-2. Descomenta y ajusta `signingConfigs` en `android/app/build.gradle`. Si guardaste `key.jks` en la carpeta `android/` (al lado de `app/`), usa:
-   ```gradle
-   signingConfigs {
-       release {
-           storeFile file("../key.jks")
-           storePassword System.getenv("KEYSTORE_PASSWORD")
-           keyAlias "cci-app"
-           keyPassword System.getenv("KEY_PASSWORD")
-       }
-   }
-   buildTypes {
-       release {
-           signingConfig signingConfigs.release
-           minifyEnabled false
-           shrinkResources false
-           proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-       }
-   }
-   ```
-   (Si `key.jks` está en otra ruta, ajusta `storeFile` según corresponda.)
-3. Para compilar release sin poner contraseñas en el código, usa variables de entorno:
-   ```bash
-   export KEYSTORE_PASSWORD="tu_contraseña_keystore"
-   export KEY_ALIAS="cci-app"
-   export KEY_PASSWORD="tu_contraseña_alias"
-   flutter build appbundle
-   ```
+### 4.2 `android/app/build.gradle`
 
-### 4.4 Firebase en Android
+Descomenta `signingConfigs` y en `buildTypes.release` usa `signingConfig signingConfigs.release`. Contraseñas vía variables de entorno:
 
-1. En Firebase Console → **Project settings** → **Your apps**.
-2. Añade una app **Android** (si no está):
-   - **Package name:** `org.ccisanpedrosula.app`
-3. Descarga **google-services.json** y reemplaza el de:
-   ```
-   android/app/google-services.json
-   ```
-4. Si cambiaste de proyecto/paquete, vuelve a ejecutar:
-   ```bash
-   dart run flutterfire configure
-   ```
+```bash
+export KEYSTORE_PASSWORD="…"
+export KEY_ALIAS="cci-app"
+export KEY_PASSWORD="…"
+flutter build appbundle
+```
+
+El bundle queda en:
+
+`build/app/outputs/bundle/release/app-release.aab`
 
 ---
 
-## 5. Resumen de identidad de la app
+## 5. Google Play Console — plan para “hoy”
 
-| Plataforma | Identificador        | Uso |
-|-----------|----------------------|-----|
-| iOS       | `org.ccisanpedrosula.app` | Bundle ID en Xcode, App ID en Apple, Firebase iOS app |
-| Android   | `org.ccisanpedrosula.app` | applicationId en `build.gradle`, Firebase Android app, Google Play |
+Usa [Google Play Console](https://play.google.com/console) con **ccisanpedrosula@gmail.com** (o la cuenta de desarrollador que tenga la cuota de 25 USD pagada).
 
-Todo queda ligado a:
-- **Apple:** cuenta con la que elegiste el Team en Xcode (recomendado: **ccisanpedrosula@gmail.com**).
-- **Firebase / Google Play:** misma cuenta **ccisanpedrosula@gmail.com** como “host” del proyecto y publicador.
+### 5.1 Crear la aplicación
+
+1. **Crear app** → nombre público (p. ej. “CCI SPS” o el que uses en tienda).
+2. **Idioma predeterminado**, **tipo** (app / juego), **gratis o de pago**.
+3. Declaraciones iniciales (políticas de Play): léelas y acéptalas.
+
+### 5.2 Panel principal (tareas obligatorias)
+
+Play bloquea producción hasta completar, como mínimo:
+
+1. **Ficha de Play Store**  
+   - Descripción breve y completa.  
+   - **Icono** 512×512, **capturas** de teléfono (obligatorio; hay mínimos de cantidad según el formulario).  
+   - Opcional: tablet, TV, etc., según publiques en esos formatos.
+
+2. **Clasificación de contenido**  
+   Cuestionario (religión / comunidad suele encajar en categorías generales; responde con honestidad).
+
+3. **Público objetivo y contenido familiar**  
+   Edades y si la app está dirigida a niños.
+
+4. **Seguridad de los datos** (Data safety)  
+   Qué datos recopilas, si se comparten, cifrado, etc. Alinea esto con tu política de privacidad.
+
+5. **Política de privacidad**  
+   URL pública obligatoria si la app recopila datos personales o usa permisos sensibles.
+
+6. **Acceso a la app**  
+   Si hay login, indica cómo revisar la app (usuario de prueba, instrucciones).
+
+7. **Anuncios**  
+   Si la app muestra anuncios o no.
+
+Completa todo lo que el panel marque en rojo o como obligatorio para **producción** o **prueba interna**.
+
+### 5.3 Primera subida de build (recomendado: prueba interna)
+
+1. **Testing** → **Internal testing** → crea una lista de testers (emails de Google).
+2. **Crear nueva versión** → sube el **`.aab`** firmado (`flutter build appbundle`).
+3. Espera el procesamiento; luego los testers pueden instalar desde el enlace de Play.
+
+Cuando la ficha y las políticas estén listas, repite el flujo en **Producción** (o **Prueba cerrada** primero, si prefieres).
+
+### 5.4 Package name en Play
+
+Al crear la app, el **applicationId** del primer upload fija el paquete: debe ser **`org.ccisanpedrosula.app`** (igual que en `build.gradle`). No se puede cambiar después sin crear otra app.
 
 ---
 
-## 6. Publicación
+## 6. App Store (iOS) — enviar a revisión
 
-### App Store (iOS)
-
-1. En [App Store Connect](https://appstoreconnect.apple.com) (misma Apple ID):
-   - **My Apps** → **+** → **New App**.
-   - Bundle ID: `org.ccisanpedrosula.app`.
-2. Completa ficha (nombre, descripción, capturas, privacidad, etc.).
-3. En Xcode: **Product → Archive** → **Distribute App** → **App Store Connect**.
-4. Sube el build y en App Store Connect enlaza el build a la versión y envía a revisión.
-
-### Google Play (Android)
-
-1. En [Google Play Console](https://play.google.com/console) (con **ccisanpedrosula@gmail.com**):
-   - Crea la aplicación y asocia el paquete `org.ccisanpedrosula.app`.
-2. Rellena ficha de la app, política de privacidad, contenido, etc.
-3. Genera el AAB:
-   ```bash
-   flutter build appbundle
-   ```
-4. En Play Console → **Release** → **Production** (o testing) → sube el `.aab` que está en `build/app/outputs/bundle/release/`.
+1. [App Store Connect](https://appstoreconnect.apple.com) → tu app (Bundle ID `com.ccisps.app`).
+2. **App Store** → nueva versión o la versión en borrador.
+3. Rellena: **capturas**, **descripción**, **palabras clave**, **URL de soporte / privacidad**, **categoría**, revisión de **privacidad** (nutrición de la app), **información de contacto** para revisión.
+4. En **Xcode**: **Product → Archive** → **Distribute App** → **App Store Connect** y sube el build si aún no está enlazado.
+5. Selecciona el build en la versión y **Enviar a revisión**.
 
 ---
 
 ## 7. Entitlements y push en release (iOS)
 
-- **Debug** usa `RunnerDebug.entitlements` → `aps-environment`: **development** (pruebas desde Xcode a dispositivo).
-- **Release** y **Profile** usan `RunnerRelease.entitlements` → **production** (TestFlight / App Store).
+- **Debug** → `RunnerDebug.entitlements` → `aps-environment`: **development**.
+- **Release / Profile / TestFlight / App Store** → `RunnerRelease.entitlements` → **production**.
 
-Si las notificaciones en producción fallan, revisa **Signing & Capabilities**, el App ID con Push activado y la clave APNs en Firebase. Detalle: **[docs/FIREBASE_PUSH_SETUP.md](docs/FIREBASE_PUSH_SETUP.md)**.
+Si fallan las push en producción: **Signing & Capabilities**, App ID con Push, y APNs en Firebase. Ver **[docs/FIREBASE_PUSH_SETUP.md](docs/FIREBASE_PUSH_SETUP.md)**.
 
 ---
 
-## 8. Checklist final
+## 8. Checklist
 
-- [ ] Apple Developer inscrito con la cuenta host (ccisanpedrosula@gmail.com).
-- [ ] App ID creado: `org.ccisanpedrosula.app` con Push Notifications.
-- [ ] Xcode: Team seleccionado (cuenta host), firma automática, capacidad Push.
-- [ ] Firebase: proyecto con la misma cuenta; apps iOS y Android con `org.ccisanpedrosula.app`.
-- [ ] APNs: clave .p8 subida en Firebase Cloud Messaging.
-- [ ] Android: keystore creado, `signingConfigs.release` configurado en `build.gradle`.
-- [ ] `GoogleService-Info.plist` y `google-services.json` actualizados según el proyecto Firebase.
-- [ ] App Store Connect y Google Play Console creados y listos para subir el primer build.
+### Apple (mayoría hecha)
 
-Cuando todo esto esté hecho, la app quedará configurada con **ccisanpedrosula@gmail.com** como cuenta principal (host) en Apple, Firebase y Google Play.
+- [x] Apple Developer activo; app en **App Store Connect**.
+- [x] **TestFlight** con builds instalables.
+- [ ] Ficha de versión completa para **App Store** (textos, capturas, privacidad, etc.).
+- [ ] **Enviar a revisión** desde App Store Connect.
+
+### Google Play (pendiente)
+
+- [ ] Cuenta de desarrollador Play activa.
+- [ ] App creada con package **`org.ccisanpedrosula.app`**.
+- [ ] Keystore + `signingConfigs.release` en `build.gradle`.
+- [ ] `flutter build appbundle` y primer upload (interno o producción).
+- [ ] Ficha de tienda, clasificación de contenido, público objetivo, seguridad de datos, política de privacidad (URL), demás ítems obligatorios del panel.
+
+### Firebase / archivos
+
+- [ ] `GoogleService-Info.plist` acorde a **`com.ccisps.app`**.
+- [ ] `google-services.json` acorde a **`org.ccisanpedrosula.app`** (mismo proyecto Firebase).
+- [ ] APNs (.p8) configurado en Firebase para iOS.
+
+Cuando Play y la revisión de iOS estén completas, la app quedará alineada con **ccisanpedrosula@gmail.com** como host en Apple, Firebase y Google Play.

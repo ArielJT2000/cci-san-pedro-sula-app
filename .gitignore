@@ -50,3 +50,7 @@ fcm_service_account_json.txt
 !pubspec.json
 !android/app/google-services.json
 !ios/Runner/GoogleService-Info.plist
+
+# Android release keystore (no subir a Git)
+/android/key.jks
+*.jks

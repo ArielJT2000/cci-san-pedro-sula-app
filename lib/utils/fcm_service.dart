@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'notification_service.dart';
 import '../navigation/main_navigation.dart';
@@ -39,6 +40,23 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   } else {
     debugPrint('Notificación manejada automáticamente por Firebase (tiene notification en payload)');
   }
+}
+
+/// En iOS, FCM necesita el token APNs antes de [FirebaseMessaging.getToken];
+/// Apple lo entrega de forma asíncrona tras permisos + registro remoto.
+Future<void> _waitForIosApnsToken(FirebaseMessaging messaging) async {
+  const maxAttempts = 40;
+  const delay = Duration(milliseconds: 300);
+  for (var i = 0; i < maxAttempts; i++) {
+    final apns = await messaging.getAPNSToken();
+    if (apns != null && apns.isNotEmpty) {
+      debugPrint('APNS listo para FCM (intento ${i + 1}/$maxAttempts)');
+      return;
+    }
+    await Future.delayed(delay);
+  }
+  debugPrint(
+      'APNS no llegó a tiempo; si estás en iOS físico, prueba hot restart (R) o reabrir la app.');
 }
 
 class FCMService {
@@ -144,6 +162,10 @@ class FCMService {
       // Configurar handlers para cuando la app está en primer plano
       FirebaseMessaging.onMessage.listen(_handleForegroundMessage);
       FirebaseMessaging.onMessageOpenedApp.listen(_handleMessageOpenedApp);
+
+      if (defaultTargetPlatform == TargetPlatform.iOS) {
+        await _waitForIosApnsToken(_messaging!);
+      }
 
       // Obtener token FCM
       _fcmToken = await _messaging!.getToken();

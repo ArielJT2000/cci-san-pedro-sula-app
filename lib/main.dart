@@ -81,8 +81,13 @@ Future<void> _bootstrapServices() async {
     // Suscribirse a los temas
     await fcmService.subscribeToTopic('cci_live_streams');
     await fcmService.subscribeToTopic('cci_events');
-    debugPrint(
-        'FCM inicializado correctamente en ${Platform.isAndroid ? "Android" : "iOS"}');
+    if (fcmService.getToken() != null) {
+      debugPrint(
+          'FCM listo (token OK) en ${Platform.isAndroid ? "Android" : "iOS"}');
+    } else {
+      debugPrint(
+          'FCM sin token en ${Platform.isAndroid ? "Android" : "iOS"} — iOS: simulador o APNS aún no listo (reinicia la app o revisa permisos / Firebase APNs).');
+    }
   } catch (e) {
     debugPrint('Error inicializando FCM: $e');
   }

@@ -17,18 +17,31 @@ import UserNotifications
     if #available(iOS 10.0, *) {
       UNUserNotificationCenter.current().delegate = self
       let authOptions: UNAuthorizationOptions = [.alert, .badge, .sound]
-      UNUserNotificationCenter.current().requestAuthorization(
+      let center = UNUserNotificationCenter.current()
+      center.getNotificationSettings { settings in
+        if settings.authorizationStatus == .authorized
+            || settings.authorizationStatus == .provisional {
+          DispatchQueue.main.async {
+            application.registerForRemoteNotifications()
+          }
+        }
+      }
+      center.requestAuthorization(
         options: authOptions,
-        completionHandler: { _, _ in }
+        completionHandler: { granted, _ in
+          if granted {
+            DispatchQueue.main.async {
+              application.registerForRemoteNotifications()
+            }
+          }
+        }
       )
     } else {
       let settings: UIUserNotificationSettings =
         UIUserNotificationSettings(types: [.alert, .badge, .sound], categories: nil)
       application.registerUserNotificationSettings(settings)
+      application.registerForRemoteNotifications()
     }
-    
-    // Registrar para notificaciones remotas (requiere APNs configurado en Firebase)
-    application.registerForRemoteNotifications()
     
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
