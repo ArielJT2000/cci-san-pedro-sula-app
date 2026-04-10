@@ -584,9 +584,9 @@ class NotificationService {
     }
   }
 
-  /// Cancela una notificación programada
-  Future<void> cancelNotification(int id) async {
-    await _notifications.cancel(id);
+  /// Cancela una notificación mostrada o programada ([tag] solo aplica en Android).
+  Future<void> cancelNotification(int id, {String? tag}) async {
+    await _notifications.cancel(id, tag: tag);
   }
 
   /// Cancela todas las notificaciones
@@ -600,6 +600,8 @@ class NotificationService {
     required String title,
     required String body,
     String? payload,
+    /// En Android, mismo [id] + [androidTag] sustituye la anterior (evita duplicados en bandeja).
+    String? androidTag,
   }) async {
     if (!_initialized) await initialize();
 
@@ -616,6 +618,7 @@ class NotificationService {
           priority: Priority.high,
           playSound: true,
           enableVibration: true,
+          tag: androidTag,
         ),
         iOS: const DarwinNotificationDetails(
           presentAlert: true,

@@ -23,6 +23,9 @@ class MainNavigation extends StatefulWidget {
   static void navigateToPage(int index) {
     _MainNavigationState._instance?._navigateToPage(index);
   }
+
+  /// True cuando el shell con PageView ya está montado (evita no-op silencioso al navegar).
+  static bool get canNavigate => _MainNavigationState._instance != null;
 }
 
 class _MainNavigationState extends State<MainNavigation> {

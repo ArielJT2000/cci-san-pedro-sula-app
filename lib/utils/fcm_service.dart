@@ -44,6 +44,47 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 
 /// En iOS, FCM necesita el token APNs antes de [FirebaseMessaging.getToken];
 /// Apple lo entrega de forma asíncrona tras permisos + registro remoto.
+/// Solo avisos claramente de “en vivo” real (p. ej. Lambda). No usar “transmisión” suelto:
+/// textos de prueba de *eventos* suelen decir “transmisión” y no deben ir a pantalla Live.
+bool _textSuggestsLiveStream(String? title, String? body) {
+  final t = '${title ?? ''}\n${body ?? ''}'.toLowerCase();
+  if (t.contains('estamos en vivo')) return true;
+  if (t.contains('hay una transmisión en vivo') ||
+      t.contains('hay una transmision en vivo')) {
+    return true;
+  }
+  if (t.contains('transmisión en vivo') || t.contains('transmision en vivo')) {
+    return true;
+  }
+  if (t.contains('🔴') && t.contains('transmis')) return true;
+  return false;
+}
+
+/// Combina `data` de FCM con inferencia mínima. Si ya viene `type` del backend, no se toca (iOS/Android).
+Map<String, dynamic> _effectiveDataForNavigation(RemoteMessage message) {
+  final data = Map<String, dynamic>.from(message.data);
+  final typeVal = (data['type']?.toString() ?? '').trim();
+  if (typeVal.isNotEmpty) {
+    return data;
+  }
+
+  final title = message.notification?.title;
+  final body = message.notification?.body;
+  final eventId =
+      (data['eventId'] ?? data['eventID'] ?? '').toString().trim();
+
+  if (eventId.isNotEmpty) {
+    data['type'] = 'new_event';
+    return data;
+  }
+
+  if (message.notification != null && _textSuggestsLiveStream(title, body)) {
+    data['type'] = 'live_stream';
+  }
+
+  return data;
+}
+
 Future<void> _waitForIosApnsToken(FirebaseMessaging messaging) async {
   const maxAttempts = 40;
   const delay = Duration(milliseconds: 300);
@@ -73,6 +114,9 @@ class FCMService {
   // Guardar mensaje inicial para navegar cuando MainNavigation esté listo
   static RemoteMessage? _pendingInitialMessage;
   static String? _pendingNotificationPayload;
+
+  static String? _lastForegroundDedupeId;
+  static DateTime? _lastForegroundDedupeAt;
 
   /// Datos de navegación pendiente (pantalla + evento) para que la pantalla destino los consuma
   static String? pendingEventId;
@@ -196,26 +240,64 @@ class FCMService {
     }
   }
 
+  /// Una sola tarjeta en Android: cancela la anterior con el mismo (id, tag) antes de mostrar.
+  Future<void> _mirrorFcmForegroundOnAndroid(
+      RemoteMessage message, String payload) async {
+    const androidMirrorId = 9001;
+    const androidMirrorTag = 'cci_fcm_mirror';
+    await NotificationService()
+        .cancelNotification(androidMirrorId, tag: androidMirrorTag);
+    await NotificationService().showNotification(
+      id: androidMirrorId,
+      title: message.notification!.title ?? 'CCI San Pedro Sula',
+      body: message.notification!.body ?? '',
+      payload: payload,
+      androidTag: androidMirrorTag,
+    );
+  }
+
   /// Maneja notificaciones cuando la app está en primer plano
   void _handleForegroundMessage(RemoteMessage message) {
     debugPrint('Notificación recibida en primer plano: ${message.messageId}');
     debugPrint('Datos de la notificación: ${message.data}');
-    
+
+    final mid = message.messageId ?? '';
+    final now = DateTime.now();
+    if (mid.isNotEmpty) {
+      if (mid == _lastForegroundDedupeId &&
+          _lastForegroundDedupeAt != null &&
+          now.difference(_lastForegroundDedupeAt!) < const Duration(seconds: 4)) {
+        debugPrint('FCM foreground: omitiendo duplicado messageId=$mid');
+        return;
+      }
+      _lastForegroundDedupeId = mid;
+      _lastForegroundDedupeAt = now;
+    }
+
     if (message.notification != null) {
-      final category = (message.data['category'] ?? 'general').toString();
-      final eventId = (message.data['eventId'] ?? message.data['eventID'] ?? '').toString();
-      // Payload con category y eventId para que al tocar la notificación local vaya a la pantalla correcta
-      final payload = jsonEncode({
-        'type': message.data['type'] ?? 'new_event',
+      final data = _effectiveDataForNavigation(message);
+      final category = (data['category'] ?? 'general').toString();
+      final eventId = (data['eventId'] ?? data['eventID'] ?? '').toString();
+      final type = (data['type'] ?? 'new_event').toString();
+      final videoId = (data['videoId'] ?? '').toString();
+      final payloadMap = <String, dynamic>{
+        'type': type,
         'category': category,
         'eventId': eventId,
-      });
-      NotificationService().showNotification(
-        id: message.hashCode,
-        title: message.notification!.title ?? 'CCI San Pedro Sula',
-        body: message.notification!.body ?? '',
-        payload: payload,
-      );
+      };
+      if (videoId.isNotEmpty) payloadMap['videoId'] = videoId;
+      final payload = jsonEncode(payloadMap);
+
+      if (defaultTargetPlatform == TargetPlatform.android) {
+        unawaited(_mirrorFcmForegroundOnAndroid(message, payload));
+      } else {
+        unawaited(NotificationService().showNotification(
+          id: message.hashCode,
+          title: message.notification!.title ?? 'CCI San Pedro Sula',
+          body: message.notification!.body ?? '',
+          payload: payload,
+        ));
+      }
     }
   }
 
@@ -237,17 +319,7 @@ class FCMService {
     String? payload = _pendingNotificationPayload;
     
     if (message != null) {
-      final data = Map<String, dynamic>.from(message.data);
-      // Cold start: a veces FCM entrega `notification` pero `data` vacío al abrir desde la bandeja.
-      if (data.isEmpty && message.notification != null) {
-        final title = (message.notification!.title ?? '').toLowerCase();
-        if (title.contains('transmisión') ||
-            title.contains('transmision') ||
-            title.contains('en vivo') ||
-            title.contains('vivo')) {
-          data['type'] = 'live_stream';
-        }
-      }
+      final data = _effectiveDataForNavigation(message);
       _applyNavigationFromData(data);
       _pendingInitialMessage = null;
     } else if (payload != null) {
@@ -350,17 +422,16 @@ class FCMService {
   /// Navega a una pantalla específica usando el PageController de MainNavigation
   void _navigateToScreen(int screenIndex) {
     debugPrint('Intentando navegar a pantalla índice: $screenIndex');
-    
-    // Intentar navegar directamente usando el método estático
-    try {
+
+    // navigateToPage no lanza si _instance es null: antes se hacía return aquí y nunca
+    // se llegaba a pushAndRemoveUntil (p. ej. usuario en Welcome).
+    if (MainNavigation.canNavigate) {
       MainNavigation.navigateToPage(screenIndex);
-      debugPrint('Navegación exitosa usando MainNavigation.navigateToPage');
+      debugPrint('Navegación: MainNavigation montado, tab $screenIndex');
       return;
-    } catch (e) {
-      debugPrint('Error navegando directamente: $e');
     }
-    
-    // Si falla, verificar si MainNavigation está montado usando NavigatorKey
+
+    // MainNavigation no montado: seguir con navigatorKey
     if (_navigatorKey?.currentState == null) {
       debugPrint('NavigatorKey no está disponible, reintentando en 1 segundo...');
       Future.delayed(const Duration(milliseconds: 1000), () {
