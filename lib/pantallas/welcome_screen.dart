@@ -15,17 +15,24 @@ class WelcomeScreen extends StatefulWidget {
 }
 
 class _WelcomeScreenState extends State<WelcomeScreen>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   late AnimationController _animationController;
+  late AnimationController _logoExitController;
   late Animation<double> _fadeAnimation;
   late Animation<double> _scaleAnimation;
   late Animation<Offset> _slideAnimation;
+  bool _navigatingToHome = false;
 
   @override
   void initState() {
     super.initState();
     _animationController = AnimationController(
       duration: duracionLarga,
+      vsync: this,
+    );
+
+    _logoExitController = AnimationController(
+      duration: const Duration(milliseconds: 320),
       vsync: this,
     );
 
@@ -64,6 +71,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
   @override
   void dispose() {
     _animationController.dispose();
+    _logoExitController.dispose();
     super.dispose();
   }
 
@@ -113,9 +121,24 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       const Spacer(flex: 2),
-                      // Logo con texto y Hero para transición 3D
-                      ScaleTransition(
-                        scale: effectiveScale,
+                      // Logo: Hero solo Splash → Welcome; al pulsar Empezar se oculta antes del push.
+                      AnimatedBuilder(
+                        animation: Listenable.merge(
+                            [_animationController, _logoExitController]),
+                        builder: (context, child) {
+                          final exit = _logoExitController.value;
+                          final welcomeOpacity =
+                              effectiveFade.value * (1.0 - exit);
+                          final welcomeScale =
+                              effectiveScale.value * (1.0 - 0.12 * exit);
+                          return Opacity(
+                            opacity: welcomeOpacity.clamp(0.0, 1.0),
+                            child: Transform.scale(
+                              scale: welcomeScale.clamp(0.01, 1.0),
+                              child: child,
+                            ),
+                          );
+                        },
                         child: SlideTransition(
                           position: effectiveSlide,
                           child: Material(
@@ -129,9 +152,6 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                                 BuildContext fromHeroContext,
                                 BuildContext toHeroContext,
                               ) {
-                                // Si venimos desde el Splash, NO aplicar el scale (0.85) que
-                                // usamos para Welcome -> Inicio. Aquí queremos que el logo
-                                // aterrice exactamente en el tamaño/posición del Welcome.
                                 final fromHero = fromHeroContext.widget as Hero;
                                 if (fromHero.key ==
                                     const ValueKey('splash_app_logo_hero')) {
@@ -143,14 +163,12 @@ class _WelcomeScreenState extends State<WelcomeScreen>
 
                                 final Hero toHero =
                                     toHeroContext.widget as Hero;
-                                // Transición suave del logo con escala y opacidad
                                 return AnimatedBuilder(
                                   animation: animation,
                                   builder: (context, child) {
                                     final progress = animation.value;
-                                    // Escala al final de la transición Hero = 0.85 para coincidir con el tamaño final en Inicio
                                     final scale =
-                                        1.0 - (progress * 0.15); // De 1.0 a 0.85
+                                        1.0 - (progress * 0.15);
                                     final opacity = 1.0 - (progress * 0.2);
 
                                     return Opacity(
@@ -258,20 +276,24 @@ class _WelcomeScreenState extends State<WelcomeScreen>
           child: Transform.translate(
             offset: Offset(0, 20 * (1 - value)),
             child: GestureDetector(
-              onTap: () {
-                // Transición con efecto blur
-                Navigator.of(context).push(
+              onTap: () async {
+                if (_navigatingToHome) return;
+                setState(() => _navigatingToHome = true);
+                await _logoExitController.forward();
+                if (!context.mounted) return;
+
+                // Transición con efecto blur (sin Hero a Inicio: el logo reaparece allí con la animación del encabezado).
+                Navigator.of(context)
+                    .push(
                   PageRouteBuilder(
                     pageBuilder: (context, animation, secondaryAnimation) =>
                         const MainNavigation(),
                     transitionsBuilder:
                         (context, animation, secondaryAnimation, child) {
-                      // Efecto blur progresivo
                       final blurValue = (1 - animation.value) * 15.0;
 
                       return Stack(
                         children: [
-                          // Fondo con blur que simula la pantalla anterior borrosa
                           if (animation.value < 1.0)
                             ClipRect(
                               child: BackdropFilter(
@@ -286,7 +308,6 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                                 ),
                               ),
                             ),
-                          // Nueva pantalla con fade y slide
                           FadeTransition(
                             opacity: animation,
                             child: SlideTransition(
@@ -307,7 +328,12 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                     },
                     transitionDuration: duracionLarga,
                   ),
-                );
+                )
+                    .then((_) {
+                  if (!mounted) return;
+                  _logoExitController.reset();
+                  setState(() => _navigatingToHome = false);
+                });
               },
               child: Container(
                 width: double.infinity,

@@ -13,6 +13,9 @@ import 'youth.dart';
 import 'ubicacion.dart';
 import '../Informacion/actividades_externas.dart';
 
+/// Solo el logo del encabezado (~−30 % respecto a 0.20 del ancho); el rótulo CCI conserva el tamaño de cuerpo estándar.
+const double _kInicioLogoScale = 0.7;
+
 class Inicio extends StatefulWidget {
   const Inicio({super.key});
 
@@ -23,11 +26,21 @@ class Inicio extends StatefulWidget {
 class _InicioState extends State<Inicio> with TickerProviderStateMixin {
   late AnimationController _heroAnimationController;
   late AnimationController _textAnimationController;
-  late AnimationController _logoPositionController;
+  late AnimationController _headerLogoController;
   late Animation<double> _textOpacityAnimation;
-  late Animation<Offset> _logoPositionAnimation;
-  late Animation<Offset> _textPositionAnimation;
-  late Animation<double> _logoPositionScaleAnimation;
+  late Animation<Offset> _cciEnterSlide;
+  late Animation<Offset> _logoEnterSlide;
+  late Animation<double> _logoEnterFade;
+  late Animation<double> _logoEnterScale;
+  bool _headerLogoRevealStarted = false;
+
+  void _onTextProgressForLogo() {
+    if (_headerLogoRevealStarted || !mounted) return;
+    if (_textAnimationController.value >= 0.5) {
+      _headerLogoRevealStarted = true;
+      _headerLogoController.forward();
+    }
+  }
 
   @override
   void initState() {
@@ -54,64 +67,64 @@ class _InicioState extends State<Inicio> with TickerProviderStateMixin {
       ),
     );
 
-    _logoPositionController = AnimationController(
-      duration: const Duration(milliseconds: 800),
+    _cciEnterSlide = Tween<Offset>(
+      begin: const Offset(0, -0.06),
+      end: Offset.zero,
+    ).animate(
+      CurvedAnimation(
+        parent: _textAnimationController,
+        curve: Curves.easeOutCubic,
+      ),
+    );
+
+    _headerLogoController = AnimationController(
+      duration: const Duration(milliseconds: 720),
       vsync: this,
     );
 
-    _logoPositionAnimation = Tween<Offset>(
-      begin: const Offset(0.0, 0.0),
-      end: const Offset(1.25, 0.0),
+    _logoEnterSlide = Tween<Offset>(
+      begin: const Offset(0.0, 0.14),
+      end: Offset.zero,
     ).animate(
       CurvedAnimation(
-        parent: _logoPositionController,
-        curve: Curves.easeOutCubic,
+        parent: _headerLogoController,
+        curve: const Interval(0.0, 1.0, curve: Curves.easeOutCubic),
       ),
     );
 
-    _textPositionAnimation = Tween<Offset>(
-      begin: const Offset(0.0, 0.0),
-      end: const Offset(-0.65, 0.0),
-    ).animate(
+    _logoEnterFade = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
-        parent: _logoPositionController,
-        curve: Curves.easeOutCubic,
+        parent: _headerLogoController,
+        curve: const Interval(0.0, 0.55, curve: Curves.easeOut),
       ),
     );
 
-    _logoPositionScaleAnimation = Tween<double>(
-      begin: 0.85,
-      end: 0.85,
-    ).animate(
+    _logoEnterScale = Tween<double>(begin: 0.92, end: 1.0).animate(
       CurvedAnimation(
-        parent: _logoPositionController,
-        curve: Curves.easeOutCubic,
+        parent: _headerLogoController,
+        curve: const Interval(0.0, 1.0, curve: Curves.easeOutCubic),
       ),
     );
 
-    // Delay para que la transición Hero se complete primero
-    Future.delayed(const Duration(milliseconds: 600), () {
-      if (mounted) {
-        _heroAnimationController.forward();
-        Future.delayed(const Duration(milliseconds: 100), () {
-          if (mounted) {
-            _textAnimationController.forward();
-            Future.delayed(const Duration(milliseconds: 500), () {
-              if (mounted) {
-                _logoPositionController.forward();
-              }
-            });
-          }
-        });
-      }
+    _textAnimationController.addListener(_onTextProgressForLogo);
+
+    // Pausa breve tras montar (la bienvenida oculta el logo antes del push; sin Hero a Inicio).
+    Future.delayed(const Duration(milliseconds: 500), () {
+      if (!mounted) return;
+      _heroAnimationController.forward();
+      Future.delayed(const Duration(milliseconds: 100), () {
+        if (!mounted) return;
+        _textAnimationController.forward();
+      });
     });
   }
 
   @override
   void dispose() {
+    _textAnimationController.removeListener(_onTextProgressForLogo);
     _heroAnimationController.dispose();
     _textAnimationController.dispose();
-    _logoPositionController.dispose();
+    _headerLogoController.dispose();
     super.dispose();
   }
 
@@ -119,6 +132,7 @@ class _InicioState extends State<Inicio> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
+    final logoL = screenWidth * 0.20 * _kInicioLogoScale;
 
     return SwipeBackWrapper(
       child: Container(
@@ -137,86 +151,90 @@ class _InicioState extends State<Inicio> with TickerProviderStateMixin {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                ScaleTransition(
-                  scale: _logoPositionScaleAnimation,
-                  child: Center(
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        SlideTransition(
-                          position: _textPositionAnimation,
-                          child: Padding(
-                            padding: EdgeInsets.only(top: screenWidth * 0.008),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: Padding(
+                          padding: EdgeInsets.only(top: screenWidth * 0.008),
+                          child: SlideTransition(
+                            position: _cciEnterSlide,
                             child: AnimatedBuilder(
                               animation: _textOpacityAnimation,
                               builder: (context, child) {
                                 return ClipRect(
                                   child: Align(
                                     alignment: Alignment.centerLeft,
-                                    widthFactor: _textOpacityAnimation.value,
+                                    widthFactor:
+                                        _textOpacityAnimation.value,
                                     child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Text(
-                                          kChurchName,
-                                          overflow: TextOverflow.visible,
-                                          style: TextStyle(
-                                            fontFamily: kFontFamily,
-                                            color: grisMedio,
-                                            fontSize: getFontSizeBodySmall(
-                                                screenWidth),
-                                            fontWeight: fontWeightBold,
-                                            letterSpacing: letterSpacingWider,
-                                            height: lineHeightLoose,
-                                          ),
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Text(
+                                        kChurchName,
+                                        overflow: TextOverflow.visible,
+                                        style: TextStyle(
+                                          fontFamily: kFontFamily,
+                                          color: grisMedio,
+                                          fontSize: getFontSizeBodySmall(
+                                              screenWidth),
+                                          fontWeight: fontWeightBold,
+                                          letterSpacing: letterSpacingWider,
+                                          height: lineHeightLoose,
                                         ),
-                                        Text(
-                                          kChurchSubtitle,
-                                          overflow: TextOverflow.visible,
-                                          style: TextStyle(
-                                            fontFamily: kFontFamily,
-                                            color: grisMedio,
-                                            fontSize: getFontSizeBodySmall(
-                                                screenWidth),
-                                            fontWeight: fontWeightBold,
-                                            letterSpacing: letterSpacingWider,
-                                            height: lineHeightNormal,
-                                          ),
+                                      ),
+                                      Text(
+                                        kChurchSubtitle,
+                                        overflow: TextOverflow.visible,
+                                        style: TextStyle(
+                                          fontFamily: kFontFamily,
+                                          color: grisMedio,
+                                          fontSize: getFontSizeBodySmall(
+                                              screenWidth),
+                                          fontWeight: fontWeightBold,
+                                          letterSpacing: letterSpacingWider,
+                                          height: lineHeightNormal,
                                         ),
-                                      ],
-                                    ),
+                                      ),
+                                    ],
                                   ),
-                                );
+                                ),
+                              );
                               },
                             ),
                           ),
                         ),
-                        SizedBox(width: screenWidth * 0.04),
-                        SlideTransition(
-                          position: _logoPositionAnimation,
-                          child: Hero(
-                            tag: 'app_logo',
-                            child: Image.asset(
-                              'assets/images/Logo CCI SPS_Globo Gris Oscuro.png',
-                              width: screenWidth * 0.20,
-                              height: screenWidth * 0.20,
-                              fit: BoxFit.contain,
-                              errorBuilder: (context, error, stackTrace) {
-                                return Icon(
-                                  Icons.church,
-                                  size: screenWidth * 0.3,
-                                  color: blanco,
-                                );
-                              },
-                            ),
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
-                  ),
+                    SizedBox(width: screenWidth * 0.04),
+                    FadeTransition(
+                      opacity: _logoEnterFade,
+                      child: SlideTransition(
+                        position: _logoEnterSlide,
+                        child: ScaleTransition(
+                          scale: _logoEnterScale,
+                          alignment: Alignment.center,
+                          child: Image.asset(
+                            'assets/images/Logo CCI SPS_Globo Gris Oscuro.png',
+                            width: logoL,
+                            height: logoL,
+                            fit: BoxFit.contain,
+                            errorBuilder: (context, error, stackTrace) {
+                              return Icon(
+                                Icons.church,
+                                size: screenWidth * 0.3,
+                                color: blanco,
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
                 SizedBox(height: screenHeight * 0.018),
                 _buildHeroSection(screenWidth, screenHeight),
