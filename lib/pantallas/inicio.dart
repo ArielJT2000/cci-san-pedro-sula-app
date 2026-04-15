@@ -17,7 +17,9 @@ import '../Informacion/actividades_externas.dart';
 const double _kInicioLogoScale = 0.7;
 
 class Inicio extends StatefulWidget {
-  const Inicio({super.key});
+  final bool fromSplash;
+
+  const Inicio({super.key, this.fromSplash = false});
 
   @override
   State<Inicio> createState() => _InicioState();
@@ -152,24 +154,22 @@ class _InicioState extends State<Inicio> with TickerProviderStateMixin {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  // Alinear verticalmente el texto (izq) con el logo (der).
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Expanded(
                       child: Align(
                         alignment: Alignment.centerLeft,
-                        child: Padding(
-                          padding: EdgeInsets.only(top: screenWidth * 0.008),
-                          child: SlideTransition(
-                            position: _cciEnterSlide,
-                            child: AnimatedBuilder(
-                              animation: _textOpacityAnimation,
-                              builder: (context, child) {
-                                return ClipRect(
-                                  child: Align(
-                                    alignment: Alignment.centerLeft,
-                                    widthFactor:
-                                        _textOpacityAnimation.value,
-                                    child: Column(
+                        child: SlideTransition(
+                          position: _cciEnterSlide,
+                          child: AnimatedBuilder(
+                            animation: _textOpacityAnimation,
+                            builder: (context, child) {
+                              return ClipRect(
+                                child: Align(
+                                  alignment: Alignment.centerLeft,
+                                  widthFactor: _textOpacityAnimation.value,
+                                  child: Column(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     mainAxisSize: MainAxisSize.min,
@@ -180,8 +180,8 @@ class _InicioState extends State<Inicio> with TickerProviderStateMixin {
                                         style: TextStyle(
                                           fontFamily: kFontFamily,
                                           color: grisMedio,
-                                          fontSize: getFontSizeBodySmall(
-                                              screenWidth),
+                                          fontSize:
+                                              getFontSizeBodySmall(screenWidth),
                                           fontWeight: fontWeightBold,
                                           letterSpacing: letterSpacingWider,
                                           height: lineHeightLoose,
@@ -193,8 +193,8 @@ class _InicioState extends State<Inicio> with TickerProviderStateMixin {
                                         style: TextStyle(
                                           fontFamily: kFontFamily,
                                           color: grisMedio,
-                                          fontSize: getFontSizeBodySmall(
-                                              screenWidth),
+                                          fontSize:
+                                              getFontSizeBodySmall(screenWidth),
                                           fontWeight: fontWeightBold,
                                           letterSpacing: letterSpacingWider,
                                           height: lineHeightNormal,
@@ -204,8 +204,7 @@ class _InicioState extends State<Inicio> with TickerProviderStateMixin {
                                   ),
                                 ),
                               );
-                              },
-                            ),
+                            },
                           ),
                         ),
                       ),
@@ -252,6 +251,9 @@ class _InicioState extends State<Inicio> with TickerProviderStateMixin {
   }
 
   Widget _buildHeroSection(double screenWidth, double screenHeight) {
+    // Micro-ajuste: solo las líneas grandes ("EL AMOR" / "DE DIOS") van un poco
+    // más a la izquierda sin alterar el resto del bloque hero.
+    final bigLineNudgeLeft = screenWidth * 0.009;
     return FadeTransition(
       opacity: _heroAnimationController,
       child: Column(
@@ -267,16 +269,22 @@ class _InicioState extends State<Inicio> with TickerProviderStateMixin {
                 style: getHeroSmallTextStyle(screenWidth),
               ),
               SizedBox(height: screenHeight * spacingS),
-              // EL AMOR - fuente mucho más grande y negrita
-              Text(
-                kMainMessageLine2,
-                style: getHeroTextStyle(screenWidth),
+              // EL AMOR - fuente mucho más grande y negrita (ligeramente más a la izquierda)
+              Transform.translate(
+                offset: Offset(-bigLineNudgeLeft, 0),
+                child: Text(
+                  kMainMessageLine2,
+                  style: getHeroTextStyle(screenWidth),
+                ),
               ),
               SizedBox(height: screenHeight * spacingXXS),
-              // DE DIOS - fuente mucho más grande y negrita
-              Text(
-                kMainMessageLine3,
-                style: getHeroTextStyle(screenWidth),
+              // DE DIOS - fuente mucho más grande y negrita (ligeramente más a la izquierda)
+              Transform.translate(
+                offset: Offset(-bigLineNudgeLeft, 0),
+                child: Text(
+                  kMainMessageLine3,
+                  style: getHeroTextStyle(screenWidth),
+                ),
               ),
               SizedBox(height: screenHeight * spacingS),
               // PARA QUE EL MUNDO CREA - fuente más pequeña

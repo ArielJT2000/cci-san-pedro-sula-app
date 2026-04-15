@@ -128,7 +128,8 @@ class FCMService {
 
   /// En cold start [getInitialMessage] a veces devuelve null o [data] vacío hasta más tarde.
   Future<void> ensureInitialMessage() async {
-    if (_pendingInitialMessage != null || _messaging == null) return;
+    if (_pendingInitialMessage != null) return;
+    _messaging ??= FirebaseMessaging.instance;
     try {
       const delays = [
         Duration.zero,
@@ -149,6 +150,26 @@ class FCMService {
       }
     } catch (e) {
       debugPrint('ensureInitialMessage error: $e');
+    }
+  }
+
+  /// Intenta precargar el mensaje inicial lo antes posible, sin depender de que
+  /// `initialize()` termine (en iOS puede tardar por APNs).
+  ///
+  /// Importante: esto NO solicita permisos ni token; solo intenta leer el intent
+  /// de apertura (deep link) para decidir navegación inicial.
+  Future<void> preloadInitialMessage() async {
+    if (_pendingInitialMessage != null) return;
+    try {
+      _messaging ??= FirebaseMessaging.instance;
+      final message = await _messaging!.getInitialMessage();
+      if (message != null) {
+        debugPrint('preloadInitialMessage: mensaje obtenido (cold start)');
+        debugPrint('Datos: ${message.data}');
+        _pendingInitialMessage = message;
+      }
+    } catch (e) {
+      debugPrint('preloadInitialMessage error: $e');
     }
   }
 

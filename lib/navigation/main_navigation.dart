@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'dart:ui';
 import '../pantallas/inicio.dart';
 import '../pantallas/eventos.dart';
 import '../pantallas/iglesia.dart';
@@ -7,14 +6,15 @@ import '../pantallas/ministerios.dart';
 import '../pantallas/transmisiones.dart';
 import '../pantallas/ofrendas.dart';
 import '../pantallas/next.dart';
-import '../pantallas/welcome_screen.dart';
 import '../pantallas/ubicacion.dart';
 import '../utils/constants.dart';
 import '../utils/fcm_service.dart';
 import '../widgets/back_button_widget.dart';
 
 class MainNavigation extends StatefulWidget {
-  const MainNavigation({super.key});
+  final bool fromSplash;
+
+  const MainNavigation({super.key, this.fromSplash = false});
 
   @override
   State<MainNavigation> createState() => _MainNavigationState();
@@ -34,16 +34,7 @@ class _MainNavigationState extends State<MainNavigation> {
   double _dragDeltaX = 0.0;
   bool _isVerticalScroll = false;
 
-  final List<Widget> _screens = [
-    const Inicio(),
-    const Eventos(),
-    const Iglesia(),
-    const Ministerios(),
-    const Transmisiones(),
-    const Ofrendas(),
-    const Ubicacion(),
-    const Next(),
-  ];
+  late final List<Widget> _screens;
 
   // Instancia estática para acceso desde notificaciones
   static _MainNavigationState? _instance;
@@ -53,6 +44,17 @@ class _MainNavigationState extends State<MainNavigation> {
     super.initState();
     _pageController = PageController(initialPage: 0);
     _instance = this;
+
+    _screens = [
+      Inicio(fromSplash: widget.fromSplash),
+      const Eventos(),
+      const Iglesia(),
+      const Ministerios(),
+      const Transmisiones(),
+      const Ofrendas(),
+      const Ubicacion(),
+      const Next(),
+    ];
     
     // Notificar a FCMService que MainNavigation está listo para manejar navegación pendiente
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -96,55 +98,12 @@ class _MainNavigationState extends State<MainNavigation> {
     tryNavigate();
   }
 
-  /// Vuelve a la pantalla de bienvenida (mismo criterio que deslizar atrás en el tab Inicio).
+  /// Ya no hay pantalla Welcome: en el tab Inicio, no hacemos "back" extra.
   void _handleBackToWelcome(BuildContext context) {
     if (Navigator.of(context).canPop()) {
       Navigator.of(context).pop();
       return;
     }
-    Navigator.of(context).pushReplacement(
-      PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) =>
-            const WelcomeScreen(),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          final blurValue = (1 - animation.value) * 15.0;
-          return Stack(
-            children: [
-              if (animation.value < 1.0)
-                ClipRect(
-                  child: BackdropFilter(
-                    filter: ImageFilter.blur(
-                      sigmaX: blurValue,
-                      sigmaY: blurValue,
-                    ),
-                    child: Container(
-                      color: Colors.black.withValues(
-                          alpha: (0.3 * (1 - animation.value))
-                              .clamp(0.0, 1.0)),
-                    ),
-                  ),
-                ),
-              FadeTransition(
-                opacity: animation,
-                child: SlideTransition(
-                  position: Tween<Offset>(
-                    begin: const Offset(-0.03, 0.0),
-                    end: Offset.zero,
-                  ).animate(
-                    CurvedAnimation(
-                      parent: animation,
-                      curve: curvaSuave,
-                    ),
-                  ),
-                  child: child,
-                ),
-              ),
-            ],
-          );
-        },
-        transitionDuration: duracionLarga,
-      ),
-    );
   }
 
   @override

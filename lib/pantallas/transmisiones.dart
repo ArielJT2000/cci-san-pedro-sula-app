@@ -164,72 +164,39 @@ class Transmisiones extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            "Prédicas y contenido",
+            "Descubre nuestro canal de YouTube para ver todas nuestras "
+            "prédicas, transmisiones recientes y contenido de CCI Praise.",
             style: TextStyle(
               fontFamily: 'SF Pro Display',
-              color: blanco,
-              fontSize: screenWidth < 360 ? 20 : 24,
-              fontWeight: FontWeight.w600,
-              letterSpacing: -0.5,
-              height: 1.2,
+              color: grisMedio,
+              fontSize: screenWidth < 360 ? 15 : 16,
+              fontWeight: FontWeight.w400,
+              letterSpacing: 0.0,
+              height: 1.5,
               decoration: TextDecoration.none,
             ),
+            textAlign: TextAlign.center,
           ),
-          SizedBox(height: screenHeight * 0.014),
-          Container(
-            width: double.infinity,
-            padding: EdgeInsets.all(screenWidth * 0.05),
-            decoration: BoxDecoration(
-              color: grisCard,
-              borderRadius: BorderRadius.circular(borderRadius),
-              border: Border.all(
-                color: colorWithOpacity(blanco, 0.1),
-                width: 0.5,
+          SizedBox(height: screenHeight * 0.018),
+          Center(
+            child: FilledButton(
+              onPressed: _openYouTubeChannel,
+              style: FilledButton.styleFrom(
+                backgroundColor: grisOscuro,
+                foregroundColor: blanco,
+                padding: EdgeInsets.symmetric(
+                  horizontal: screenWidth * 0.06,
+                  vertical: 14,
+                ),
               ),
-            ),
-            child: Column(
-              children: [
-                Icon(
-                  Icons.video_library_outlined,
-                  color: blanco,
-                  size: 40,
-                ),
-                SizedBox(height: screenWidth * 0.04),
-                Text(
-                  "Descubre nuestro canal de YouTube para ver todas nuestras "
-                  "prédicas, transmisiones recientes y contenido de CCI Praise.",
-                  style: TextStyle(
-                    fontFamily: 'SF Pro Display',
-                    color: grisMedio,
-                    fontSize: screenWidth < 360 ? 15 : 16,
-                    fontWeight: FontWeight.w400,
-                    letterSpacing: 0.0,
-                    height: 1.5,
-                    decoration: TextDecoration.none,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                SizedBox(height: screenWidth * 0.05),
-                FilledButton(
-                  onPressed: _openYouTubeChannel,
-                  style: FilledButton.styleFrom(
-                    backgroundColor: grisOscuro,
-                    foregroundColor: blanco,
-                    padding: EdgeInsets.symmetric(
-                      horizontal: screenWidth * 0.06,
-                      vertical: 14,
-                    ),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(SimpleIcons.youtube, size: 20, color: youtubeRed),
-                      SizedBox(width: screenWidth * 0.03),
-                      const Text('Ver canal en YouTube'),
-                    ],
-                  ),
-                ),
-              ],
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(SimpleIcons.youtube, size: 20, color: youtubeRed),
+                  SizedBox(width: screenWidth * 0.03),
+                  const Text('Ver Canal'),
+                ],
+              ),
             ),
           ),
         ],
