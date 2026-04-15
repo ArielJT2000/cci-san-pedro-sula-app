@@ -56,11 +56,19 @@ void main() async {
 Future<void> _bootstrapServices() async {
   // Inicializar Firebase en Android e iOS
   try {
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
-    );
-    debugPrint(
-        'Firebase inicializado correctamente en ${Platform.isAndroid ? "Android" : "iOS"}');
+    // En iOS el registro de plugins / AppDelegate puede crear la app [DEFAULT]
+    // antes de que corra este código. Volver a llamar `initializeApp` provoca
+    // [core/duplicate-app] y en release puede dejar push/notificaciones rotas.
+    if (Firebase.apps.isEmpty) {
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
+      debugPrint(
+          'Firebase inicializado desde Dart en ${Platform.isAndroid ? "Android" : "iOS"}');
+    } else {
+      debugPrint(
+          'Firebase ya estaba inicializado; usando instancia existente (${Platform.isAndroid ? "Android" : "iOS"})');
+    }
   } catch (e) {
     debugPrint('Error inicializando Firebase: $e');
     // Continuar sin Firebase si hay error

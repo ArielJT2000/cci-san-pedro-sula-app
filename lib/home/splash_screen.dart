@@ -77,10 +77,15 @@ class SplashScreenState extends State<SplashScreen>
   Future<void> _continueAfterBoot() async {
     // Intentar leer el "intent" de apertura desde notificación lo antes posible,
     // sin esperar a que FCM termine de inicializar (iOS puede tardar por APNs).
-    await Future.wait<void>([
-      FCMService().preloadInitialMessage(),
-      FCMService().ensureInitialMessage(),
-    ]);
+    try {
+      await Future.wait<void>([
+        FCMService().preloadInitialMessage(),
+        FCMService().ensureInitialMessage(),
+      ]).timeout(const Duration(seconds: 5));
+    } on TimeoutException {
+      debugPrint(
+          'Splash: tiempo de espera leyendo mensaje FCM inicial; continuando.');
+    }
     if (!mounted || _navigated) return;
 
     // Mantener el splash hasta completar ~2.5s total (incluye animación de entrada).
