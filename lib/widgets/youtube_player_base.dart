@@ -108,7 +108,8 @@ class _YoutubePlayerBaseState extends State<YoutubePlayerBase> {
                 style: FilledButton.styleFrom(
                   backgroundColor: grisOscuro,
                   foregroundColor: blanco,
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -180,7 +181,8 @@ class _YoutubePlayerBaseState extends State<YoutubePlayerBase> {
               onTap: _openInYouTube,
               borderRadius: BorderRadius.circular(20),
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [

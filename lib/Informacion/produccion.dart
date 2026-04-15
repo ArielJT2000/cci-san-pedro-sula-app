@@ -33,42 +33,44 @@ class _FormProduccionState extends State<FormProduccion> {
       child: PopScope(
         canPop: true,
         onPopInvokedWithResult: (didPop, result) async {
-          if (!didPop && _webViewController != null && await _webViewController!.canGoBack()) {
+          if (!didPop &&
+              _webViewController != null &&
+              await _webViewController!.canGoBack()) {
             _webViewController!.goBack();
           }
         },
         child: SafeArea(
           child: Scaffold(
-          body: Stack(
-            children: [
-              InAppWebView(
-                initialUrlRequest: URLRequest(
-                  url: WebUri.uri(
-                    Uri.parse(_formUrl),
+            body: Stack(
+              children: [
+                InAppWebView(
+                  initialUrlRequest: URLRequest(
+                    url: WebUri.uri(
+                      Uri.parse(_formUrl),
+                    ),
                   ),
+                  onWebViewCreated: (controller) {
+                    _webViewController = controller;
+                  },
+                  onProgressChanged: (controller, progress) {
+                    setState(() {
+                      _progress = progress / 100;
+                    });
+                  },
+                  onReceivedError: (controller, request, error) {
+                    debugPrint(
+                        'Error cargando formulario: \\${error.description}');
+                    // Mostrar mensaje de error al usuario
+                  },
                 ),
-                onWebViewCreated: (controller) {
-                  _webViewController = controller;
-                },
-                onProgressChanged: (controller, progress) {
-                  setState(() {
-                    _progress = progress / 100;
-                  });
-                },
-                onReceivedError: (controller, request, error) {
-                  debugPrint(
-                      'Error cargando formulario: \\${error.description}');
-                  // Mostrar mensaje de error al usuario
-                },
-              ),
-              if (_progress < 1)
-                LinearProgressIndicator(
-                  value: _progress,
-                ),
-            ],
+                if (_progress < 1)
+                  LinearProgressIndicator(
+                    value: _progress,
+                  ),
+              ],
+            ),
           ),
         ),
-      ),
       ),
     );
   }

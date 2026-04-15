@@ -28,11 +28,11 @@ class Ofrendas extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _buildHeader(screenWidth),
-                  SizedBox(height: screenHeight * 0.02),
-                  SizedBox(height: screenHeight * 0.04),
-                  _buildDescription(screenWidth),
-                  _buildBiblicalQuote(screenWidth),
-                  _buildBankAccounts(context, screenWidth, screenHeight),
+                SizedBox(height: screenHeight * 0.02),
+                SizedBox(height: screenHeight * 0.04),
+                _buildDescription(screenWidth),
+                _buildBiblicalQuote(screenWidth),
+                _buildBankAccounts(context, screenWidth, screenHeight),
                 SizedBox(height: screenHeight * 0.08),
               ],
             ),
@@ -64,90 +64,91 @@ class Ofrendas extends StatelessWidget {
 
   Widget _buildBiblicalQuote(double screenWidth) {
     return Container(
-        margin: EdgeInsets.symmetric(vertical: screenWidth * 0.05),
-        padding: EdgeInsets.all(screenWidth * 0.04),
-        decoration: BoxDecoration(
-          color: colorWithOpacity(blanco, 0.1),
-          borderRadius: BorderRadius.circular(borderRadius),
-          border: Border.all(color: colorWithOpacity(blanco, 0.2)),
-        ),
-        child: Column(
-          children: [
-            Text(
-              '"Cada uno debe dar según lo que haya decidido en su corazón, no de mala gana ni por obligación, porque Dios ama al que da con alegría."',
-              overflow: TextOverflow.visible,
-              style: getBiblicalQuoteStyle(screenWidth),
-              textAlign: TextAlign.center,
-            ),
-            SizedBox(height: screenWidth * 0.03),
-            Text(
-              '2 Corintios 9:7',
-              style: getBiblicalReferenceStyle(screenWidth),
-            ),
-          ],
-        ),
+      margin: EdgeInsets.symmetric(vertical: screenWidth * 0.05),
+      padding: EdgeInsets.all(screenWidth * 0.04),
+      decoration: BoxDecoration(
+        color: colorWithOpacity(blanco, 0.1),
+        borderRadius: BorderRadius.circular(borderRadius),
+        border: Border.all(color: colorWithOpacity(blanco, 0.2)),
+      ),
+      child: Column(
+        children: [
+          Text(
+            '"Cada uno debe dar según lo que haya decidido en su corazón, no de mala gana ni por obligación, porque Dios ama al que da con alegría."',
+            overflow: TextOverflow.visible,
+            style: getBiblicalQuoteStyle(screenWidth),
+            textAlign: TextAlign.center,
+          ),
+          SizedBox(height: screenWidth * 0.03),
+          Text(
+            '2 Corintios 9:7',
+            style: getBiblicalReferenceStyle(screenWidth),
+          ),
+        ],
+      ),
     );
   }
 
-  Widget _buildBankAccounts(BuildContext context, double screenWidth, double screenHeight) {
+  Widget _buildBankAccounts(
+      BuildContext context, double screenWidth, double screenHeight) {
     return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            "Formas de Dar:\n",
-            overflow: TextOverflow.visible,
-            style: getThema(screenWidth),
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          "Formas de Dar:\n",
+          overflow: TextOverflow.visible,
+          style: getThema(screenWidth),
+        ),
+        Text(
+          'Transferencias Bancarias:',
+          style: getLabelTextStyle(screenWidth),
+        ),
+        SizedBox(height: screenWidth * 0.04),
+        _buildBankAccountCard(
+          context,
+          "BAC Credomatic",
+          "Cuenta en Lempiras/Cheques: 909536002",
+          "Centro Cristiano Internacional",
+          "909536002",
+          screenWidth,
+        ),
+        SizedBox(height: screenWidth * 0.03),
+        _buildBankAccountCard(
+          context,
+          "Atlántida",
+          "Cuenta en Lempiras/Cheques: 2100151261",
+          "Centro Cristiano Internacional",
+          "2100151261",
+          screenWidth,
+        ),
+        SizedBox(height: screenWidth * 0.05),
+        Container(
+          width: double.infinity,
+          padding: EdgeInsets.all(screenWidth * 0.04),
+          decoration: BoxDecoration(
+            color: colorWithOpacity(azulPrimario, 0.2),
+            borderRadius: BorderRadius.circular(borderRadius),
+            border: Border.all(color: azulPrimario),
           ),
-          Text(
-            'Transferencias Bancarias:',
-            style: getLabelTextStyle(screenWidth),
+          child: Column(
+            children: [
+              Icon(
+                Icons.info_outline,
+                color: azulPrimario,
+                size: screenWidth * 0.06,
+              ),
+              SizedBox(height: screenWidth * 0.02),
+              Text(
+                "Todas las ofrendas y diezmos son utilizados para el mantenimiento "
+                "de la iglesia, misiones, y programas comunitarios.",
+                overflow: TextOverflow.visible,
+                style: getInfoTextStyle(screenWidth),
+                textAlign: TextAlign.center,
+              ),
+            ],
           ),
-          SizedBox(height: screenWidth * 0.04),
-          _buildBankAccountCard(
-            context,
-            "BAC Credomatic",
-            "Cuenta en Lempiras/Cheques: 909536002",
-            "Centro Cristiano Internacional",
-            "909536002",
-            screenWidth,
-          ),
-          SizedBox(height: screenWidth * 0.03),
-          _buildBankAccountCard(
-            context,
-            "Atlántida",
-            "Cuenta en Lempiras/Cheques: 2100151261",
-            "Centro Cristiano Internacional",
-            "2100151261",
-            screenWidth,
-          ),
-          SizedBox(height: screenWidth * 0.05),
-          Container(
-            width: double.infinity,
-            padding: EdgeInsets.all(screenWidth * 0.04),
-            decoration: BoxDecoration(
-              color: colorWithOpacity(azulPrimario, 0.2),
-              borderRadius: BorderRadius.circular(borderRadius),
-              border: Border.all(color: azulPrimario),
-            ),
-            child: Column(
-              children: [
-                Icon(
-                  Icons.info_outline,
-                  color: azulPrimario,
-                  size: screenWidth * 0.06,
-                ),
-                SizedBox(height: screenWidth * 0.02),
-                Text(
-                  "Todas las ofrendas y diezmos son utilizados para el mantenimiento "
-                  "de la iglesia, misiones, y programas comunitarios.",
-                  overflow: TextOverflow.visible,
-                  style: getInfoTextStyle(screenWidth),
-                  textAlign: TextAlign.center,
-                ),
-              ],
-            ),
-          ),
-        ],
+        ),
+      ],
     );
   }
 

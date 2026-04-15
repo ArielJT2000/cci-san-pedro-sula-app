@@ -79,12 +79,15 @@ class _WelcomeScreenState extends State<WelcomeScreen>
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
-    final effectiveScale =
-        widget.fromSplash ? const AlwaysStoppedAnimation<double>(1.0) : _scaleAnimation;
-    final effectiveSlide =
-        widget.fromSplash ? const AlwaysStoppedAnimation<Offset>(Offset.zero) : _slideAnimation;
-    final effectiveFade =
-        widget.fromSplash ? const AlwaysStoppedAnimation<double>(1.0) : _fadeAnimation;
+    final effectiveScale = widget.fromSplash
+        ? const AlwaysStoppedAnimation<double>(1.0)
+        : _scaleAnimation;
+    final effectiveSlide = widget.fromSplash
+        ? const AlwaysStoppedAnimation<Offset>(Offset.zero)
+        : _slideAnimation;
+    final effectiveFade = widget.fromSplash
+        ? const AlwaysStoppedAnimation<double>(1.0)
+        : _fadeAnimation;
 
     final tituloBase = getTitulo(screenWidth);
     // ~30 % más grande que el título welcome anterior (1.18 × 1.30 sobre getTitulo).
@@ -167,8 +170,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                                   animation: animation,
                                   builder: (context, child) {
                                     final progress = animation.value;
-                                    final scale =
-                                        1.0 - (progress * 0.15);
+                                    final scale = 1.0 - (progress * 0.15);
                                     final opacity = 1.0 - (progress * 0.2);
 
                                     return Opacity(

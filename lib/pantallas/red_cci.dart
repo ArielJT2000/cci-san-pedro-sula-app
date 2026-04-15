@@ -39,17 +39,17 @@ class _RedCCIState extends State<RedCCI> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     _buildHeader(screenWidth),
-                      SizedBox(height: screenHeight * 0.02),
-                      SizedBox(height: screenHeight * 0.04),
-                      _buildDescriptionSection(screenWidth),
-                      SizedBox(height: screenHeight * 0.04),
-                      _buildImageCarousel(screenWidth, screenHeight),
-                      SizedBox(height: screenHeight * 0.04),
-                      _buildKeyDataSection(screenWidth),
-                      SizedBox(height: screenHeight * 0.04),
-                      _buildLeadershipSection(screenWidth),
-                      SizedBox(height: screenHeight * 0.04),
-                      _buildContactSection(context, screenWidth),
+                    SizedBox(height: screenHeight * 0.02),
+                    SizedBox(height: screenHeight * 0.04),
+                    _buildDescriptionSection(screenWidth),
+                    SizedBox(height: screenHeight * 0.04),
+                    _buildImageCarousel(screenWidth, screenHeight),
+                    SizedBox(height: screenHeight * 0.04),
+                    _buildKeyDataSection(screenWidth),
+                    SizedBox(height: screenHeight * 0.04),
+                    _buildLeadershipSection(screenWidth),
+                    SizedBox(height: screenHeight * 0.04),
+                    _buildContactSection(context, screenWidth),
                     SizedBox(height: screenHeight * 0.08),
                   ],
                 ),
@@ -98,7 +98,7 @@ class _RedCCIState extends State<RedCCI> {
   Widget _buildImageCarousel(double screenWidth, double screenHeight) {
     // La imagen es 1920x1080 (relación 16:9), altura = ancho * (9/16)
     final imageHeight = screenWidth * (9 / 16);
-    
+
     return Column(
       children: [
         SizedBox(
@@ -136,7 +136,8 @@ class _RedCCIState extends State<RedCCI> {
                             ),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.3 * value),
+                                color:
+                                    Colors.black.withValues(alpha: 0.3 * value),
                                 blurRadius: 20 * (1 - value),
                                 offset: Offset(0, 10 * (1 - value)),
                               ),
@@ -396,8 +397,7 @@ class _RedCCIState extends State<RedCCI> {
   }
 
   Widget _buildContactSection(BuildContext context, double screenWidth) {
-    final contentW =
-        screenWidth - 2 * getHorizontalPadding(screenWidth);
+    final contentW = screenWidth - 2 * getHorizontalPadding(screenWidth);
     final cardW = (contentW * 0.88).clamp(260.0, 420.0);
 
     return Column(
@@ -447,7 +447,8 @@ class _RedCCIState extends State<RedCCI> {
                     icon: Icons.email_outlined,
                     label: "Correo electrónico",
                     value: "redmisionera@ccihonduras.org",
-                    onTap: () => _launchURL("mailto:redmisionera@ccihonduras.org"),
+                    onTap: () =>
+                        _launchURL("mailto:redmisionera@ccihonduras.org"),
                   ),
                   SizedBox(height: screenWidth * 0.04),
                   _buildContactItem(

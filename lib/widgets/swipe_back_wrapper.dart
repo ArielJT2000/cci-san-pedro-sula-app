@@ -43,7 +43,7 @@ class _SwipeBackWrapperState extends State<SwipeBackWrapper> {
         if (_dragStartX < 60) {
           final absDx = details.delta.dx.abs();
           final absDy = details.delta.dy.abs();
-          
+
           if (absDx > absDy * 1.5) {
             // Movimiento principalmente horizontal desde la izquierda
             _dragDeltaX += details.delta.dx;
@@ -72,4 +72,3 @@ class _SwipeBackWrapperState extends State<SwipeBackWrapper> {
     );
   }
 }
-

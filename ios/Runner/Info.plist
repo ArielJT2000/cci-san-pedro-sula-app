@@ -26,14 +26,8 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
-	<key>NSCameraUsageDescription</key>
-	<string>Esta app requiere acceso a la cámara para tomar fotos de perfil y escanear códigos QR.</string>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Esta app puede requerir tu ubicación para mostrar eventos cercanos.</string>
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Esta app requiere acceso a la galería para seleccionar imágenes de perfil.</string>
-	<key>NSUserTrackingUsageDescription</key>
-	<string>Esta app puede usar tu información para mejorar la experiencia del usuario.</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>

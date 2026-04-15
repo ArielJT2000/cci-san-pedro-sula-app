@@ -91,8 +91,9 @@ class NotificationService {
 
   /// Maneja el tap en las notificaciones
   void _onNotificationTapped(NotificationResponse response) {
-    print('Notificación presionada: ${response.id}, payload: ${response.payload}');
-    
+    print(
+        'Notificación presionada: ${response.id}, payload: ${response.payload}');
+
     // Usar FCMService para manejar la navegación (tiene mejor manejo de estados)
     if (response.payload != null) {
       final fcmService = FCMService();
@@ -144,21 +145,26 @@ class NotificationService {
       final monthStart = DateTime(now.year, now.month + i, 1);
       final wednesdays = _wednesdaysInMonth(monthStart.year, monthStart.month);
       for (final wed in wednesdays) {
-        final wed10am = tz.TZDateTime(tz.local, wed.year, wed.month, wed.day, 10, 0);
-        final wed7pm = tz.TZDateTime(tz.local, wed.year, wed.month, wed.day, 19, 0);
+        final wed10am =
+            tz.TZDateTime(tz.local, wed.year, wed.month, wed.day, 10, 0);
+        final wed7pm =
+            tz.TZDateTime(tz.local, wed.year, wed.month, wed.day, 19, 0);
         if (wed10am.isBefore(now) && wed7pm.isBefore(now)) continue;
 
-        final isFirstWednesday = _isFirstWednesdayOfMonth(wed.year, wed.month, wed.day);
+        final isFirstWednesday =
+            _isFirstWednesdayOfMonth(wed.year, wed.month, wed.day);
         final String title;
         final String body9h;
         final String body7pm;
         if (isFirstWednesday) {
           title = 'Celebración de Ayuno y Oración';
-          body9h = 'Recordatorio: Celebración de Ayuno y Oración. Unámonos con un mismo corazón para buscar la presencia de Dios.\n Celebración: 7:00 p.m.\n Les esperamos en CCI San Pedro Sula.'; //Modificar este mensaje'
+          body9h =
+              'Recordatorio: Celebración de Ayuno y Oración. Unámonos con un mismo corazón para buscar la presencia de Dios.\n Celebración: 7:00 p.m.\n Les esperamos en CCI San Pedro Sula.'; //Modificar este mensaje'
           body7pm = 'Celebración de Ayuno y Oración 7:00 PM';
         } else {
           title = 'Celebración de Oración';
-          body9h = 'Recordatorio: Celebración de Oración. Unámonos con un mismo corazón para buscar la presencia de Dios..\n Celebración: 7:00 p.m.\n Les esperamos en CCI San Pedro Sula.';
+          body9h =
+              'Recordatorio: Celebración de Oración. Unámonos con un mismo corazón para buscar la presencia de Dios..\n Celebración: 7:00 p.m.\n Les esperamos en CCI San Pedro Sula.';
           body7pm = 'Celebración de Oración 7:00 PM';
         }
 
@@ -188,7 +194,9 @@ class NotificationService {
     final daysToFirstWed = (3 - first.weekday + 7) % 7;
     final firstWed = first.add(Duration(days: daysToFirstWed));
     final list = <DateTime>[];
-    for (var d = firstWed; d.month == month; d = d.add(const Duration(days: 7))) {
+    for (var d = firstWed;
+        d.month == month;
+        d = d.add(const Duration(days: 7))) {
       list.add(d);
     }
     return list;
@@ -527,9 +535,7 @@ class NotificationService {
         await _notifications.zonedSchedule(
           id,
           'Recordatorio: Reunión de $ministryName',
-          location != null
-              ? '$description\nUbicación: $location'
-              : description,
+          location != null ? '$description\nUbicación: $location' : description,
           reminderDate,
           NotificationDetails(
             android: AndroidNotificationDetails(
@@ -556,9 +562,7 @@ class NotificationService {
         await _notifications.zonedSchedule(
           id,
           'Recordatorio: Reunión de $ministryName',
-          location != null
-              ? '$description\nUbicación: $location'
-              : description,
+          location != null ? '$description\nUbicación: $location' : description,
           reminderDate,
           NotificationDetails(
             android: AndroidNotificationDetails(
@@ -600,6 +604,7 @@ class NotificationService {
     required String title,
     required String body,
     String? payload,
+
     /// En Android, mismo [id] + [androidTag] sustituye la anterior (evita duplicados en bandeja).
     String? androidTag,
   }) async {
@@ -643,4 +648,3 @@ class NotificationService {
     return AndroidScheduleMode.exactAllowWhileIdle;
   }
 }
-

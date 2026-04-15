@@ -52,11 +52,13 @@ class AWSVideoService {
         headers: {'Content-Type': 'application/json'},
       );
 
-      debugPrint('[AWSVideoService] status=${response.statusCode} body=${response.body}');
+      debugPrint(
+          '[AWSVideoService] status=${response.statusCode} body=${response.body}');
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        final live = _normalizeYoutubeVideoId(data['liveVideoId']?.toString() ?? '');
+        final live =
+            _normalizeYoutubeVideoId(data['liveVideoId']?.toString() ?? '');
         debugPrint('[AWSVideoService] parsed liveVideoId="$live"');
         return {
           'liveVideoId': live,
@@ -72,4 +74,3 @@ class AWSVideoService {
     }
   }
 }
-

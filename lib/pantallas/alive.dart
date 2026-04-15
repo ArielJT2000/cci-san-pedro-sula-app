@@ -21,5 +21,3 @@ class Alive extends StatelessWidget {
     );
   }
 }
-
-

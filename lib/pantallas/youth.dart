@@ -50,7 +50,6 @@ class _YouthState extends State<Youth> with TickerProviderStateMixin {
   late Animation<Offset> _dismissOffsetAnim;
   late Animation<double> _dismissScaleAnim;
 
-
   @override
   void initState() {
     super.initState();
@@ -204,7 +203,8 @@ class _YouthState extends State<Youth> with TickerProviderStateMixin {
                   child: LayoutBuilder(
                     builder: (context, constraints) {
                       const bottomPad = 20.0;
-                      final maxStackH = (constraints.maxHeight - bottomPad).clamp(180.0, _stackHeight);
+                      final maxStackH = (constraints.maxHeight - bottomPad)
+                          .clamp(180.0, _stackHeight);
                       final scale = maxStackH / _stackHeight;
                       return Column(
                         mainAxisAlignment: MainAxisAlignment.end,
@@ -246,7 +246,8 @@ class _YouthState extends State<Youth> with TickerProviderStateMixin {
 
   Widget _buildLogosRow(double screenWidth) {
     const double logoHeight = 88;
-    final maxLogoWidth = (screenWidth - getHorizontalPadding(screenWidth) * 2) * 0.45;
+    final maxLogoWidth =
+        (screenWidth - getHorizontalPadding(screenWidth) * 2) * 0.45;
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -292,7 +293,8 @@ class _YouthState extends State<Youth> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildStackedCards(BuildContext context, double screenWidth, [double scale = 1.0]) {
+  Widget _buildStackedCards(BuildContext context, double screenWidth,
+      [double scale = 1.0]) {
     final h = _stackHeight * scale;
     final cardH = _cardHeight * scale;
     final ov = _overlap * scale;
@@ -305,7 +307,8 @@ class _YouthState extends State<Youth> with TickerProviderStateMixin {
             clipBehavior: Clip.none,
             children: [
               for (int i = _stackOrder.length - 1; i >= 0; i--)
-                _buildStackCard(context, screenWidth, i, cardHeight: cardH, overlap: ov),
+                _buildStackCard(context, screenWidth, i,
+                    cardHeight: cardH, overlap: ov),
             ],
           );
         },
@@ -313,7 +316,8 @@ class _YouthState extends State<Youth> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildStackCard(BuildContext context, double screenWidth, int index, {double? cardHeight, double? overlap}) {
+  Widget _buildStackCard(BuildContext context, double screenWidth, int index,
+      {double? cardHeight, double? overlap}) {
     final ch = cardHeight ?? _cardHeight;
     final ov = overlap ?? _overlap;
     final data = _stackOrder[index];
@@ -326,7 +330,8 @@ class _YouthState extends State<Youth> with TickerProviderStateMixin {
     } else {
       double progress;
       if (_isAnimatingDismiss) {
-        progress = _dragProgressAtRelease + (1.0 - _dragProgressAtRelease) * _dismissController.value;
+        progress = _dragProgressAtRelease +
+            (1.0 - _dragProgressAtRelease) * _dismissController.value;
       } else {
         progress = (_dragOffset.distance / 100.0).clamp(0.0, 1.0);
       }
@@ -399,7 +404,8 @@ class _YouthState extends State<Youth> with TickerProviderStateMixin {
     }
 
     if (cardOpacity < 1.0) {
-      cardContent = Opacity(opacity: cardOpacity.clamp(0.0, 1.0), child: cardContent);
+      cardContent =
+          Opacity(opacity: cardOpacity.clamp(0.0, 1.0), child: cardContent);
     }
     if (ch < _cardHeight) {
       cardContent = Transform.scale(

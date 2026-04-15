@@ -21,4 +21,3 @@ class Shift extends StatelessWidget {
     );
   }
 }
-

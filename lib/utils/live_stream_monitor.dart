@@ -15,10 +15,10 @@ class LiveStreamMonitor {
   /// Inicia el monitoreo de transmisiones en vivo
   void startMonitoring() {
     if (_isMonitoring) return;
-    
+
     _isMonitoring = true;
     _checkForLiveStream();
-    
+
     // Verificar cada 5 minutos
     _pollingTimer = Timer.periodic(const Duration(minutes: 5), (timer) {
       _checkForLiveStream();
@@ -37,22 +37,21 @@ class LiveStreamMonitor {
     try {
       final videoIds = await AWSVideoService.getVideoIds();
       final currentLiveVideoId = videoIds['liveVideoId'];
-      
+
       // Si hay una transmisión nueva (diferente a la anterior)
-      if (currentLiveVideoId != null && 
-          currentLiveVideoId.isNotEmpty && 
+      if (currentLiveVideoId != null &&
+          currentLiveVideoId.isNotEmpty &&
           currentLiveVideoId != _lastLiveVideoId) {
-        
         // Mostrar notificación
         await NotificationService().showNotification(
           id: 100,
           title: '🔴 Transmisión en Vivo',
           body: '¡Hay una transmisión en vivo disponible ahora!',
         );
-        
+
         _lastLiveVideoId = currentLiveVideoId;
       }
-      
+
       // Si la transmisión terminó, limpiar el estado
       if (currentLiveVideoId == null || currentLiveVideoId.isEmpty) {
         _lastLiveVideoId = null;
@@ -67,4 +66,3 @@ class LiveStreamMonitor {
     await _checkForLiveStream();
   }
 }
-

@@ -59,7 +59,8 @@ class _EventosState extends State<Eventos> {
 
   void _tryScrollToPendingEvent() {
     final pending = FCMService.consumePendingEventNavigation();
-    if (pending == null || (pending['category'] ?? 'general') != 'general') return;
+    if (pending == null || (pending['category'] ?? 'general') != 'general')
+      return;
     final eventId = pending['eventId'];
     if (eventId == null || eventId.isEmpty) return;
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -218,17 +219,17 @@ class _EventosState extends State<Eventos> {
           )
         else
           ..._events.map((event) {
-                _eventKeys[event.eventId] ??= GlobalKey();
-                return Padding(
-                  key: _eventKeys[event.eventId],
-                  padding: EdgeInsets.only(bottom: screenHeight * 0.022),
-                  child: EventCard(
-                    event: event,
-                    screenWidth: screenWidth,
-                    screenHeight: screenHeight,
-                  ),
-                );
-              }),
+            _eventKeys[event.eventId] ??= GlobalKey();
+            return Padding(
+              key: _eventKeys[event.eventId],
+              padding: EdgeInsets.only(bottom: screenHeight * 0.022),
+              child: EventCard(
+                event: event,
+                screenWidth: screenWidth,
+                screenHeight: screenHeight,
+              ),
+            );
+          }),
       ],
     );
   }

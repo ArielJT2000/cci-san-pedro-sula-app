@@ -8,7 +8,8 @@ import '../pantallas/alive.dart';
 import '../pantallas/shift.dart';
 
 // Importar Firebase para Android e iOS
-import 'package:firebase_messaging/firebase_messaging.dart' if (dart.library.io) 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:firebase_messaging/firebase_messaging.dart'
+    if (dart.library.io) 'package:firebase_messaging/firebase_messaging.dart';
 
 /// Handler para notificaciones cuando la app está en segundo plano
 @pragma('vm:entry-point')
@@ -17,28 +18,30 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   debugPrint('Título: ${message.notification?.title}');
   debugPrint('Cuerpo: ${message.notification?.body}');
   debugPrint('Datos: ${message.data}');
-  
+
   // NO mostrar notificación local si Firebase ya tiene notification en el payload
   // Firebase automáticamente muestra la notificación cuando hay 'notification' en el payload
   // Solo mostrar notificación local si SOLO hay 'data' sin 'notification'
   if (message.notification == null && message.data.isNotEmpty) {
     // Inicializar el servicio de notificaciones locales solo si es necesario
     await NotificationService().initialize();
-    
+
     // Si solo hay datos sin notification, mostrar notificación con los datos
     final notificationType = message.data['type'] ?? 'general';
     final title = message.data['title'] ?? 'CCI San Pedro Sula';
     final body = message.data['body'] ?? 'Nueva notificación';
-    
+
     await NotificationService().showNotification(
       id: message.hashCode,
       title: title,
       body: body,
       payload: notificationType,
     );
-    debugPrint('Notificación mostrada desde datos en segundo plano (sin notification en payload)');
+    debugPrint(
+        'Notificación mostrada desde datos en segundo plano (sin notification en payload)');
   } else {
-    debugPrint('Notificación manejada automáticamente por Firebase (tiene notification en payload)');
+    debugPrint(
+        'Notificación manejada automáticamente por Firebase (tiene notification en payload)');
   }
 }
 
@@ -70,8 +73,7 @@ Map<String, dynamic> _effectiveDataForNavigation(RemoteMessage message) {
 
   final title = message.notification?.title;
   final body = message.notification?.body;
-  final eventId =
-      (data['eventId'] ?? data['eventID'] ?? '').toString().trim();
+  final eventId = (data['eventId'] ?? data['eventID'] ?? '').toString().trim();
 
   if (eventId.isNotEmpty) {
     data['type'] = 'new_event';
@@ -110,7 +112,7 @@ class FCMService {
   bool _initialized = false;
   final Completer<void> _readyCompleter = Completer<void>();
   GlobalKey<NavigatorState>? _navigatorKey;
-  
+
   // Guardar mensaje inicial para navegar cuando MainNavigation esté listo
   static RemoteMessage? _pendingInitialMessage;
   static String? _pendingNotificationPayload;
@@ -200,7 +202,7 @@ class FCMService {
 
     try {
       _messaging = FirebaseMessaging.instance;
-      
+
       // Solicitar permisos
       NotificationSettings settings = await _messaging!.requestPermission(
         alert: true,
@@ -214,7 +216,8 @@ class FCMService {
 
       if (settings.authorizationStatus == AuthorizationStatus.authorized) {
         debugPrint('Usuario autorizó notificaciones');
-      } else if (settings.authorizationStatus == AuthorizationStatus.provisional) {
+      } else if (settings.authorizationStatus ==
+          AuthorizationStatus.provisional) {
         debugPrint('Usuario autorizó notificaciones provisionales');
       } else {
         debugPrint('Usuario rechazó o no autorizó notificaciones');
@@ -245,7 +248,8 @@ class FCMService {
       // Verificar si la app fue abierta desde una notificación (app cerrada o en segundo plano)
       RemoteMessage? initialMessage = await _messaging!.getInitialMessage();
       if (initialMessage != null) {
-        debugPrint('App abierta desde notificación: ${initialMessage.messageId}');
+        debugPrint(
+            'App abierta desde notificación: ${initialMessage.messageId}');
         debugPrint('Datos: ${initialMessage.data}');
         _pendingInitialMessage = initialMessage;
         // No llamar _handlePendingNavigation aquí: SplashScreen llevará a MainNavigation
@@ -287,7 +291,8 @@ class FCMService {
     if (mid.isNotEmpty) {
       if (mid == _lastForegroundDedupeId &&
           _lastForegroundDedupeAt != null &&
-          now.difference(_lastForegroundDedupeAt!) < const Duration(seconds: 4)) {
+          now.difference(_lastForegroundDedupeAt!) <
+              const Duration(seconds: 4)) {
         debugPrint('FCM foreground: omitiendo duplicado messageId=$mid');
         return;
       }
@@ -328,17 +333,17 @@ class FCMService {
     debugPrint('Datos de la notificación: ${message.data}');
     final notificationType = message.data['type'];
     debugPrint('Tipo de notificación: $notificationType');
-    
+
     // Guardar el mensaje para navegar
     _pendingInitialMessage = message;
     _handlePendingNavigation();
   }
-  
+
   /// Maneja la navegación pendiente cuando MainNavigation esté listo
   void _handlePendingNavigation() {
     RemoteMessage? message = _pendingInitialMessage;
     String? payload = _pendingNotificationPayload;
-    
+
     if (message != null) {
       final data = _effectiveDataForNavigation(message);
       _applyNavigationFromData(data);
@@ -350,16 +355,20 @@ class FCMService {
         try {
           final data = jsonDecode(payload) as Map<String, dynamic>;
           final type = (data['type'] ?? 'new_event').toString();
-          final category = (data['category'] ?? 'general').toString().toLowerCase();
+          final category =
+              (data['category'] ?? 'general').toString().toLowerCase();
           final eventId = (data['eventId'] ?? '').toString();
-          _applyNavigationFromData({'type': type, 'category': category, 'eventId': eventId});
+          _applyNavigationFromData(
+              {'type': type, 'category': category, 'eventId': eventId});
         } catch (e) {
           debugPrint('Error parseando payload JSON: $e');
-          if (payload == 'live_stream') _navigateToScreen(4);
+          if (payload == 'live_stream')
+            _navigateToScreen(4);
           else if (payload == 'new_event') _navigateToScreen(1);
         }
       } else {
-        if (payload == 'live_stream') _navigateToScreen(4);
+        if (payload == 'live_stream')
+          _navigateToScreen(4);
         else if (payload == 'new_event') {
           pendingCategory = 'general';
           _navigateToScreen(1);
@@ -423,15 +432,16 @@ class FCMService {
         return 1;
     }
   }
-  
+
   /// Método público para que MainNavigation notifique cuando esté listo
   void onMainNavigationReady() {
-    debugPrint('MainNavigation está listo, verificando navegación pendiente...');
+    debugPrint(
+        'MainNavigation está listo, verificando navegación pendiente...');
     Future.delayed(const Duration(milliseconds: 500), () {
       _handlePendingNavigation();
     });
   }
-  
+
   /// Método para navegar desde notificaciones locales
   void navigateFromLocalNotification(String? payload) {
     if (payload != null) {
@@ -454,13 +464,14 @@ class FCMService {
 
     // MainNavigation no montado: seguir con navigatorKey
     if (_navigatorKey?.currentState == null) {
-      debugPrint('NavigatorKey no está disponible, reintentando en 1 segundo...');
+      debugPrint(
+          'NavigatorKey no está disponible, reintentando en 1 segundo...');
       Future.delayed(const Duration(milliseconds: 1000), () {
         _navigateToScreen(screenIndex);
       });
       return;
     }
-    
+
     final context = _navigatorKey!.currentContext;
     if (context == null) {
       debugPrint('Context no está disponible, reintentando en 1 segundo...');
@@ -471,27 +482,29 @@ class FCMService {
     }
 
     // Verificar si MainNavigation está montado
-    final mainNavigation = context.findAncestorWidgetOfExactType<MainNavigation>();
-    
+    final mainNavigation =
+        context.findAncestorWidgetOfExactType<MainNavigation>();
+
     if (mainNavigation != null) {
       // MainNavigation está montado, navegar directamente
       debugPrint('MainNavigation encontrado, navegando directamente');
       MainNavigation.navigateToPage(screenIndex);
     } else {
       // MainNavigation no está montado, navegar primero a MainNavigation
-      debugPrint('MainNavigation no encontrado, navegando primero a MainNavigation');
+      debugPrint(
+          'MainNavigation no encontrado, navegando primero a MainNavigation');
       Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(
           builder: (context) => const MainNavigation(),
         ),
         (route) => false,
       );
-      
+
       // Esperar a que MainNavigation esté montado y luego navegar
       Future.delayed(const Duration(milliseconds: 1000), () {
         debugPrint('Intentando navegar después de montar MainNavigation');
         MainNavigation.navigateToPage(screenIndex);
-        
+
         // Si aún no funciona, intentar de nuevo
         Future.delayed(const Duration(milliseconds: 800), () {
           MainNavigation.navigateToPage(screenIndex);

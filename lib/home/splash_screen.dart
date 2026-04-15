@@ -13,58 +13,84 @@ class SplashScreen extends StatefulWidget {
 
 class SplashScreenState extends State<SplashScreen>
     with TickerProviderStateMixin {
+  static const Duration _kTotalSplashTime = Duration(milliseconds: 2500);
+  // Momento aproximado (desde start) en que ya mostramos "San Pedro Sula".
+  // Desde aquí corre el "foco" hasta que arranca la salida.
+  static const Duration _kSpotlightStartDelay = Duration(milliseconds: 740);
   late AnimationController _animationController;
-  late AnimationController _exitController;
+  late AnimationController _spotlightController;
   late Animation<double> _scaleAnimation;
+  late Animation<double> _logoOpacity;
+  late Animation<double> _titleOpacity;
   bool _navigated = false;
+  late DateTime _startedAt;
 
   @override
   void initState() {
     super.initState();
-    print('SplashScreen: initState');
+    _startedAt = DateTime.now();
 
     _animationController = AnimationController(
-      duration: const Duration(milliseconds: 800),
+      duration: const Duration(milliseconds: 1200),
       vsync: this,
     );
 
-    _exitController = AnimationController(
-      duration: const Duration(milliseconds: 260),
+    final spotlightDuration = _kTotalSplashTime - _kSpotlightStartDelay;
+    _spotlightController = AnimationController(
+      duration: spotlightDuration > Duration.zero
+          ? spotlightDuration
+          : const Duration(milliseconds: 1200),
       vsync: this,
     );
 
     // Animación de escala simple: aparece desde pequeño
-    _scaleAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+    _scaleAnimation = Tween<double>(begin: 0.92, end: 1.0).animate(
       CurvedAnimation(
         parent: _animationController,
-        curve: Curves.easeOutCubic,
+        curve: Curves.easeOutExpo,
       ),
     );
 
+    // Secuencia:
+    // 1) Logo entra primero.
+    // 2) Título entra después del logo.
+    // 3) "San Pedro Sula" entra al final con efecto "foco" (recorrido izq→der).
+    _logoOpacity = CurvedAnimation(
+      parent: _animationController,
+      curve: const Interval(0.0, 0.45, curve: Curves.easeOutCubic),
+    );
+    _titleOpacity = CurvedAnimation(
+      parent: _animationController,
+      curve: const Interval(0.32, 0.78, curve: Curves.easeOutCubic),
+    );
+
     _animationController.forward();
+    // Arranca el foco cuando "San Pedro Sula" ya está en pantalla.
+    Future.delayed(_kSpotlightStartDelay, () {
+      if (!mounted) return;
+      _spotlightController.forward();
+    });
 
     unawaited(_continueAfterBoot());
   }
 
   Future<void> _continueAfterBoot() async {
-    // Mantener un mínimo de tiempo visible para evitar “flashes”.
-    await Future.delayed(const Duration(milliseconds: 900));
-    if (!mounted || _navigated) return;
-
     // Intentar leer el "intent" de apertura desde notificación lo antes posible,
     // sin esperar a que FCM termine de inicializar (iOS puede tardar por APNs).
     await FCMService().preloadInitialMessage();
     if (!mounted || _navigated) return;
 
-    // Efecto de salida (mismo feeling que entrada) antes del push.
-    // Ojo: el logo mantiene el Hero hacia Inicio; la salida afecta principalmente el texto.
-    await _exitController.forward();
-    if (!mounted || _navigated) return;
+    // Mantener el splash hasta completar ~2.5s total (incluye animación de entrada).
+    final elapsed = DateTime.now().difference(_startedAt);
+    final remaining = _kTotalSplashTime - elapsed;
+    if (remaining > Duration.zero) {
+      await Future.delayed(remaining);
+      if (!mounted || _navigated) return;
+    }
 
     // Ya no existe Welcome: siempre entramos a MainNavigation.
     // Si venimos desde notificación, MainNavigation aplicará la navegación pendiente.
     _navigated = true;
-    print('SplashScreen: yendo a MainNavigation');
     Navigator.of(context).pushReplacement(
       PageRouteBuilder(
         pageBuilder: (context, animation, secondaryAnimation) =>
@@ -72,7 +98,7 @@ class SplashScreenState extends State<SplashScreen>
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           return FadeTransition(opacity: animation, child: child);
         },
-        transitionDuration: const Duration(milliseconds: 450),
+        transitionDuration: const Duration(milliseconds: 380),
       ),
     );
   }
@@ -80,19 +106,14 @@ class SplashScreenState extends State<SplashScreen>
   @override
   void dispose() {
     _animationController.dispose();
-    _exitController.dispose();
+    _spotlightController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    print('SplashScreen: build');
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
-    final opacity = CurvedAnimation(
-      parent: _animationController,
-      curve: const Interval(0.25, 1.0, curve: Curves.easeOut),
-    );
     final titleStyle = getTitulo(screenWidth).copyWith(
       fontSize: (getTitulo(screenWidth).fontSize ?? 56) * 0.62,
       height: 1.05,
@@ -110,18 +131,19 @@ class SplashScreenState extends State<SplashScreen>
         child: SafeArea(
           child: Center(
             child: AnimatedBuilder(
-              animation: Listenable.merge([_animationController, _exitController]),
+              animation: Listenable.merge(
+                  [_animationController, _spotlightController]),
               builder: (context, child) {
-                final exit = _exitController.value;
-                // "Disolver" al salir: fade-out uniforme de todo el splash.
-                final dissolveOut = (1.0 - exit).clamp(0.0, 1.0);
-                final textOpacity = (opacity.value * dissolveOut).clamp(0.0, 1.0);
+                final logoOpacity = _logoOpacity.value.clamp(0.0, 1.0);
+                final titleOpacity = _titleOpacity.value.clamp(0.0, 1.0);
+                final spsReveal = Curves.easeInOutCubic
+                    .transform(_spotlightController.value.clamp(0.0, 1.0));
                 return Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     SizedBox(height: screenHeight * 0.06),
                     Opacity(
-                      opacity: dissolveOut,
+                      opacity: logoOpacity,
                       child: Transform.scale(
                         scale: _scaleAnimation.value,
                         child: Material(
@@ -132,7 +154,7 @@ class SplashScreenState extends State<SplashScreen>
                             height: screenWidth * 0.55,
                             fit: BoxFit.contain,
                             errorBuilder: (context, error, stackTrace) {
-                              return Icon(Icons.error,
+                              return const Icon(Icons.error,
                                   size: 120, color: Colors.red);
                             },
                           ),
@@ -141,7 +163,7 @@ class SplashScreenState extends State<SplashScreen>
                     ),
                     SizedBox(height: screenHeight * 0.035),
                     Opacity(
-                      opacity: textOpacity,
+                      opacity: titleOpacity,
                       child: Padding(
                         padding: EdgeInsets.symmetric(
                           horizontal: getHorizontalPadding(screenWidth),
@@ -165,13 +187,15 @@ class SplashScreenState extends State<SplashScreen>
                               softWrap: false,
                             ),
                             SizedBox(height: screenHeight * 0.018),
-                            Text(
-                              'San Pedro Sula',
-                              style: subtitleStyle,
-                              textAlign: TextAlign.center,
-                              maxLines: 1,
-                              overflow: TextOverflow.visible,
-                              softWrap: false,
+                            _SpotlightText(
+                              text: 'San Pedro Sula',
+                              baseStyle: subtitleStyle,
+                              highlightStyle: subtitleStyle.copyWith(
+                                color: blanco,
+                                fontWeight: FontWeight.w500,
+                              ),
+                              reveal: spsReveal,
+                              dissolveOut: 1.0,
                             ),
                           ],
                         ),
@@ -185,6 +209,84 @@ class SplashScreenState extends State<SplashScreen>
           ),
         ),
       ),
+    );
+  }
+}
+
+class _SpotlightText extends StatelessWidget {
+  final String text;
+  final TextStyle baseStyle;
+  final TextStyle highlightStyle;
+
+  /// 0..1 recorrido izq→der del "foco"
+  final double reveal;
+
+  /// 0..1 disolver al salir (1 = visible)
+  final double dissolveOut;
+
+  const _SpotlightText({
+    required this.text,
+    required this.baseStyle,
+    required this.highlightStyle,
+    required this.reveal,
+    required this.dissolveOut,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    // Tamaño aproximado del "foco" (porcentaje del ancho del texto).
+    const beamWidth = 0.22;
+    final left = (reveal - beamWidth).clamp(0.0, 1.0);
+    final mid = reveal.clamp(0.0, 1.0);
+    final right = (reveal + beamWidth).clamp(0.0, 1.0);
+
+    return Stack(
+      alignment: Alignment.center,
+      children: [
+        // Base: texto tenue fijo.
+        Opacity(
+          opacity: (0.92 * dissolveOut).clamp(0.0, 1.0),
+          child: Text(
+            text,
+            style: baseStyle,
+            textAlign: TextAlign.center,
+            maxLines: 1,
+            overflow: TextOverflow.visible,
+            softWrap: false,
+          ),
+        ),
+        // Highlight: un "foco" que recorre de izquierda a derecha.
+        Opacity(
+          opacity: (dissolveOut * (reveal > 0 ? 1.0 : 0.0)).clamp(0.0, 1.0),
+          child: ShaderMask(
+            shaderCallback: (Rect bounds) {
+              return LinearGradient(
+                begin: Alignment.centerLeft,
+                end: Alignment.centerRight,
+                colors: const [
+                  Colors.transparent,
+                  Colors.white,
+                  Colors.transparent,
+                ],
+                stops: [
+                  left,
+                  mid,
+                  right,
+                ],
+              ).createShader(bounds);
+            },
+            blendMode: BlendMode.srcIn,
+            child: Text(
+              text,
+              style: highlightStyle,
+              textAlign: TextAlign.center,
+              maxLines: 1,
+              overflow: TextOverflow.visible,
+              softWrap: false,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

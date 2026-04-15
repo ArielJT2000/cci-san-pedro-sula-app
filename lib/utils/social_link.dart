@@ -7,8 +7,10 @@ class SocialLink extends StatelessWidget {
   final String socialId;
   final String url;
   final String platform;
+
   /// 1.0 por defecto; p. ej. 0.7 para icono y texto un 30 % más pequeños.
   final double visualScale;
+
   /// Si es null, se usa el texto por defecto ("Conoce más de nosotros!").
   final String? label;
 

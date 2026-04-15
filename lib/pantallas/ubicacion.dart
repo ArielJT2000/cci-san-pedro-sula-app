@@ -297,20 +297,20 @@ class _UbicacionState extends State<Ubicacion> {
               children: [
                 // Header
                 _buildHeader(screenWidth),
-                  SizedBox(height: screenHeight * 0.03),
+                SizedBox(height: screenHeight * 0.03),
 
-                  // Location Card
-                  _buildLocationCard(screenWidth, screenHeight),
-                  SizedBox(height: screenHeight * 0.02),
+                // Location Card
+                _buildLocationCard(screenWidth, screenHeight),
+                SizedBox(height: screenHeight * 0.02),
 
-                  // Weather and Time Card
-                  _buildWeatherTimeCard(screenWidth, screenHeight),
-                  SizedBox(height: screenHeight * 0.02),
+                // Weather and Time Card
+                _buildWeatherTimeCard(screenWidth, screenHeight),
+                SizedBox(height: screenHeight * 0.02),
 
-                  // Countdown Card
-                  _buildCountdownCard(screenWidth, screenHeight, countdown),
-                  SizedBox(height: screenHeight * 0.08),
-                ],
+                // Countdown Card
+                _buildCountdownCard(screenWidth, screenHeight, countdown),
+                SizedBox(height: screenHeight * 0.08),
+              ],
             ),
           ),
         ),

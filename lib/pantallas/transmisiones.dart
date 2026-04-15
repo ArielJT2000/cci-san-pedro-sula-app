@@ -118,7 +118,8 @@ class Transmisiones extends StatelessWidget {
               'assets/images/Logo CCI SPS_Globo Gris Oscuro.png',
               height: 40,
               fit: BoxFit.contain,
-              errorBuilder: (_, __, ___) => Icon(Icons.live_tv_outlined, color: blanco, size: 32),
+              errorBuilder: (_, __, ___) =>
+                  Icon(Icons.live_tv_outlined, color: blanco, size: 32),
             ),
           ),
           SizedBox(height: screenWidth * 0.03),

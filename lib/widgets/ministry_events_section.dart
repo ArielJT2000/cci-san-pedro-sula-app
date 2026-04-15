@@ -53,7 +53,8 @@ class MinistryEventsSection extends StatelessWidget {
                 padding: EdgeInsets.symmetric(vertical: screenHeight * 0.02),
                 child: Text(
                   'No hay eventos programados.',
-                  style: getBodyTextStyle(screenWidth).copyWith(color: grisMedio),
+                  style:
+                      getBodyTextStyle(screenWidth).copyWith(color: grisMedio),
                 ),
               );
             }

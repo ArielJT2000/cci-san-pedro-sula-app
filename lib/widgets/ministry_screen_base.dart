@@ -10,12 +10,15 @@ import '../widgets/back_button_widget.dart';
 class MinistryScreenBase extends StatelessWidget {
   final String title;
   final String description;
+
   /// Ruta de imagen del ministerio; se ignora si [headerWidget] no es null.
   final String? imagePath;
+
   /// Título del ministerio como widget (texto SF Pro Display). Si no es null, reemplaza la imagen.
   final Widget? headerWidget;
   final String additionalInfo;
   final Widget socialWidget;
+
   /// Sección opcional (ej. MinistryEventsSection) que se muestra bajo el bloque del ministerio.
   final Widget? informationSection;
 
@@ -54,14 +57,14 @@ class MinistryScreenBase extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     _buildHeader(screenWidth),
-                      SizedBox(height: screenHeight * 0.02),
-                      SizedBox(height: screenHeight * 0.04),
-                      _buildDescription(screenWidth),
-                      _buildMinistryInfo(screenWidth, screenHeight),
-                      if (informationSection != null) ...[
-                        SizedBox(height: screenHeight * 0.03),
-                        informationSection!,
-                      ],
+                    SizedBox(height: screenHeight * 0.02),
+                    SizedBox(height: screenHeight * 0.04),
+                    _buildDescription(screenWidth),
+                    _buildMinistryInfo(screenWidth, screenHeight),
+                    if (informationSection != null) ...[
+                      SizedBox(height: screenHeight * 0.03),
+                      informationSection!,
+                    ],
                     SizedBox(height: screenHeight * 0.08),
                   ],
                 ),
@@ -104,6 +107,7 @@ class MinistryScreenBase extends StatelessWidget {
   /// Misma proporción y presentación que el logo en Ministerios CCI (545×249).
   static const double _logoDesignWidth = 545.0;
   static const double _logoDesignHeight = 249.0;
+
   /// Next / Alive / Shift: logos un 30 % más pequeños que la referencia de Ministerios.
   static const double _ministryLogoScale = 0.7;
 
@@ -184,4 +188,3 @@ class MinistryScreenBase extends StatelessWidget {
     );
   }
 }
-

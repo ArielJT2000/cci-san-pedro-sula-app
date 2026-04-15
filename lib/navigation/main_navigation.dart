@@ -55,7 +55,7 @@ class _MainNavigationState extends State<MainNavigation> {
       const Ubicacion(),
       const Next(),
     ];
-    
+
     // Notificar a FCMService que MainNavigation está listo para manejar navegación pendiente
     WidgetsBinding.instance.addPostFrameCallback((_) {
       FCMService().onMainNavigationReady();
@@ -70,7 +70,6 @@ class _MainNavigationState extends State<MainNavigation> {
     _pageController.dispose();
     super.dispose();
   }
-
 
   void _onPageChanged(int index) {
     setState(() {
@@ -114,69 +113,69 @@ class _MainNavigationState extends State<MainNavigation> {
         children: [
           Positioned.fill(
             child: Container(
-        width: double.infinity,
-        height: double.infinity,
-        decoration: getGradientBackground(),
-        child: GestureDetector(
-          onHorizontalDragStart: (details) {
-            _dragDeltaX = 0.0;
-            _isVerticalScroll = false;
-            // Solo procesar si el gesto empieza desde el borde izquierdo (primeros 60px)
-            if (details.globalPosition.dx > 60) {
-              _isVerticalScroll =
-                  true; // Ignorar gestos que no empiezan desde la izquierda
-            }
-          },
-          onHorizontalDragUpdate: (details) {
-            if (_isVerticalScroll)
-              return; // Ignorar si no empezó desde la izquierda
+              width: double.infinity,
+              height: double.infinity,
+              decoration: getGradientBackground(),
+              child: GestureDetector(
+                onHorizontalDragStart: (details) {
+                  _dragDeltaX = 0.0;
+                  _isVerticalScroll = false;
+                  // Solo procesar si el gesto empieza desde el borde izquierdo (primeros 60px)
+                  if (details.globalPosition.dx > 60) {
+                    _isVerticalScroll =
+                        true; // Ignorar gestos que no empiezan desde la izquierda
+                  }
+                },
+                onHorizontalDragUpdate: (details) {
+                  if (_isVerticalScroll)
+                    return; // Ignorar si no empezó desde la izquierda
 
-            // Acumular solo si el movimiento es principalmente horizontal
-            final absDx = details.delta.dx.abs();
-            final absDy = details.delta.dy.abs();
+                  // Acumular solo si el movimiento es principalmente horizontal
+                  final absDx = details.delta.dx.abs();
+                  final absDy = details.delta.dy.abs();
 
-            if (absDx > absDy) {
-              // Movimiento principalmente horizontal
-              _dragDeltaX += details.delta.dx;
-            } else {
-              // Movimiento principalmente vertical, ignorar este gesto
-              _isVerticalScroll = true;
-            }
-          },
-          onHorizontalDragEnd: (details) {
-            if (_isVerticalScroll) {
-              _dragDeltaX = 0.0;
-              _isVerticalScroll = false;
-              return;
-            }
+                  if (absDx > absDy) {
+                    // Movimiento principalmente horizontal
+                    _dragDeltaX += details.delta.dx;
+                  } else {
+                    // Movimiento principalmente vertical, ignorar este gesto
+                    _isVerticalScroll = true;
+                  }
+                },
+                onHorizontalDragEnd: (details) {
+                  if (_isVerticalScroll) {
+                    _dragDeltaX = 0.0;
+                    _isVerticalScroll = false;
+                    return;
+                  }
 
-            // Solo procesar si fue un movimiento desde la izquierda hacia la derecha
-            // _dragDeltaX positivo = deslizar desde izquierda hacia la derecha (retroceder)
-            if (_dragDeltaX > 100) {
-              // Deslizamiento desde la izquierda hacia la derecha (retroceder)
-              if (_currentIndex > 0) {
-                _navigateToPage(_currentIndex - 1);
-              } else {
-                _handleBackToWelcome(context);
-              }
-            }
-            // Resetear valores
-            _dragDeltaX = 0.0;
-            _isVerticalScroll = false;
-          },
-          behavior: HitTestBehavior.translucent,
-          child: PageView(
-            controller: _pageController,
-            onPageChanged: _onPageChanged,
-            physics:
-                const NeverScrollableScrollPhysics(), // Deshabilita el scroll del PageView
-            children: _screens.map((screen) {
-              return PageTransitionWrapper(
-                child: screen,
-              );
-            }).toList(),
-          ),
-        ),
+                  // Solo procesar si fue un movimiento desde la izquierda hacia la derecha
+                  // _dragDeltaX positivo = deslizar desde izquierda hacia la derecha (retroceder)
+                  if (_dragDeltaX > 100) {
+                    // Deslizamiento desde la izquierda hacia la derecha (retroceder)
+                    if (_currentIndex > 0) {
+                      _navigateToPage(_currentIndex - 1);
+                    } else {
+                      _handleBackToWelcome(context);
+                    }
+                  }
+                  // Resetear valores
+                  _dragDeltaX = 0.0;
+                  _isVerticalScroll = false;
+                },
+                behavior: HitTestBehavior.translucent,
+                child: PageView(
+                  controller: _pageController,
+                  onPageChanged: _onPageChanged,
+                  physics:
+                      const NeverScrollableScrollPhysics(), // Deshabilita el scroll del PageView
+                  children: _screens.map((screen) {
+                    return PageTransitionWrapper(
+                      child: screen,
+                    );
+                  }).toList(),
+                ),
+              ),
             ),
           ),
           if (_currentIndex > 0)
@@ -194,7 +193,6 @@ class _MainNavigationState extends State<MainNavigation> {
       ),
     );
   }
-
 }
 
 class PageTransitionWrapper extends StatelessWidget {

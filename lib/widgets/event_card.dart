@@ -51,7 +51,8 @@ class EventCard extends StatelessWidget {
                       event.imageUrl,
                       fit: BoxFit.cover,
                       errorBuilder: (_, __, ___) => Center(
-                        child: Icon(Icons.event_outlined, color: grisMedio, size: 48),
+                        child: Icon(Icons.event_outlined,
+                            color: grisMedio, size: 48),
                       ),
                       loadingBuilder: (context, child, loadingProgress) {
                         if (loadingProgress == null) return child;
@@ -68,7 +69,8 @@ class EventCard extends StatelessWidget {
                     ),
                   )
                 : Center(
-                    child: Icon(Icons.event_outlined, color: grisMedio, size: 48),
+                    child:
+                        Icon(Icons.event_outlined, color: grisMedio, size: 48),
                   ),
           ),
           Padding(
@@ -119,13 +121,15 @@ class EventCard extends StatelessWidget {
                     ),
                   ],
                 ),
-                if (event.registrationLink != null && event.registrationLink!.isNotEmpty) ...[
+                if (event.registrationLink != null &&
+                    event.registrationLink!.isNotEmpty) ...[
                   SizedBox(height: screenHeight * 0.02),
                   GestureDetector(
                     onTap: () async {
                       final uri = Uri.parse(event.registrationLink!);
                       if (await canLaunchUrl(uri)) {
-                        await launchUrl(uri, mode: LaunchMode.externalApplication);
+                        await launchUrl(uri,
+                            mode: LaunchMode.externalApplication);
                       }
                     },
                     child: Container(

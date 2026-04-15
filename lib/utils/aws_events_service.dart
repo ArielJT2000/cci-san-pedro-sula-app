@@ -27,7 +27,9 @@ class AWSEventsService {
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         final eventsList = data['events'] as List? ?? [];
-        return eventsList.map((event) => EventModel.fromJson(event as Map<String, dynamic>)).toList();
+        return eventsList
+            .map((event) => EventModel.fromJson(event as Map<String, dynamic>))
+            .toList();
       } else {
         return [];
       }
@@ -36,4 +38,3 @@ class AWSEventsService {
     }
   }
 }
-
