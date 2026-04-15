@@ -113,6 +113,8 @@ class FCMService {
   final Completer<void> _readyCompleter = Completer<void>();
   GlobalKey<NavigatorState>? _navigatorKey;
 
+  int _pendingNavigationFlushAttempts = 0;
+
   // Guardar mensaje inicial para navegar cuando MainNavigation esté listo
   static RemoteMessage? _pendingInitialMessage;
   static String? _pendingNotificationPayload;
@@ -261,8 +263,41 @@ class FCMService {
       debugPrint('Error inicializando FCM: $e');
       _initialized = true; // Marcar como inicializado para no intentar de nuevo
     } finally {
+      // Si el mensaje inicial llegó después de que MainNavigation ya notificó "listo",
+      // re-disparamos el flush aquí (idempotente si no hay nada pendiente).
+      _schedulePendingNavigationFlush();
       if (!_readyCompleter.isCompleted) _readyCompleter.complete();
     }
+  }
+
+  void _schedulePendingNavigationFlush() {
+    if (!hasPendingNotification) {
+      _pendingNavigationFlushAttempts = 0;
+      return;
+    }
+    Future.delayed(const Duration(milliseconds: 300), () {
+      if (!hasPendingNotification) {
+        _pendingNavigationFlushAttempts = 0;
+        return;
+      }
+      if (!MainNavigation.canNavigate) {
+        _pendingNavigationFlushAttempts++;
+        if (_pendingNavigationFlushAttempts > 40) {
+          debugPrint(
+              'FCM: abortando flush de navegación pendiente (sin MainNavigation)');
+          _pendingNavigationFlushAttempts = 0;
+          return;
+        }
+        final backoffMs = 120 + (_pendingNavigationFlushAttempts * 40);
+        Future.delayed(Duration(milliseconds: backoffMs), () {
+          _schedulePendingNavigationFlush();
+        });
+        return;
+      }
+      _pendingNavigationFlushAttempts = 0;
+      debugPrint('FCM: flush de navegación pendiente tras initialize()');
+      _handlePendingNavigation();
+    });
   }
 
   /// Una sola tarjeta en Android: cancela la anterior con el mismo (id, tag) antes de mostrar.
@@ -438,7 +473,10 @@ class FCMService {
     debugPrint(
         'MainNavigation está listo, verificando navegación pendiente...');
     Future.delayed(const Duration(milliseconds: 500), () {
-      _handlePendingNavigation();
+      unawaited(ensureInitialMessage());
+      Future.delayed(const Duration(milliseconds: 200), () {
+        _handlePendingNavigation();
+      });
     });
   }
 

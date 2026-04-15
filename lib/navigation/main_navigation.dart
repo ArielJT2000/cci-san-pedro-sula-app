@@ -79,14 +79,22 @@ class _MainNavigationState extends State<MainNavigation> {
 
   void _navigateToPage(int index) {
     if (index == _currentIndex) return;
-    var attempts = 0;
+    final started = DateTime.now();
     void tryNavigate() {
-      attempts++;
-      if (attempts > 24) return;
+      if (!mounted) return;
+
+      // En cold start el PageController a veces tarda varios frames en tener clientes.
+      // Antes se abortaba demasiado pronto y se perdía el deep link.
       if (!_pageController.hasClients) {
+        if (DateTime.now().difference(started) > const Duration(seconds: 8)) {
+          debugPrint(
+              'MainNavigation: timeout esperando PageController para ir a tab $index');
+          return;
+        }
         WidgetsBinding.instance.addPostFrameCallback((_) => tryNavigate());
         return;
       }
+
       _pageController.animateToPage(
         index,
         duration: duracionLarga,
