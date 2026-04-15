@@ -85,6 +85,10 @@ class SplashScreenState extends State<SplashScreen>
     } on TimeoutException {
       debugPrint(
           'Splash: tiempo de espera leyendo mensaje FCM inicial; continuando.');
+    } catch (e, st) {
+      // Sin Firebase o FCM fallando: no bloquear el arranque (antes quedaba en splash).
+      debugPrint('Splash: error leyendo mensaje FCM inicial: $e');
+      debugPrint('$st');
     }
     if (!mounted || _navigated) return;
 

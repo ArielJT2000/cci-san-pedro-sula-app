@@ -47,9 +47,22 @@ void main() async {
     ),
   );
 
+  // El splash llama a FCM (`getInitialMessage`) en cuanto monta; tiene que existir
+  // la app [DEFAULT] antes de `runApp`, si no hay carrera con `_bootstrapServices`.
+  try {
+    if (Firebase.apps.isEmpty) {
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
+      debugPrint(
+          'Firebase listo antes de runApp (${Platform.isAndroid ? "Android" : "iOS"})');
+    }
+  } catch (e) {
+    debugPrint('Error inicializando Firebase antes de runApp: $e');
+  }
+
   runApp(const _ForceDisableDebugOverlays(child: MyApp()));
-  // Arrancar servicios en segundo plano para no demorar el primer frame (evita “flash”
-  // de pantallas antiguas al abrir desde notificación en iOS).
+  // Notificaciones locales + FCM (Firebase Core ya está cuando aplica).
   unawaited(_bootstrapServices());
 }
 
