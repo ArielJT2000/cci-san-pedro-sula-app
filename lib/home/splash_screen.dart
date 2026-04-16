@@ -114,7 +114,7 @@ class SplashScreenState extends State<SplashScreen>
       PageRouteBuilder(
         pageBuilder: (context, animation, secondaryAnimation) =>
             const MainNavigation(fromSplash: true),
-        transitionDuration: const Duration(milliseconds: 420),
+        transitionDuration: const Duration(milliseconds: 580),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           return _SplashRouteKeyframes(animation: animation, child: child);
         },
@@ -242,7 +242,8 @@ class SplashScreenState extends State<SplashScreen>
   }
 }
 
-/// Salida splash → `MainNavigation` con curvas por tramos (keyframes), no un solo fade.
+/// Salida splash → `MainNavigation`: **disolver** (ease in-out en casi todo el tramo)
+/// más un movimiento muy suave para evitar corte brusco al final.
 class _SplashRouteKeyframes extends StatelessWidget {
   final Animation<double> animation;
   final Widget child;
@@ -252,19 +253,19 @@ class _SplashRouteKeyframes extends StatelessWidget {
     required this.child,
   });
 
-  static double _kfOpacity(double t) {
-    if (t <= 0.24) return Curves.easeOut.transform(t / 0.24);
-    return 1.0;
+  /// Opacidad tipo cross-dissolve: sube despacio al inicio y termina suave al final.
+  static double _dissolveIn(double t) {
+    return Curves.easeInOutCubic.transform(t.clamp(0.0, 1.0));
   }
 
   static double _kfScale(double t) {
-    final u = ((t - 0.05) / 0.68).clamp(0.0, 1.0);
-    return 0.93 + 0.07 * Curves.easeOutCubic.transform(u);
+    final u = Curves.easeInOutCubic.transform(t.clamp(0.0, 1.0));
+    return 0.985 + 0.015 * u;
   }
 
   static double _kfSlideRemain(double t) {
-    final u = (t / 0.52).clamp(0.0, 1.0);
-    return 1.0 - Curves.easeOut.transform(u);
+    final u = Curves.easeInOutCubic.transform(t.clamp(0.0, 1.0));
+    return (1.0 - u) * 0.65;
   }
 
   @override
@@ -274,10 +275,11 @@ class _SplashRouteKeyframes extends StatelessWidget {
       builder: (context, _) {
         final t = animation.value.clamp(0.0, 1.0);
         final h = MediaQuery.of(context).size.height;
+        final dissolve = _dissolveIn(t);
         return Opacity(
-          opacity: _kfOpacity(t),
+          opacity: dissolve,
           child: Transform.translate(
-            offset: Offset(0, 0.022 * h * _kfSlideRemain(t)),
+            offset: Offset(0, 0.014 * h * _kfSlideRemain(t)),
             child: Transform.scale(
               scale: _kfScale(t),
               alignment: Alignment.topCenter,
