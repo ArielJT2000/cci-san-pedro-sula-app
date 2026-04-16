@@ -71,7 +71,7 @@ class PuertasAbiertas extends StatelessWidget {
   Widget _buildHeaderWithLogo(double screenWidth) {
     final logoSize = screenWidth * 0.28;
     final titleStyle = getTitulo(screenWidth);
-    const titleText = 'Fundación Puertas Abiertas';
+    const titleText = 'Puertas Abiertas';
 
     return LayoutBuilder(
       builder: (context, constraints) {

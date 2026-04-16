@@ -17,12 +17,8 @@ class LiveStreamMonitor {
     if (_isMonitoring) return;
 
     _isMonitoring = true;
-    _checkForLiveStream();
-
-    // Verificar cada 5 minutos
-    _pollingTimer = Timer.periodic(const Duration(minutes: 5), (timer) {
-      _checkForLiveStream();
-    });
+    // Sin polling: dependemos de tu "test manual" (Lambda) + push notification.
+    // `checkNow()` sigue disponible si en algún punto quieres verificar manualmente.
   }
 
   /// Detiene el monitoreo

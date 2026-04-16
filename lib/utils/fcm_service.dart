@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'aws_events_service.dart';
 import 'notification_service.dart';
 import '../navigation/main_navigation.dart';
 import '../pantallas/alive.dart';
@@ -432,6 +433,12 @@ class FCMService {
       return;
     }
     if (notificationType == 'new_event') {
+      // Nuevo evento desde backend: invalidar caché de eventos para refrescar automático
+      // y evitar polling continuo.
+      AWSEventsService.invalidateCache(
+        category: category.isNotEmpty ? category : null,
+      );
+
       pendingEventId = eventId.isNotEmpty ? eventId : null;
       pendingCategory = category.isNotEmpty ? category : 'general';
       if (category == 'alive' || category == 'shift') {

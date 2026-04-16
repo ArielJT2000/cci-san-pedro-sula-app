@@ -24,22 +24,31 @@ class _EventosState extends State<Eventos> {
   @override
   void initState() {
     super.initState();
+    AWSEventsService.cacheVersion.addListener(_onEventsInvalidated);
     _loadData();
   }
 
   @override
   void dispose() {
+    AWSEventsService.cacheVersion.removeListener(_onEventsInvalidated);
     _scrollController.dispose();
     super.dispose();
   }
 
-  Future<void> _loadData() async {
+  void _onEventsInvalidated() {
+    if (!mounted) return;
+    if (_isLoading) return;
+    _loadData(forceRefresh: true);
+  }
+
+  Future<void> _loadData({bool forceRefresh = false}) async {
     setState(() {
       _isLoading = true;
     });
 
     try {
-      final events = await AWSEventsService.getEventsGeneral();
+      final events =
+          await AWSEventsService.getEventsGeneral(forceRefresh: forceRefresh);
       if (mounted) {
         setState(() {
           _events = events;

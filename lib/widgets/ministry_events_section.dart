@@ -6,7 +6,7 @@ import 'event_card.dart';
 
 /// Sección reutilizable "Información" con eventos por categoría (next, alive, shift).
 /// Usa AWS igual que Eventos general; las notificaciones se gestionan desde el backend por categoría.
-class MinistryEventsSection extends StatelessWidget {
+class MinistryEventsSection extends StatefulWidget {
   /// Categoría del ministerio: 'next', 'alive' o 'shift'.
   final String category;
 
@@ -14,6 +14,44 @@ class MinistryEventsSection extends StatelessWidget {
     super.key,
     required this.category,
   });
+
+  @override
+  State<MinistryEventsSection> createState() => _MinistryEventsSectionState();
+}
+
+class _MinistryEventsSectionState extends State<MinistryEventsSection> {
+  late Future<List<EventModel>> _future;
+
+  @override
+  void initState() {
+    super.initState();
+    _future = AWSEventsService.getEventsForMinistry(widget.category);
+    AWSEventsService.cacheVersion.addListener(_onEventsInvalidated);
+  }
+
+  @override
+  void didUpdateWidget(covariant MinistryEventsSection oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.category != widget.category) {
+      _future = AWSEventsService.getEventsForMinistry(widget.category);
+    }
+  }
+
+  @override
+  void dispose() {
+    AWSEventsService.cacheVersion.removeListener(_onEventsInvalidated);
+    super.dispose();
+  }
+
+  void _onEventsInvalidated() {
+    if (!mounted) return;
+    setState(() {
+      _future = AWSEventsService.getEventsForMinistry(
+        widget.category,
+        forceRefresh: true,
+      );
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +72,7 @@ class MinistryEventsSection extends StatelessWidget {
           ),
         ),
         FutureBuilder<List<EventModel>>(
-          future: AWSEventsService.getEventsForMinistry(category),
+          future: _future,
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return Center(

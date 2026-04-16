@@ -226,7 +226,7 @@ class _YouthState extends State<Youth> with TickerProviderStateMixin {
 
   Widget _buildHeader(double screenWidth) {
     return Text(
-      "Youth CCI",
+      "CCI YTH",
       overflow: TextOverflow.visible,
       style: getTitulo(screenWidth),
     );
