@@ -332,9 +332,16 @@ class _SpotlightText extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const beamWidth = 0.22;
-    final left = (reveal - beamWidth).clamp(0.0, 1.0);
-    final mid = reveal.clamp(0.0, 1.0);
-    final right = (reveal + beamWidth).clamp(0.0, 1.0);
+    // Overscan: el foco entra desde fuera y sale completamente al final,
+    // evitando que “termine” pegado a la última letra.
+    final center = (reveal * (1.0 + 2.0 * beamWidth)) - beamWidth;
+    final left = (center - beamWidth).clamp(0.0, 1.0);
+    final mid = center.clamp(0.0, 1.0);
+    final right = (center + beamWidth).clamp(0.0, 1.0);
+
+    final enter = ((center + beamWidth) / beamWidth).clamp(0.0, 1.0);
+    final exit = ((1.0 + beamWidth - center) / beamWidth).clamp(0.0, 1.0);
+    final highlightOpacity = (enter * exit).clamp(0.0, 1.0);
 
     return Stack(
       alignment: Alignment.center,
@@ -351,7 +358,7 @@ class _SpotlightText extends StatelessWidget {
           ),
         ),
         Opacity(
-          opacity: reveal > 0 ? 1.0 : 0.0,
+          opacity: highlightOpacity,
           child: ShaderMask(
             shaderCallback: (Rect bounds) {
               return LinearGradient(
