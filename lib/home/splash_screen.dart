@@ -14,12 +14,13 @@ class SplashScreen extends StatefulWidget {
 class SplashScreenState extends State<SplashScreen>
     with TickerProviderStateMixin {
   static const Duration _kTotalSplashTime = Duration(milliseconds: 2500);
-  // Momento aproximado (desde start) en que ya mostramos "San Pedro Sula".
-  // Desde aquí corre el "foco" hasta que arranca la salida.
-  static const Duration _kSpotlightStartDelay = Duration(milliseconds: 740);
+  // Tras el encogido del logo, arranca el foco en "San Pedro Sula".
+  static const Duration _kSpotlightStartDelay = Duration(milliseconds: 820);
   late AnimationController _animationController;
   late AnimationController _spotlightController;
-  late Animation<double> _scaleAnimation;
+
+  /// Logo: grande al inicio → tamaño final (keyframe en el mismo controlador).
+  late Animation<double> _logoScale;
   late Animation<double> _logoOpacity;
   late Animation<double> _titleOpacity;
   bool _navigated = false;
@@ -43,18 +44,17 @@ class SplashScreenState extends State<SplashScreen>
       vsync: this,
     );
 
-    // Animación de escala simple: aparece desde pequeño
-    _scaleAnimation = Tween<double>(begin: 0.92, end: 1.0).animate(
+    _logoScale = Tween<double>(begin: 1.46, end: 1.0).animate(
       CurvedAnimation(
         parent: _animationController,
-        curve: Curves.easeOutExpo,
+        curve: const Interval(0.0, 0.58, curve: Curves.easeOutCubic),
       ),
     );
 
     // Secuencia:
-    // 1) Logo entra primero.
+    // 1) Logo grande → encoge al tamaño actual.
     // 2) Título entra después del logo.
-    // 3) "San Pedro Sula" entra al final con efecto "foco" (recorrido izq→der).
+    // 3) "San Pedro Sula": mismo spotlight izq→der.
     _logoOpacity = CurvedAnimation(
       parent: _animationController,
       curve: const Interval(0.0, 0.45, curve: Curves.easeOutCubic),
@@ -107,10 +107,10 @@ class SplashScreenState extends State<SplashScreen>
       PageRouteBuilder(
         pageBuilder: (context, animation, secondaryAnimation) =>
             const MainNavigation(fromSplash: true),
+        transitionDuration: const Duration(milliseconds: 420),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          return FadeTransition(opacity: animation, child: child);
+          return _SplashRouteKeyframes(animation: animation, child: child);
         },
-        transitionDuration: const Duration(milliseconds: 380),
       ),
     );
   }
@@ -157,7 +157,7 @@ class SplashScreenState extends State<SplashScreen>
                     Opacity(
                       opacity: logoOpacity,
                       child: Transform.scale(
-                        scale: _scaleAnimation.value,
+                        scale: _logoScale.value.clamp(0.85, 2.0),
                         child: Material(
                           color: Colors.transparent,
                           child: Image.asset(
@@ -207,7 +207,6 @@ class SplashScreenState extends State<SplashScreen>
                                 fontWeight: FontWeight.w500,
                               ),
                               reveal: spsReveal,
-                              dissolveOut: 1.0,
                             ),
                           ],
                         ),
@@ -225,6 +224,54 @@ class SplashScreenState extends State<SplashScreen>
   }
 }
 
+/// Salida splash → `MainNavigation` con curvas por tramos (keyframes), no un solo fade.
+class _SplashRouteKeyframes extends StatelessWidget {
+  final Animation<double> animation;
+  final Widget child;
+
+  const _SplashRouteKeyframes({
+    required this.animation,
+    required this.child,
+  });
+
+  static double _kfOpacity(double t) {
+    if (t <= 0.24) return Curves.easeOut.transform(t / 0.24);
+    return 1.0;
+  }
+
+  static double _kfScale(double t) {
+    final u = ((t - 0.05) / 0.68).clamp(0.0, 1.0);
+    return 0.93 + 0.07 * Curves.easeOutCubic.transform(u);
+  }
+
+  static double _kfSlideRemain(double t) {
+    final u = (t / 0.52).clamp(0.0, 1.0);
+    return 1.0 - Curves.easeOut.transform(u);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: animation,
+      builder: (context, _) {
+        final t = animation.value.clamp(0.0, 1.0);
+        final h = MediaQuery.of(context).size.height;
+        return Opacity(
+          opacity: _kfOpacity(t),
+          child: Transform.translate(
+            offset: Offset(0, 0.022 * h * _kfSlideRemain(t)),
+            child: Transform.scale(
+              scale: _kfScale(t),
+              alignment: Alignment.topCenter,
+              child: child,
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
 class _SpotlightText extends StatelessWidget {
   final String text;
   final TextStyle baseStyle;
@@ -233,15 +280,11 @@ class _SpotlightText extends StatelessWidget {
   /// 0..1 recorrido izq→der del "foco"
   final double reveal;
 
-  /// 0..1 disolver al salir (1 = visible)
-  final double dissolveOut;
-
   const _SpotlightText({
     required this.text,
     required this.baseStyle,
     required this.highlightStyle,
     required this.reveal,
-    required this.dissolveOut,
   });
 
   @override
@@ -257,7 +300,7 @@ class _SpotlightText extends StatelessWidget {
       children: [
         // Base: texto tenue fijo.
         Opacity(
-          opacity: (0.92 * dissolveOut).clamp(0.0, 1.0),
+          opacity: 0.92,
           child: Text(
             text,
             style: baseStyle,
@@ -269,7 +312,7 @@ class _SpotlightText extends StatelessWidget {
         ),
         // Highlight: un "foco" que recorre de izquierda a derecha.
         Opacity(
-          opacity: (dissolveOut * (reveal > 0 ? 1.0 : 0.0)).clamp(0.0, 1.0),
+          opacity: reveal > 0 ? 1.0 : 0.0,
           child: ShaderMask(
             shaderCallback: (Rect bounds) {
               return LinearGradient(
