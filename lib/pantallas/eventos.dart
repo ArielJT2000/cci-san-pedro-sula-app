@@ -77,10 +77,6 @@ class _EventosState extends State<Eventos> {
     });
   }
 
-  Future<void> _refreshEvents() async {
-    await _loadData();
-  }
-
   void _showErrorMessage(String message) {
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -145,21 +141,9 @@ class _EventosState extends State<Eventos> {
   }
 
   Widget _buildHeader(double screenWidth) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Expanded(
-          child: Text(
-            "Eventos",
-            style: getTitulo(screenWidth),
-          ),
-        ),
-        IconButton(
-          icon: const Icon(Icons.refresh, color: blanco),
-          onPressed: _refreshEvents,
-          tooltip: 'Actualizar eventos',
-        ),
-      ],
+    return Text(
+      "Eventos",
+      style: getTitulo(screenWidth),
     );
   }
 

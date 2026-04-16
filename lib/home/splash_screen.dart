@@ -12,11 +12,15 @@ class SplashScreen extends StatefulWidget {
 }
 
 class SplashScreenState extends State<SplashScreen>
-    with SingleTickerProviderStateMixin {
-  /// Tiempo mínimo en splash antes de navegar (≥ duración de la intro).
+    with TickerProviderStateMixin {
+  /// Tiempo mínimo en splash antes del fade-out y navegar (≥ duración de la intro).
   static const Duration _kTotalSplashTime = Duration(milliseconds: 3600);
 
+  /// Fundido corto de todo el splash justo antes del `pushReplacement`.
+  static const Duration _kExitFadeDuration = Duration(milliseconds: 320);
+
   late AnimationController _intro;
+  late AnimationController _exitFade;
 
   /// Fase 1: logo + "Centro Cristiano / Internacional" aparecen juntos.
   late Animation<double> _brandOpacity;
@@ -40,6 +44,10 @@ class SplashScreenState extends State<SplashScreen>
 
     const introDuration = Duration(milliseconds: 3000);
     _intro = AnimationController(vsync: this, duration: introDuration);
+    _exitFade = AnimationController(
+      vsync: this,
+      duration: _kExitFadeDuration,
+    );
 
     // 0.00–0.30: logo grande → tamaño final + título entra con el logo.
     _logoScale = Tween<double>(begin: 1.42, end: 1.0).animate(
@@ -109,6 +117,9 @@ class SplashScreenState extends State<SplashScreen>
       if (!mounted || _navigated) return;
     }
 
+    await _exitFade.forward();
+    if (!mounted || _navigated) return;
+
     _navigated = true;
     Navigator.of(context).pushReplacement(
       PageRouteBuilder(
@@ -125,6 +136,7 @@ class SplashScreenState extends State<SplashScreen>
   @override
   void dispose() {
     _intro.dispose();
+    _exitFade.dispose();
     super.dispose();
   }
 
@@ -144,99 +156,111 @@ class SplashScreenState extends State<SplashScreen>
 
     final slidePixels = screenHeight * 0.078;
     final spsLift = screenHeight * 0.028;
+    // Acerca "San Pedro Sula" al bloque del título (menos hueco muerto).
+    final spsNudgeUp = screenHeight * 0.048;
 
     return Scaffold(
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        decoration: getGradientBackground(),
-        child: SafeArea(
-          child: Center(
-            child: AnimatedBuilder(
-              animation: _intro,
-              builder: (context, child) {
-                final brandOpacity = _brandOpacity.value.clamp(0.0, 1.0);
-                final slide = _brandSlideUp.value.clamp(0.0, 1.0);
-                final spsOpacity = _spsOpacity.value.clamp(0.0, 1.0);
-                final spsSlide = _spsSlideFromBelow.value.clamp(0.0, 1.0);
-                final spotlight = _spsSpotlightReveal.value.clamp(0.0, 1.0);
+      body: AnimatedBuilder(
+        animation: Listenable.merge([_intro, _exitFade]),
+        builder: (context, child) {
+          final exitT =
+              Curves.easeInOutCubic.transform(_exitFade.value.clamp(0.0, 1.0));
+          final shellOpacity = (1.0 - exitT).clamp(0.0, 1.0);
 
-                return Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Transform.translate(
-                      offset: Offset(0, -slide * slidePixels),
-                      child: Opacity(
-                        opacity: brandOpacity,
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Transform.scale(
-                              scale: _logoScale.value.clamp(0.85, 2.0),
-                              child: Image.asset(
-                                'assets/images/logo.png',
-                                width: screenWidth * 0.55,
-                                height: screenWidth * 0.55,
-                                fit: BoxFit.contain,
-                                errorBuilder: (context, error, stackTrace) {
-                                  return const Icon(Icons.error,
-                                      size: 120, color: Colors.red);
-                                },
+          final brandOpacity = _brandOpacity.value.clamp(0.0, 1.0);
+          final slide = _brandSlideUp.value.clamp(0.0, 1.0);
+          final spsOpacity = _spsOpacity.value.clamp(0.0, 1.0);
+          final spsSlide = _spsSlideFromBelow.value.clamp(0.0, 1.0);
+          final spotlight = _spsSpotlightReveal.value.clamp(0.0, 1.0);
+
+          return Opacity(
+            opacity: shellOpacity,
+            child: Container(
+              width: double.infinity,
+              height: double.infinity,
+              decoration: getGradientBackground(),
+              child: SafeArea(
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Transform.translate(
+                        offset: Offset(0, -slide * slidePixels),
+                        child: Opacity(
+                          opacity: brandOpacity,
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Transform.scale(
+                                scale: _logoScale.value.clamp(0.85, 2.0),
+                                child: Image.asset(
+                                  'assets/images/logo.png',
+                                  width: screenWidth * 0.55,
+                                  height: screenWidth * 0.55,
+                                  fit: BoxFit.contain,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return const Icon(Icons.error,
+                                        size: 120, color: Colors.red);
+                                  },
+                                ),
                               ),
-                            ),
-                            SizedBox(height: screenHeight * 0.032),
-                            Padding(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: getHorizontalPadding(screenWidth),
+                              SizedBox(height: screenHeight * 0.032),
+                              Padding(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: getHorizontalPadding(screenWidth),
+                                ),
+                                child: Column(
+                                  children: [
+                                    Text(
+                                      'Centro Cristiano',
+                                      style: titleStyle,
+                                      textAlign: TextAlign.center,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.visible,
+                                      softWrap: false,
+                                    ),
+                                    Text(
+                                      'Internacional',
+                                      style: titleStyle,
+                                      textAlign: TextAlign.center,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.visible,
+                                      softWrap: false,
+                                    ),
+                                  ],
+                                ),
                               ),
-                              child: Column(
-                                children: [
-                                  Text(
-                                    'Centro Cristiano',
-                                    style: titleStyle,
-                                    textAlign: TextAlign.center,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.visible,
-                                    softWrap: false,
-                                  ),
-                                  Text(
-                                    'Internacional',
-                                    style: titleStyle,
-                                    textAlign: TextAlign.center,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.visible,
-                                    softWrap: false,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: screenHeight * 0.022),
-                    Opacity(
-                      opacity: spsOpacity,
-                      child: Transform.translate(
-                        offset: Offset(0, spsSlide * spsLift),
-                        child: _SpotlightText(
-                          text: 'San Pedro Sula',
-                          baseStyle: subtitleStyle,
-                          highlightStyle: subtitleStyle.copyWith(
-                            color: blanco,
-                            fontWeight: FontWeight.w500,
+                            ],
                           ),
-                          reveal: spotlight,
                         ),
                       ),
-                    ),
-                  ],
-                );
-              },
+                      SizedBox(height: screenHeight * 0.006),
+                      Opacity(
+                        opacity: spsOpacity,
+                        child: Transform.translate(
+                          offset: Offset(
+                            0,
+                            -spsNudgeUp + spsSlide * spsLift,
+                          ),
+                          child: _SpotlightText(
+                            text: 'San Pedro Sula',
+                            baseStyle: subtitleStyle,
+                            highlightStyle: subtitleStyle.copyWith(
+                              color: blanco,
+                              fontWeight: FontWeight.w500,
+                            ),
+                            reveal: spotlight,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             ),
-          ),
-        ),
+          );
+        },
       ),
     );
   }
