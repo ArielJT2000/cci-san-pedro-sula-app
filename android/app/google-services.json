@@ -7,9 +7,9 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:20060340278:android:b6017f84f85ba7c2cc1897",
+        "mobilesdk_app_id": "1:20060340278:android:6601462e21ade011cc1897",
         "android_client_info": {
-          "package_name": "org.ccisanpedrosula.app"
+          "package_name": "com.cci.sanpedrosula"
         }
       },
       "oauth_client": [],

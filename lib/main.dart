@@ -172,11 +172,17 @@ class MyApp extends StatelessWidget {
           // Evita que algunos Text caigan en `errorTextStyle` (subrayado amarillo)
           // cuando se usan pantallas que no envuelven su contenido en Scaffold/Material.
           final safeChild = child ?? const SizedBox.shrink();
-          return Material(
-            type: MaterialType.transparency,
-            child: DefaultTextStyle.merge(
-              style: const TextStyle(decoration: TextDecoration.none),
-              child: safeChild,
+          // Tamaño de letra fijo: no seguir el escalado del sistema (Dynamic Type iOS,
+          // tamaño de fuente Android) para conservar el diseño previsto.
+          final mq = MediaQuery.of(context);
+          return MediaQuery(
+            data: mq.copyWith(textScaler: TextScaler.noScaling),
+            child: Material(
+              type: MaterialType.transparency,
+              child: DefaultTextStyle.merge(
+                style: const TextStyle(decoration: TextDecoration.none),
+                child: safeChild,
+              ),
             ),
           );
         },

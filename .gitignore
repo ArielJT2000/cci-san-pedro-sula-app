@@ -54,3 +54,4 @@ fcm_service_account_json.txt
 # Android release keystore (no subir a Git)
 /android/key.jks
 *.jks
+/android/key.properties

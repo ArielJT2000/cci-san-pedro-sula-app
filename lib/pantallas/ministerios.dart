@@ -58,9 +58,9 @@ class Ministerios extends StatelessWidget {
 
   Widget _buildDescription(double screenWidth) {
     return Text(
-      "La comunidad de CCI en San Pedro Sula está compuesta por muchos Ministerios "
-      "con el fin de poder responder a las necesidades que cada etapa de la vida "
-      "nos presenta. Te invitamos a conocerlos para que puedas ser parte también!",
+      "La comunidad CCI en San Pedro Sula cuenta con diferentes ministerios que "
+      "responden a las necesidades y desafíos del creyente en sus diferentes etapas "
+      "de vida. Te invitamos a conocerlos para que puedas ser parte!",
       style: TextStyle(
         height: 1.5,
         fontSize: screenWidth < 360 ? 16 : 18,
@@ -251,8 +251,10 @@ class Ministerios extends StatelessWidget {
         RepaintBoundary(
             child: _buildMinisterioItem(
           "kids",
-          "Ofrecemos cuidado de niños en cada celebración dominical, para que los más pequeños "
-              "vivan un encuentro con Dios en un ambiente seguro, divertido y lleno de su Palabra.",
+          "El discipulado de los más pequeños está a cargo de un dinámico y comprometido "
+              "equipo de voluntarios sirviendo en las celebraciones dominicales. Nuestros niños "
+              "pueden vivir un encuentro con Dios y Su Palabra cada domingo en un ambiente "
+              "seguro y divertido.",
           () => _launchCciKidsUrl(context),
           "Conoce más",
           screenWidth,
@@ -261,8 +263,8 @@ class Ministerios extends StatelessWidget {
         RepaintBoundary(
             child: _buildMinisterioItem(
           "movilizacion",
-          "Llevamos el amor de Dios más allá de las paredes de la iglesia mediante obras y "
-              "actividades en comunidades, impactando vidas con fe, amor y esperanza.",
+          "Llevamos el amor de Dios y predicamos el evangelio de Jesús más allá de las "
+              "paredes de la iglesia. En hospitales de la ciudad impactando vidas como un solo cuerpo.",
           () => _launchMovilizacionUrl(context),
           "Conoce más",
           screenWidth,
@@ -271,8 +273,9 @@ class Ministerios extends StatelessWidget {
         RepaintBoundary(
             child: _buildMinisterioItem(
           "hg",
-          "Somos un ministerio de grupos que se reúnen en hogares para crecer en comunidad, "
-              "estudiar la Palabra y apoyarse en la fe.",
+          "Somos la iglesia reunida en hogares con el fin de crecer en comunidad, estudiar la "
+              "Biblia y apoyarnos mutuamente, mientras construimos amistades significativas, "
+              "porque la vida cristiana no está diseñada para vivirse en solitud.",
           () => _launchGruposHogarUrl(context),
           "Conoce más",
           screenWidth,

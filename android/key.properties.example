@@ -1,0 +1,13 @@
+# Copia este archivo a key.properties (en la carpeta android/) y rellena los valores.
+# key.properties está en .gitignore — no lo subas a Git.
+#
+# 1) Genera el keystore (una sola vez), desde la carpeta android/:
+#    keytool -genkey -v -keystore key.jks -keyalg RSA -keysize 2048 -validity 10000 -alias cci-release
+#
+# 2) Guarda las contraseñas en un lugar seguro (1Password, etc.).
+
+storePassword=TU_CONTRASENA_DEL_KEYSTORE
+keyPassword=TU_CONTRASENA_DE_LA_CLAVE
+keyAlias=cci-release
+# Ruta relativa a la carpeta android/ (no a app/)
+storeFile=key.jks

@@ -11,24 +11,24 @@ Esta guía detalla la identidad de la app, Firebase, firma Android y publicació
 | Área | Estado |
 |------|--------|
 | **Apple** | App creada en **App Store Connect**; instalación vía **TestFlight** operativa. **Pendiente:** completar la ficha de la versión (metadatos, capturas, privacidad, etc.) y **enviar a revisión** para App Store. |
-| **Google Play** | **Sin app en Play Console aún.** Objetivo: crear la aplicación, cumplir el panel de tareas y subir el primer **AAB** (hoy). |
-| **Firebase** | Proyecto **cci-app-5bac1**. Revisa que la app **Android** en Firebase use el mismo **package** que `applicationId` en Android (ver nota más abajo). |
+| **Google Play** | App **CCI SPS** creada; **prueba interna** con AAB **versión 23** publicada. **Siguiente:** completar ítems del panel (ficha, políticas, Data safety, etc.) y **producción** o **promoción** del mismo build / nuevo AAB con `versionCode` mayor. |
+| **Firebase** | Proyecto **cci-app-5bac1**; app Android **`com.cci.sanpedrosula`** y `google-services.json` alineados (revisar si cambias el proyecto). |
 
 ### Identificadores reales en el código
 
 | Plataforma | Identificador | Dónde se ve |
 |------------|----------------|-------------|
 | **iOS** | `com.ccisps.app` | Xcode (`PRODUCT_BUNDLE_IDENTIFIER`), `GoogleService-Info.plist`, App Store Connect / App ID |
-| **Android** | `org.ccisanpedrosula.app` | `android/app/build.gradle` → `applicationId` |
+| **Android** | `com.cci.sanpedrosula` | `android/app/build.gradle` → `applicationId` y `namespace`; Play Console / verificación de desarrollador |
 
-> **Importante (Firebase Android):** En el repo, `android/app/google-services.json` aún puede listar un `package_name` distinto (p. ej. `com.example.cci_app`). Para que FCM y Analytics funcionen bien en release, en [Firebase Console](https://console.firebase.google.com) → **Project settings** → añade o usa una app Android con package **`org.ccisanpedrosula.app`**, descarga el `google-services.json` nuevo y sustituye el archivo. Luego opcionalmente: `dart run flutterfire configure`.
+> **Importante (Firebase Android):** El `package_name` dentro de `android/app/google-services.json` debe ser **`com.cci.sanpedrosula`**. En [Firebase Console](https://console.firebase.google.com) → **Project settings** → **Your apps** → añade (o edita) la app Android con ese package, descarga el `google-services.json` y reemplázalo en el repo. Opcional: `dart run flutterfire configure`.
 
 ---
 
 ## Cambios ya aplicados en el proyecto
 
 - **Bundle ID (iOS):** `com.ccisps.app`.
-- **Application ID (Android):** `org.ccisanpedrosula.app` (`namespace` y `applicationId` en `android/app/build.gradle`).
+- **Application ID (Android):** `com.cci.sanpedrosula` (`namespace` y `applicationId` en `android/app/build.gradle`).
 - **Push Notifications (iOS):** `RunnerDebug.entitlements` (development) y `RunnerRelease.entitlements` (production) con `aps-environment` para FCM/APNs.
 - **Firma en Xcode:** Si `DEVELOPMENT_TEAM` está vacío en git, en cada máquina abre **Xcode → Runner → Signing & Capabilities** y elige el **Team** de la cuenta host.
 
@@ -64,7 +64,7 @@ open ios/Runner.xcworkspace
 
 1. [console.firebase.google.com](https://console.firebase.google.com) — proyecto **cci-app-5bac1** (o el que uses).
 2. **iOS:** app con Bundle ID **`com.ccisps.app`** → `ios/Runner/GoogleService-Info.plist`.
-3. **Android:** app con package **`org.ccisanpedrosula.app`** → `android/app/google-services.json`.
+3. **Android:** app con package **`com.cci.sanpedrosula`** → `android/app/google-services.json`.
 4. **Cloud Messaging:** clave APNs (.p8) en **Apple app configuration** para iOS. Detalle: **[docs/FIREBASE_PUSH_SETUP.md](docs/FIREBASE_PUSH_SETUP.md)**.
 
 ---
@@ -73,22 +73,18 @@ open ios/Runner.xcworkspace
 
 ### 4.1 Keystore (solo una vez)
 
-```bash
-keytool -genkey -v -keystore key.jks -keyalg RSA -keysize 2048 -validity 10000 -alias cci-app
-```
-
-Guarda `key.jks` en lugar seguro, p. ej. `android/key.jks` (y añádelo a `.gitignore` si no está).
-
-### 4.2 `android/app/build.gradle`
-
-Descomenta `signingConfigs` y en `buildTypes.release` usa `signingConfig signingConfigs.release`. Contraseñas vía variables de entorno:
+Desde la carpeta **`android/`** del proyecto:
 
 ```bash
-export KEYSTORE_PASSWORD="…"
-export KEY_ALIAS="cci-app"
-export KEY_PASSWORD="…"
-flutter build appbundle
+cd android
+keytool -genkey -v -keystore key.jks -keyalg RSA -keysize 2048 -validity 10000 -alias cci-release
 ```
+
+Guarda **`key.jks`** y las contraseñas en un lugar seguro (no en Git). El repo ignora `android/key.jks` y `android/key.properties`.
+
+### 4.2 Firma en `android/app/build.gradle` + `key.properties`
+
+El proyecto usa **`android/key.properties`** (copia desde `key.properties.example`). Con `storeFile`, `storePassword`, `keyAlias` y `keyPassword` correctos, `flutter build appbundle` firma el release.
 
 El bundle queda en:
 
@@ -145,7 +141,16 @@ Cuando la ficha y las políticas estén listas, repite el flujo en **Producción
 
 ### 5.4 Package name en Play
 
-Al crear la app, el **applicationId** del primer upload fija el paquete: debe ser **`org.ccisanpedrosula.app`** (igual que en `build.gradle`). No se puede cambiar después sin crear otra app.
+El **applicationId** del primer AAB que subas fija el paquete en la ficha de la app. Debe coincidir con **`com.cci.sanpedrosula`** (como en `build.gradle` y en la verificación de desarrollador). No se puede cambiar después sin crear otra aplicación en Play.
+
+### 5.5 Lanzar a **producción** (cuando el panel esté en verde)
+
+1. **Panel de la app** (menú lateral): resuelve todo lo que Play marque como obligatorio antes de producción — en la práctica suele ser el mismo bloque del §5.2 (ficha de tienda, icono 512px, capturas de teléfono, clasificación de contenido, público y contenido familiar, **Seguridad de los datos**, URL de **política de privacidad**, declaración de **anuncios**, **acceso a la app** si hay login, etc.).
+2. **Versión en producción** — dos formas válidas:
+   - **Promocionar:** en **Prueba interna** → menú de la versión **23** → **Promocionar versión** → elige **Producción** (o pasa antes por prueba cerrada si lo prefieren). No subes otro `.aab` si Play permite reutilizar ese artefacto.
+   - **Subir build nuevo:** **Producción** → **Crear nueva versión** → sube un `.aab` con **`versionCode` estrictamente mayor** que cualquier versión ya subida (p. ej. si interna ya usó **23**, el siguiente bundle debe llevar **24** o más en `pubspec.yaml` → `version: x.y.z+24` y luego `flutter build appbundle`).
+3. **Países / regiones:** en **Producción** elige dónde estará disponible la app (puedes empezar solo con Honduras o el alcance que definan).
+4. **Revisión de Google:** tras **Enviar para revisión** / publicar, espera la aprobación (horas a varios días). Revisa el correo y la bandeja **Mensajes** de la consola por si piden cambios.
 
 ---
 
@@ -177,18 +182,29 @@ Si fallan las push en producción: **Signing & Capabilities**, App ID con Push, 
 - [ ] Ficha de versión completa para **App Store** (textos, capturas, privacidad, etc.).
 - [ ] **Enviar a revisión** desde App Store Connect.
 
-### Google Play (pendiente)
+### Google Play — hasta prueba interna (hecho / casi hecho)
 
-- [ ] Cuenta de desarrollador Play activa.
-- [ ] App creada con package **`org.ccisanpedrosula.app`**.
-- [ ] Keystore + `signingConfigs.release` en `build.gradle`.
-- [ ] `flutter build appbundle` y primer upload (interno o producción).
-- [ ] Ficha de tienda, clasificación de contenido, público objetivo, seguridad de datos, política de privacidad (URL), demás ítems obligatorios del panel.
+- [x] Cuenta de desarrollador Play activa.
+- [x] Paquete **`com.cci.sanpedrosula`** registrado y app **CCI SPS** en la consola.
+- [x] Keystore + `key.properties` + firma release en Gradle.
+- [x] Primer **`flutter build appbundle`** y versión en **prueba interna** (p. ej. código 23).
+
+### Google Play — para **producción** (revisa cada ítem en la consola)
+
+- [ ] **Ficha de Play Store** completa (textos, icono 512px, capturas obligatorias, categoría, correo de contacto, etc.).
+- [ ] **Clasificación de contenido** (cuestionario enviado y aprobado).
+- [ ] **Público objetivo y contenido familiar**.
+- [ ] **Seguridad de los datos** (Data safety) coherente con lo que hace la app (notificaciones, FCM, etc.).
+- [ ] **Política de privacidad** — URL pública válida.
+- [ ] **Anuncios** — declaración (sí / no).
+- [ ] **Acceso a la app** — si aplica (login, cuentas de prueba para revisores).
+- [ ] **Verificación de desarrollador** y demás avisos del panel en **verde** o resueltos.
+- [ ] **Producción:** promover la versión de interna **o** subir AAB nuevo con **`versionCode` mayor** que el último publicado en cualquier pista → **revisión** → publicar.
 
 ### Firebase / archivos
 
 - [ ] `GoogleService-Info.plist` acorde a **`com.ccisps.app`**.
-- [ ] `google-services.json` acorde a **`org.ccisanpedrosula.app`** (mismo proyecto Firebase).
+- [x] `google-services.json` acorde a **`com.cci.sanpedrosula`** (revalidar si cambias proyecto Firebase).
 - [ ] APNs (.p8) configurado en Firebase para iOS.
 
 Cuando Play y la revisión de iOS estén completas, la app quedará alineada con **ccisanpedrosula@gmail.com** como host en Apple, Firebase y Google Play.

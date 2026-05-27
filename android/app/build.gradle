@@ -26,9 +26,15 @@ if (flutterVersionName == null) {
     flutterVersionName = '1.0'
 }
 
+def keystoreProperties = new Properties()
+def keystorePropertiesFile = rootProject.file('key.properties')
+def hasReleaseKeystore = keystorePropertiesFile.exists()
+if (hasReleaseKeystore) {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+}
 
 android {
-    namespace "org.ccisanpedrosula.app"
+    namespace "com.cci.sanpedrosula"
     compileSdkVersion 36
 
     sourceSets {
@@ -36,7 +42,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "org.ccisanpedrosula.app"
+        applicationId "com.cci.sanpedrosula"
         minSdkVersion flutter.minSdkVersion
         targetSdkVersion 36
         versionCode flutterVersionCode.toInteger()
@@ -44,21 +50,19 @@ android {
         multiDexEnabled true
     }
 
-    // Elimina o comenta signingConfigs si no tienes key.jks
-    /*
     signingConfigs {
         release {
-            storeFile file("../key.jks")
-            storePassword System.getenv("KEYSTORE_PASSWORD")
-            keyAlias System.getenv("KEY_ALIAS")
-            keyPassword System.getenv("KEY_PASSWORD")
+            if (hasReleaseKeystore) {
+                storeFile rootProject.file(keystoreProperties['storeFile'])
+                storePassword keystoreProperties['storePassword']
+                keyAlias keystoreProperties['keyAlias']
+                keyPassword keystoreProperties['keyPassword']
+            }
         }
     }
-    */
     buildTypes {
         release {
-            // Elimina o comenta esta línea si no tienes key.jks:
-            // signingConfig signingConfigs.release
+            signingConfig hasReleaseKeystore ? signingConfigs.release : signingConfigs.debug
             minifyEnabled false
             shrinkResources false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
