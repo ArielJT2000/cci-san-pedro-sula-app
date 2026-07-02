@@ -2,9 +2,9 @@
 Lambda cci-live-videos - Dos modos de ejecución:
 
 1. INVOCACIÓN DESDE API (cuando la app abre Transmisiones):
-   - Lee desde DynamoDB el último estado guardado
-   - NO llama a YouTube (ahorra cuota y costos)
-   - Retorna liveVideoId
+   - Lee liveVideoId desde DynamoDB
+   - Valida con YouTube que el video siga en estado "live"
+   - Si ya terminó, limpia DynamoDB y retorna cadena vacía
 
 2. INVOCACIÓN MANUAL "Test" (cuando tú verificas que hay transmisión):
    - Llama a YouTube para verificar transmisión en vivo
@@ -51,6 +51,29 @@ def _get_from_youtube(api_key, channel_id):
         print(f"Error obteniendo transmisión en vivo: {str(e)}")
 
     return live_video_id or ""
+
+
+def _is_video_still_live(api_key, video_id):
+    """True si YouTube reporta liveBroadcastContent == live para ese videoId."""
+    if not api_key or not video_id:
+        return False
+
+    url = (
+        f"https://www.googleapis.com/youtube/v3/videos?"
+        f"part=snippet&id={video_id}&key={api_key}"
+    )
+    try:
+        with urllib.request.urlopen(url, timeout=HTTP_TIMEOUT_SEC) as response:
+            data = json.loads(response.read())
+        items = data.get("items") or []
+        if not items:
+            return False
+        snippet = items[0].get("snippet", {})
+        return snippet.get("liveBroadcastContent") == "live"
+    except Exception as e:
+        print(f"Error verificando si {video_id} sigue en vivo: {str(e)}")
+        # Si YouTube API falla, confiar en DynamoDB para no cortar transmisión activa.
+        return True
 
 
 def _read_from_dynamodb():
@@ -155,6 +178,13 @@ def lambda_handler(event, context):
 
     if _is_api_invocation(event):
         live_id = _read_from_dynamodb()
+        if live_id and API_KEY:
+            if _is_video_still_live(API_KEY, live_id):
+                print(f"API: liveVideoId validado en YouTube: {live_id}")
+            else:
+                print(f"API: {live_id} ya no está en vivo; limpiando DynamoDB")
+                _write_to_dynamodb("")
+                live_id = ""
         return {
             "statusCode": 200,
             "headers": headers,
