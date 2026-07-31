@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Degradado de la app: #1A1A1A → #161616 → #000000 -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <gradient
+        android:type="linear"
+        android:angle="270"
+        android:startColor="#1A1A1A"
+        android:centerColor="#161616"
+        android:endColor="#000000"
+        android:centerY="0.6" />
+</shape>

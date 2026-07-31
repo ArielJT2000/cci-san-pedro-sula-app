@@ -25,14 +25,21 @@ class _EventosState extends State<Eventos> {
   void initState() {
     super.initState();
     AWSEventsService.cacheVersion.addListener(_onEventsInvalidated);
+    FCMService.pendingEventSignal.addListener(_onPendingEventSignal);
     _loadData();
   }
 
   @override
   void dispose() {
     AWSEventsService.cacheVersion.removeListener(_onEventsInvalidated);
+    FCMService.pendingEventSignal.removeListener(_onPendingEventSignal);
     _scrollController.dispose();
     super.dispose();
+  }
+
+  void _onPendingEventSignal() {
+    if (!mounted) return;
+    _tryScrollToPendingEvent();
   }
 
   void _onEventsInvalidated() {
@@ -67,22 +74,23 @@ class _EventosState extends State<Eventos> {
   }
 
   void _tryScrollToPendingEvent() {
-    final pending = FCMService.consumePendingEventNavigation();
-    if (pending == null || (pending['category'] ?? 'general') != 'general')
+    final pending = FCMService.peekPendingEventNavigation();
+    if (pending == null || (pending['category'] ?? 'general') != 'general') {
       return;
+    }
     final eventId = pending['eventId'];
     if (eventId == null || eventId.isEmpty) return;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       final key = _eventKeys[eventId];
-      if (key?.currentContext != null) {
-        Scrollable.ensureVisible(
-          key!.currentContext!,
-          duration: const Duration(milliseconds: 500),
-          curve: Curves.easeInOut,
-          alignment: 0.2,
-        );
-      }
+      if (key?.currentContext == null) return;
+      FCMService.consumePendingEventNavigation();
+      Scrollable.ensureVisible(
+        key!.currentContext!,
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.easeInOut,
+        alignment: 0.2,
+      );
     });
   }
 

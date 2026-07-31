@@ -1,0 +1,11 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appID": "MZ8N4M5N3V.com.ccisps.app",
+        "paths": [ "/app", "/app/*" ]
+      }
+    ]
+  }
+}

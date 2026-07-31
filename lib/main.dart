@@ -7,6 +7,8 @@ import 'dart:async';
 import 'home/splash_screen.dart';
 import 'utils/notification_service.dart';
 import 'utils/fcm_service.dart';
+import 'utils/deep_link_service.dart';
+import 'widgets/brand_wait_overlay.dart';
 
 // Importar Firebase para Android e iOS
 import 'package:firebase_core/firebase_core.dart'
@@ -112,6 +114,13 @@ Future<void> _bootstrapServices() async {
   } catch (e) {
     debugPrint('Error inicializando FCM: $e');
   }
+
+  // Deep links de compartir eventos (ccisps://event/...)
+  try {
+    await DeepLinkService.instance.start();
+  } catch (e) {
+    debugPrint('Error inicializando DeepLinkService: $e');
+  }
 }
 
 /// En algunas sesiones, DevTools puede dejar activados overlays (baselines,
@@ -177,11 +186,13 @@ class MyApp extends StatelessWidget {
           final mq = MediaQuery.of(context);
           return MediaQuery(
             data: mq.copyWith(textScaler: TextScaler.noScaling),
-            child: Material(
-              type: MaterialType.transparency,
-              child: DefaultTextStyle.merge(
-                style: const TextStyle(decoration: TextDecoration.none),
-                child: safeChild,
+            child: BrandWaitOverlay(
+              child: Material(
+                type: MaterialType.transparency,
+                child: DefaultTextStyle.merge(
+                  style: const TextStyle(decoration: TextDecoration.none),
+                  child: safeChild,
+                ),
               ),
             ),
           );

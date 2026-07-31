@@ -78,7 +78,6 @@ class _MainNavigationState extends State<MainNavigation> {
   }
 
   void _navigateToPage(int index) {
-    if (index == _currentIndex) return;
     final started = DateTime.now();
     void tryNavigate() {
       if (!mounted) return;
@@ -92,6 +91,13 @@ class _MainNavigationState extends State<MainNavigation> {
           return;
         }
         WidgetsBinding.instance.addPostFrameCallback((_) => tryNavigate());
+        return;
+      }
+
+      if (index == _currentIndex) {
+        // Misma pestaña: saltar sin animación para que pantallas como Eventos
+        // puedan reaccionar al pendingEventSignal (scroll al evento).
+        _pageController.jumpToPage(index);
         return;
       }
 

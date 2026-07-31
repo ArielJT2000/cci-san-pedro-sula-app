@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CCI SPS · Abrir evento</title>
+  <meta name="description" content="Abre este evento en la app CCI SPS" />
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg0: #1a1a1a;
+      --bg1: #161616;
+      --bg2: #000000;
+      --card: #2a2a2a;
+      --text: #ffffff;
+      --muted: #8e8e93;
+      --line: rgba(255,255,255,0.12);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif;
+      background: linear-gradient(180deg, var(--bg0) 0%, var(--bg1) 60%, var(--bg2) 100%);
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .card {
+      width: 100%;
+      max-width: 420px;
+      background: rgba(42, 42, 42, 0.92);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      padding: 28px 22px 24px;
+      text-align: center;
+    }
+    h1 {
+      margin: 0 0 8px;
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+    }
+    p {
+      margin: 0 0 22px;
+      color: var(--muted);
+      line-height: 1.45;
+      font-size: 0.98rem;
+    }
+    .btn-open {
+      display: block;
+      width: 100%;
+      border: 1px solid rgba(255,255,255,0.22);
+      border-radius: 12px;
+      padding: 14px 16px;
+      margin: 0 0 20px;
+      font-size: 1rem;
+      font-weight: 600;
+      text-decoration: none;
+      color: #000;
+      background: #fff;
+      cursor: pointer;
+    }
+    .stores {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .stores a {
+      display: inline-block;
+      line-height: 0;
+      text-decoration: none;
+    }
+    .stores img {
+      height: 54px;
+      width: auto;
+      max-width: 100%;
+    }
+    .hint {
+      margin: 8px 0 0;
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+    .status {
+      display: none;
+      margin: 0 0 14px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 0.86rem;
+      line-height: 1.35;
+    }
+    .status.show { display: block; }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <h1>CCI SPS</h1>
+    <p id="subtitle">Abre este evento en la app. Si no la tienes, descárgala abajo.</p>
+    <p class="status" id="status"></p>
+
+    <a class="btn-open" id="openApp" href="#">Abrir en la app</a>
+
+    <div class="stores">
+      <a id="iosStore" href="https://apps.apple.com/app/id6760858460" rel="noopener" target="_blank" aria-label="Descargar en App Store">
+        <img
+          src="https://tools.applemediaservices.com/api/badges/download-on-the-app-store/black/es-es?size=250x83&amp;releaseDate=1289433600"
+          alt="Descargar en el App Store"
+          onerror="this.onerror=null;this.src='https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg';"
+        />
+      </a>
+      <a id="androidStore" href="https://play.google.com/store/apps/details?id=com.cci.sanpedrosula" rel="noopener" target="_blank" aria-label="Disponible en Google Play">
+        <img
+          src="https://play.google.com/intl/en_us/badges/static/images/badges/es_badge_web_generic.png"
+          alt="Disponible en Google Play"
+          style="height:72px"
+        />
+      </a>
+    </div>
+
+    <p class="hint">Si ya tienes la app instalada, toca “Abrir en la app”.</p>
+  </main>
+
+  <script>
+    (function () {
+      var params = new URLSearchParams(window.location.search);
+      var eventId = params.get('e') || params.get('eventId') || '';
+      var category = params.get('c') || params.get('category') || 'general';
+
+      var deepLink = eventId
+        ? 'ccisps://event/' + encodeURIComponent(eventId) + '?category=' + encodeURIComponent(category)
+        : 'ccisps://';
+
+      var openBtn = document.getElementById('openApp');
+      var statusEl = document.getElementById('status');
+      openBtn.setAttribute('href', deepLink);
+
+      function showStatus(msg) {
+        statusEl.textContent = msg;
+        statusEl.classList.add('show');
+      }
+
+      // Solo al tocar (gesto del usuario). No redirigir al cargar:
+      // Safari muestra "dirección no válida" si la app aún no tiene el scheme publicado.
+      openBtn.addEventListener('click', function (ev) {
+        ev.preventDefault();
+        openBtn.setAttribute('href', deepLink);
+
+        // Intento preferido: navegación directa por gesto del usuario
+        window.location.href = deepLink;
+
+        // Si no abre (app Store antigua sin scheme), avisar tras un momento
+        setTimeout(function () {
+          showStatus(
+            'Si Safari dice que la dirección no es válida, actualiza CCI SPS desde la App Store. ' +
+            'La versión instalada debe incluir el enlace profundo ccisps://'
+          );
+        }, 1200);
+      });
+    })();
+  </script>
+</body>
+</html>

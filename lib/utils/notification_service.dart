@@ -32,12 +32,12 @@ class NotificationService {
     const AndroidInitializationSettings androidSettings =
         AndroidInitializationSettings('@mipmap/ic_launcher');
 
-    // Configuración para iOS
+    // Configuración para iOS (permisos se piden explícitamente abajo)
     const DarwinInitializationSettings iosSettings =
         DarwinInitializationSettings(
-      requestAlertPermission: true,
-      requestBadgePermission: true,
-      requestSoundPermission: true,
+      requestAlertPermission: false,
+      requestBadgePermission: false,
+      requestSoundPermission: false,
     );
 
     const InitializationSettings initSettings = InitializationSettings(
@@ -50,12 +50,25 @@ class NotificationService {
       onDidReceiveNotificationResponse: _onNotificationTapped,
     );
 
-    // Android 13+ (API 33): permiso en tiempo de ejecución para notificaciones locales
+    // Android 13+ (API 33): permiso en tiempo de ejecución
     if (defaultTargetPlatform == TargetPlatform.android) {
       await _notifications
           .resolvePlatformSpecificImplementation<
               AndroidFlutterLocalNotificationsPlugin>()
           ?.requestNotificationsPermission();
+    }
+
+    // iOS: pedir permiso de alertas locales (además de push/APNs)
+    if (defaultTargetPlatform == TargetPlatform.iOS) {
+      final granted = await _notifications
+          .resolvePlatformSpecificImplementation<
+              IOSFlutterLocalNotificationsPlugin>()
+          ?.requestPermissions(
+            alert: true,
+            badge: true,
+            sound: true,
+          );
+      debugPrint('iOS local notifications permission: $granted');
     }
 
     // Crear canal de notificaciones para Android
@@ -67,8 +80,7 @@ class NotificationService {
     try {
       await scheduleRecurringNotifications();
     } catch (e) {
-      print('Error programando notificaciones recurrentes: $e');
-      // Continuar sin las notificaciones programadas si fallan
+      debugPrint('Error programando notificaciones recurrentes: $e');
     }
   }
 
@@ -101,19 +113,43 @@ class NotificationService {
     }
   }
 
-  /// Programa notificaciones recurrentes para celebraciones
+  /// Programa notificaciones recurrentes para celebraciones.
+  ///
+  /// iOS solo conserva ~64 notificaciones pendientes por app. Antes se
+  /// programaban ~12 meses de miércoles (100+) y iOS descartaba el resto
+  /// (incluidos domingos) en silencio — por eso en Android sí y en iOS no.
   Future<void> scheduleRecurringNotifications() async {
-    // Domingos: una sola notificación 40 min antes de cada celebración
+    await _cancelCelebrationSchedules();
     await scheduleSundayNotifications();
-    // Miércoles: 9h antes + a las 7:00 PM (cada miércoles; primer miércoles = Ayuno y Oración)
     await scheduleWednesdayNotifications();
+
+    final pending = await getPendingNotifications();
+    debugPrint(
+        'Notificaciones locales pendientes tras programar: ${pending.length}');
+  }
+
+  static const int _sundayId9am = 1;
+  static const int _sundayId1130 = 2;
+  static const int _wednesdayBaseId = 1000;
+  /// Ventana móvil: 12 miércoles × 2 avisos = 24 (cabe holgado en el límite iOS).
+  static const int _wednesdayWeeksAhead = 12;
+
+  Future<void> _cancelCelebrationSchedules() async {
+    await cancelNotification(_sundayId9am);
+    await cancelNotification(_sundayId1130);
+    // Cancelar IDs de miércoles de corridas anteriores
+    for (var id = _wednesdayBaseId;
+        id < _wednesdayBaseId + (_wednesdayWeeksAhead * 2) + 40;
+        id++) {
+      await cancelNotification(id);
+    }
   }
 
   /// Domingos: una notificación 40 min antes de 9:00 AM y una 40 min antes de 11:30 AM
   Future<void> scheduleSundayNotifications() async {
     // 40 min antes de 9:00 = 8:20
     await scheduleWeeklyNotification(
-      id: 1,
+      id: _sundayId9am,
       title: 'Celebración Semanal',
       body: 'Celebración Semanal 9:00 AM',
       day: DateTime.sunday,
@@ -122,7 +158,7 @@ class NotificationService {
     );
     // 40 min antes de 11:30 = 10:50
     await scheduleWeeklyNotification(
-      id: 2,
+      id: _sundayId1130,
       title: 'Celebración Semanal',
       body: 'Celebración Semanal 11:30 AM',
       day: DateTime.sunday,
@@ -131,80 +167,74 @@ class NotificationService {
     );
   }
 
-  /// Miércoles: para cada miércoles, 2 notificaciones — 9h antes (10:00) y a las 19:00
-  /// Primer miércoles del mes = Ayuno y Oración (se transmite); el resto = Celebración de Oración
+  /// Miércoles: próximos [_wednesdayWeeksAhead] — 9h antes (10:00) y a las 19:00.
+  /// Primer miércoles del mes = Ayuno y Oración; el resto = Celebración de Oración.
   Future<void> scheduleWednesdayNotifications() async {
     if (!_initialized) await initialize();
 
     final now = tz.TZDateTime.now(tz.local);
-    const int baseId = 1000;
-    int id = baseId;
+    var id = _wednesdayBaseId;
+    var scheduledCount = 0;
 
-    // Próximos 12 meses, todos los miércoles
-    for (int i = 0; i < 12; i++) {
-      final monthStart = DateTime(now.year, now.month + i, 1);
-      final wednesdays = _wednesdaysInMonth(monthStart.year, monthStart.month);
-      for (final wed in wednesdays) {
-        final wed10am =
-            tz.TZDateTime(tz.local, wed.year, wed.month, wed.day, 10, 0);
-        final wed7pm =
-            tz.TZDateTime(tz.local, wed.year, wed.month, wed.day, 19, 0);
-        if (wed10am.isBefore(now) && wed7pm.isBefore(now)) continue;
+    // Recorrer miércoles futuros (no 12 meses completos: rompe el límite iOS).
+    var cursor = DateTime(now.year, now.month, now.day);
+    final daysToWed = (DateTime.wednesday - cursor.weekday + 7) % 7;
+    cursor = cursor.add(Duration(days: daysToWed == 0 ? 0 : daysToWed));
+    if (tz.TZDateTime(tz.local, cursor.year, cursor.month, cursor.day, 19, 0)
+        .isBefore(now)) {
+      cursor = cursor.add(const Duration(days: 7));
+    }
 
-        final isFirstWednesday =
-            _isFirstWednesdayOfMonth(wed.year, wed.month, wed.day);
-        final String title;
-        final String body9h;
-        final String body7pm;
-        if (isFirstWednesday) {
-          title = 'Celebración de Ayuno y Oración';
-          body9h =
-              'Recordatorio: Celebración de Ayuno y Oración. Unámonos con un mismo corazón para buscar la presencia de Dios.\n Celebración: 7:00 p.m.\n Les esperamos en CCI San Pedro Sula.'; //Modificar este mensaje'
-          body7pm = 'Celebración de Ayuno y Oración 7:00 PM';
-        } else {
-          title = 'Celebración de Oración';
-          body9h =
-              'Recordatorio: Celebración de Oración. Unámonos con un mismo corazón para buscar la presencia de Dios..\n Celebración: 7:00 p.m.\n Les esperamos en CCI San Pedro Sula.';
-          body7pm = 'Celebración de Oración 7:00 PM';
-        }
+    for (var w = 0;
+        w < _wednesdayWeeksAhead && scheduledCount < _wednesdayWeeksAhead * 2;
+        w++) {
+      final wed = cursor.add(Duration(days: 7 * w));
+      final wed10am =
+          tz.TZDateTime(tz.local, wed.year, wed.month, wed.day, 10, 0);
+      final wed7pm =
+          tz.TZDateTime(tz.local, wed.year, wed.month, wed.day, 19, 0);
 
-        if (wed10am.isAfter(now)) {
-          await _scheduleOne(
-            id: id++,
-            title: title,
-            body: body9h,
-            scheduled: wed10am,
-          );
-        }
-        if (wed7pm.isAfter(now)) {
-          await _scheduleOne(
-            id: id++,
-            title: title,
-            body: body7pm,
-            scheduled: wed7pm,
-          );
-        }
+      final isFirstWednesday =
+          _isFirstWednesdayOfMonth(wed.year, wed.month, wed.day);
+      final String title;
+      final String body9h;
+      final String body7pm;
+      if (isFirstWednesday) {
+        title = 'Celebración de Ayuno y Oración';
+        body9h =
+            'Recordatorio: Celebración de Ayuno y Oración. Unámonos con un mismo corazón para buscar la presencia de Dios.\n Celebración: 7:00 p.m.\n Les esperamos en CCI San Pedro Sula.';
+        body7pm = 'Celebración de Ayuno y Oración 7:00 PM';
+      } else {
+        title = 'Celebración de Oración';
+        body9h =
+            'Recordatorio: Celebración de Oración. Unámonos con un mismo corazón para buscar la presencia de Dios.\n Celebración: 7:00 p.m.\n Les esperamos en CCI San Pedro Sula.';
+        body7pm = 'Celebración de Oración 7:00 PM';
+      }
+
+      if (wed10am.isAfter(now)) {
+        await _scheduleOne(
+          id: id++,
+          title: title,
+          body: body9h,
+          scheduled: wed10am,
+        );
+        scheduledCount++;
+      }
+      if (wed7pm.isAfter(now)) {
+        await _scheduleOne(
+          id: id++,
+          title: title,
+          body: body7pm,
+          scheduled: wed7pm,
+        );
+        scheduledCount++;
       }
     }
   }
 
-  /// Lista de todos los miércoles del mes (DateTime en hora local)
-  List<DateTime> _wednesdaysInMonth(int year, int month) {
-    final first = DateTime(year, month, 1);
-    final daysToFirstWed = (3 - first.weekday + 7) % 7;
-    final firstWed = first.add(Duration(days: daysToFirstWed));
-    final list = <DateTime>[];
-    for (var d = firstWed;
-        d.month == month;
-        d = d.add(const Duration(days: 7))) {
-      list.add(d);
-    }
-    return list;
-  }
-
   bool _isFirstWednesdayOfMonth(int year, int month, int day) {
     final first = DateTime(year, month, 1);
-    final daysToFirstWed = (3 - first.weekday + 7) % 7;
+    final daysToFirstWed = (DateTime.wednesday - first.weekday + 7) % 7;
     return 1 + daysToFirstWed == day;
   }
 

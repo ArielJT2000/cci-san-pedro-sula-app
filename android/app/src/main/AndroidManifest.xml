@@ -34,6 +34,27 @@
                 <action android:name="FLUTTER_NOTIFICATION_CLICK"/>
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
+            <!-- Deep links nativos: ccisps://event/{eventId} -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="ccisps" android:host="event"/>
+            </intent-filter>
+            <!-- Links HTTPS compartibles (WhatsApp): https://ccisanpedrosula.org/app/... -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data
+                    android:scheme="https"
+                    android:host="ccisanpedrosula.org"
+                    android:pathPrefix="/app"/>
+                <data
+                    android:scheme="https"
+                    android:host="www.ccisanpedrosula.org"
+                    android:pathPrefix="/app"/>
+            </intent-filter>
         </activity>
         <meta-data
             android:name="flutterEmbedding"

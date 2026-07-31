@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../utils/constants.dart';
+import '../utils/event_share.dart';
 import '../models/event_model.dart';
 
 /// Tarjeta de evento reutilizable (Eventos general y sección Información de ministerios).
@@ -9,15 +10,50 @@ class EventCard extends StatelessWidget {
   final double screenWidth;
   final double screenHeight;
 
+  /// Categoría del evento para el deep link al compartir (`general`, `next`, …).
+  final String category;
+
   const EventCard({
     super.key,
     required this.event,
     required this.screenWidth,
     required this.screenHeight,
+    this.category = 'general',
   });
+
+  Future<void> _share(BuildContext context) async {
+    final box = context.findRenderObject() as RenderBox?;
+    final origin = box != null
+        ? box.localToGlobal(Offset.zero) & box.size
+        : null;
+
+    try {
+      await EventShare.shareEvent(
+        event: event,
+        category: category,
+        sharePositionOrigin: origin,
+      );
+    } catch (e) {
+      debugPrint('Error al compartir evento: $e');
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'No se pudo abrir compartir. Detén la app y vuelve a ejecutar '
+            'flutter run (hace falta por plugins nativos nuevos).',
+          ),
+          behavior: SnackBarBehavior.floating,
+          duration: Duration(seconds: 4),
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    final hasRegistration = event.registrationLink != null &&
+        event.registrationLink!.isNotEmpty;
+
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
@@ -119,10 +155,14 @@ class EventCard extends StatelessWidget {
                         ),
                       ),
                     ),
+                    const Spacer(),
+                    _ShareIconButton(
+                      screenWidth: screenWidth,
+                      onTap: () => _share(context),
+                    ),
                   ],
                 ),
-                if (event.registrationLink != null &&
-                    event.registrationLink!.isNotEmpty) ...[
+                if (hasRegistration) ...[
                   SizedBox(height: screenHeight * 0.02),
                   GestureDetector(
                     onTap: () async {
@@ -164,6 +204,32 @@ class EventCard extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _ShareIconButton extends StatelessWidget {
+  final double screenWidth;
+  final VoidCallback onTap;
+
+  const _ShareIconButton({
+    required this.screenWidth,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+      onPressed: onTap,
+      padding: EdgeInsets.zero,
+      constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
+      visualDensity: VisualDensity.compact,
+      tooltip: 'Compartir',
+      icon: Icon(
+        Icons.ios_share_rounded,
+        color: blanco,
+        size: screenWidth < 360 ? 20 : 22,
       ),
     );
   }

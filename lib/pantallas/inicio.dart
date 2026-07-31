@@ -346,7 +346,7 @@ class _InicioState extends State<Inicio> with TickerProviderStateMixin {
           featuredAccent: true,
         ),
         SizedBox(height: _bentoGap),
-        // Segunda fila: En vivo y Contribuir como botones pequeños
+        // Segunda fila: En vivo y Eventos como botones pequeños
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -371,10 +371,10 @@ class _InicioState extends State<Inicio> with TickerProviderStateMixin {
                 context: context,
                 screenWidth: screenWidth,
                 screenHeight: screenHeight,
-                icon: Icons.favorite_outline,
-                title: 'Contribuir',
-                subtitle: 'Apoya la obra y expande el mensaje',
-                screen: const Ofrendas(),
+                icon: Icons.calendar_today_outlined,
+                title: 'Eventos',
+                subtitle: 'Próximas actividades',
+                screen: const Eventos(),
                 titleStyle: titleStyle,
                 subtitleStyle: subtitleStyle,
                 minHeight: 112,
@@ -398,7 +398,7 @@ class _InicioState extends State<Inicio> with TickerProviderStateMixin {
           featuredAccent: true,
         ),
         SizedBox(height: _bentoGap),
-        // Eventos como botón pequeño
+        // CCI YTH y Contribuir como botones pequeños
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -407,10 +407,10 @@ class _InicioState extends State<Inicio> with TickerProviderStateMixin {
                 context: context,
                 screenWidth: screenWidth,
                 screenHeight: screenHeight,
-                icon: Icons.calendar_today_outlined,
-                title: 'Eventos',
-                subtitle: 'Próximas actividades',
-                screen: const Eventos(),
+                icon: Icons.arrow_forward_outlined,
+                title: 'CCI YTH',
+                subtitle: 'Próximas generaciones',
+                screen: const Youth(),
                 titleStyle: titleStyle,
                 subtitleStyle: subtitleStyle,
                 minHeight: 112,
@@ -423,10 +423,10 @@ class _InicioState extends State<Inicio> with TickerProviderStateMixin {
                 context: context,
                 screenWidth: screenWidth,
                 screenHeight: screenHeight,
-                icon: Icons.arrow_forward_outlined,
-                title: 'CCI YTH',
-                subtitle: 'Próximas generaciones',
-                screen: const Youth(),
+                icon: Icons.favorite_outline,
+                title: 'Contribuir',
+                subtitle: 'Apoya la obra y expande el mensaje',
+                screen: const Ofrendas(),
                 titleStyle: titleStyle,
                 subtitleStyle: subtitleStyle,
                 minHeight: 112,

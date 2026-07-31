@@ -178,14 +178,40 @@ class FCMService {
     }
   }
 
-  /// Devuelve y limpia los datos de evento pendiente para la pantalla que los consuma
-  static Map<String, String>? consumePendingEventNavigation() {
+  /// Se incrementa cuando hay una navegación a evento pendiente lista para
+  /// que Eventos (u otras pantallas) intenten hacer scroll.
+  static final ValueNotifier<int> pendingEventSignal = ValueNotifier<int>(0);
+
+  /// Devuelve (sin limpiar) los datos de evento pendiente.
+  static Map<String, String>? peekPendingEventNavigation() {
     final eventId = pendingEventId;
     final category = pendingCategory;
-    pendingEventId = null;
-    pendingCategory = null;
     if (eventId == null || eventId.isEmpty) return null;
     return {'eventId': eventId, 'category': category ?? 'general'};
+  }
+
+  /// Devuelve y limpia los datos de evento pendiente para la pantalla que los consuma
+  static Map<String, String>? consumePendingEventNavigation() {
+    final pending = peekPendingEventNavigation();
+    pendingEventId = null;
+    pendingCategory = null;
+    return pending;
+  }
+
+  /// Deep link / compartir: abre el evento como si viniera de una push.
+  void openEventFromDeepLink({
+    required String eventId,
+    String category = 'general',
+  }) {
+    _applyNavigationFromData({
+      'type': 'new_event',
+      'eventId': eventId,
+      'category': category,
+    });
+  }
+
+  void _signalPendingEvent() {
+    pendingEventSignal.value++;
   }
 
   /// Establece la clave de navegación para poder navegar desde notificaciones
@@ -442,8 +468,9 @@ class FCMService {
       pendingEventId = eventId.isNotEmpty ? eventId : null;
       pendingCategory = category.isNotEmpty ? category : 'general';
       if (category == 'alive' || category == 'shift') {
-        // No ir al tab Ministerios: push directo a Alive/Shift para que al volver atrás no quede Ministerios
-        Future.delayed(const Duration(milliseconds: 500), () {
+        // Cerrar pantallas encima del shell y luego push Alive/Shift.
+        _popToMainShell();
+        Future.delayed(const Duration(milliseconds: 350), () {
           final state = _navigatorKey?.currentState;
           if (state != null && state.mounted) {
             if (category == 'alive') {
@@ -451,11 +478,13 @@ class FCMService {
             } else {
               state.push(MaterialPageRoute(builder: (_) => const Shift()));
             }
+            _signalPendingEvent();
           }
         });
       } else {
         final index = _eventCategoryToPageIndex(category);
         _navigateToScreen(index);
+        Future.delayed(const Duration(milliseconds: 450), _signalPendingEvent);
       }
       return;
     }
@@ -495,9 +524,24 @@ class FCMService {
     }
   }
 
+  /// Cierra rutas apiladas sobre [MainNavigation] (p. ej. pantallas abiertas
+  /// con `Navigator.push` desde Inicio) para que el cambio de tab sea visible.
+  void _popToMainShell() {
+    final nav = _navigatorKey?.currentState;
+    if (nav == null) return;
+    var guard = 0;
+    while (nav.canPop() && guard < 20) {
+      nav.pop();
+      guard++;
+    }
+  }
+
   /// Navega a una pantalla específica usando el PageController de MainNavigation
   void _navigateToScreen(int screenIndex) {
     debugPrint('Intentando navegar a pantalla índice: $screenIndex');
+
+    // Primero quitar overlays; si no, el tab cambia "debajo" y solo se ve al dar back.
+    _popToMainShell();
 
     // navigateToPage no lanza si _instance es null: antes se hacía return aquí y nunca
     // se llegaba a pushAndRemoveUntil (p. ej. usuario en Welcome).

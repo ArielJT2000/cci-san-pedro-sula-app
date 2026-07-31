@@ -104,6 +104,7 @@ class _MinistryEventsSectionState extends State<MinistryEventsSection> {
                           event: e,
                           screenWidth: screenWidth,
                           screenHeight: screenHeight,
+                          category: widget.category,
                         ),
                       ))
                   .toList(),

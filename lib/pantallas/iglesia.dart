@@ -79,40 +79,78 @@ class Iglesia extends StatelessWidget {
   }
 
   Widget _buildPastoresSection(double screenWidth, double screenHeight) {
+    const generales = ['mario', 'karla'];
+    const cuerpoPastoral = [
+      'enrique',
+      'juanramon',
+      'rosa',
+      'juanca',
+      'kensy',
+    ];
+
     return Builder(
       builder: (context) => Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(height: screenHeight * 0.04),
-          Text(
-            "Pastores",
-            style: TextStyle(
-              fontFamily: 'SF Pro Display',
-              color: blanco,
-              fontSize: screenWidth < 360 ? 20 : 24,
-              fontWeight: FontWeight.w600,
-              letterSpacing: -0.5,
-              height: 1.2,
-            ),
+          _buildPastoresListSegment(
+            context: context,
+            title: 'Pastores Generales',
+            pastorKeys: generales,
+            screenWidth: screenWidth,
+            screenHeight: screenHeight,
           ),
-          SizedBox(height: screenHeight * 0.03),
-          Container(
-            height: screenHeight * 0.18,
-            child: ListView(
-              scrollDirection: Axis.horizontal,
-              physics: const ClampingScrollPhysics(),
-              children: [
-                _PastorImage("mario", context, screenWidth, screenHeight),
-                _PastorImage("karla", context, screenWidth, screenHeight),
-                _PastorImage("enrique", context, screenWidth, screenHeight),
-                _PastorImage("juanramon", context, screenWidth, screenHeight),
-                _PastorImage("rosa", context, screenWidth, screenHeight),
-                _PastorImage("juanca", context, screenWidth, screenHeight),
-                _PastorImage("kensy", context, screenWidth, screenHeight),
-              ],
-            ),
+          SizedBox(height: screenHeight * 0.04),
+          _buildPastoresListSegment(
+            context: context,
+            title: 'Cuerpo Pastoral',
+            pastorKeys: cuerpoPastoral,
+            screenWidth: screenWidth,
+            screenHeight: screenHeight,
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildPastoresListSegment({
+    required BuildContext context,
+    required String title,
+    required List<String> pastorKeys,
+    required double screenWidth,
+    required double screenHeight,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: TextStyle(
+            fontFamily: 'SF Pro Display',
+            color: blanco,
+            fontSize: screenWidth < 360 ? 20 : 24,
+            fontWeight: FontWeight.w600,
+            letterSpacing: -0.5,
+            height: 1.2,
+          ),
+        ),
+        SizedBox(height: screenHeight * 0.025),
+        SizedBox(
+          height: screenHeight * 0.15,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            physics: const ClampingScrollPhysics(),
+            itemCount: pastorKeys.length,
+            itemBuilder: (context, index) {
+              return _PastorImage(
+                pastorKeys[index],
+                screenWidth,
+                screenHeight,
+              );
+            },
+          ),
+        ),
+      ],
     );
   }
 
@@ -158,10 +196,17 @@ class Iglesia extends StatelessWidget {
                       color: colorWithOpacity(blanco, 0.1),
                       borderRadius: BorderRadius.circular(borderRadiusSmall),
                     ),
-                    child: Icon(
-                      Icons.language_outlined,
-                      color: blanco,
-                      size: 28,
+                    padding: const EdgeInsets.all(8),
+                    child: Image.asset(
+                      'assets/images/logo.png',
+                      fit: BoxFit.contain,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Icon(
+                          Icons.language_outlined,
+                          color: blanco,
+                          size: 28,
+                        );
+                      },
                     ),
                   ),
                   SizedBox(width: screenWidth * 0.05),
@@ -334,12 +379,10 @@ class _VisionSection extends StatelessWidget {
 
 class _PastorImage extends StatelessWidget {
   final String name;
-  final BuildContext context;
   final double screenWidth;
   final double screenHeight;
 
-  const _PastorImage(
-      this.name, this.context, this.screenWidth, this.screenHeight);
+  const _PastorImage(this.name, this.screenWidth, this.screenHeight);
 
   static final Map<String, Map<String, String>> _pastorInfo = {
     "mario": {
@@ -383,7 +426,7 @@ class _PastorImage extends StatelessWidget {
           "Comprometida con la formación espiritual y el cuidado de las familias.",
     },
     "enrique": {
-      "nombre": "Enrique",
+      "nombre": "Enrique Zaldivar",
       "titulo": "Pastor titular de Alabanza y Comunicaciones",
       "info": "Lidera los ministerios de alabanza y comunicaciones. "
           "A cargo de la alabanza, los medios y la transmisión de los servicios.",
@@ -394,9 +437,9 @@ class _PastorImage extends StatelessWidget {
   Widget build(BuildContext context) {
     final double size = screenHeight * 0.13;
     return GestureDetector(
-      onTap: () => _showPastorInfo(context, name),
+      onTap: () => _showPastorInfo(context),
       child: Container(
-        margin: EdgeInsets.symmetric(horizontal: 8 * 0.95),
+        margin: const EdgeInsets.symmetric(horizontal: 7.6),
         width: size,
         height: size,
         decoration: BoxDecoration(
@@ -436,13 +479,13 @@ class _PastorImage extends StatelessWidget {
     );
   }
 
-  void _showPastorInfo(BuildContext context, String name) {
+  void _showPastorInfo(BuildContext context) {
     final info = _pastorInfo[name];
     if (info == null) return;
 
     showDialog(
       context: context,
-      barrierColor: Colors.black.withValues(alpha: 0.7),
+      barrierColor: Colors.black.withValues(alpha: 0.55),
       builder: (context) => _PastorInfoDialog(
         nombre: info["nombre"]!,
         titulo: info["titulo"]!,
@@ -471,6 +514,9 @@ class _PastorInfoDialog extends StatelessWidget {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
 
+    // Glass más transparente (~30% menos opacidad) + más blur.
+    const glassBlur = 28.0;
+
     return Dialog(
       backgroundColor: Colors.transparent,
       elevation: 0,
@@ -479,22 +525,28 @@ class _PastorInfoDialog extends StatelessWidget {
       child: ClipRRect(
         borderRadius: BorderRadius.circular(borderRadiusLarge),
         child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+          filter: ImageFilter.blur(sigmaX: glassBlur, sigmaY: glassBlur),
           child: Container(
             padding: EdgeInsets.all(screenWidth * 0.06),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(borderRadiusLarge),
-              color: Colors.white.withValues(alpha: 0.05),
               border: Border.all(
-                color: Colors.white.withValues(alpha: 0.06),
-                width: 0.5,
+                color: Colors.white.withValues(alpha: 0.14),
+                width: 0.8,
+              ),
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Colors.white.withValues(alpha: 0.10),
+                  Colors.white.withValues(alpha: 0.025),
+                ],
               ),
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                // Botón de cerrar
                 Align(
                   alignment: Alignment.topRight,
                   child: IconButton(
@@ -503,7 +555,6 @@ class _PastorInfoDialog extends StatelessWidget {
                   ),
                 ),
                 SizedBox(height: screenHeight * 0.02),
-                // Imagen del pastor (rectangular, sin círculo)
                 Center(
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(borderRadius),
@@ -511,7 +562,6 @@ class _PastorInfoDialog extends StatelessWidget {
                       width: screenWidth * 0.55,
                       height: screenHeight * 0.22,
                       decoration: BoxDecoration(
-                        // Fondo oscuro para evitar bordes claros si la imagen trae transparencia.
                         color: colorWithOpacity(negro, 0.18),
                         borderRadius: BorderRadius.circular(borderRadius),
                         border: Border.all(
@@ -534,7 +584,6 @@ class _PastorInfoDialog extends StatelessWidget {
                   ),
                 ),
                 SizedBox(height: screenHeight * 0.03),
-                // Nombre
                 Text(
                   nombre,
                   textAlign: TextAlign.center,
@@ -548,7 +597,6 @@ class _PastorInfoDialog extends StatelessWidget {
                   ),
                 ),
                 SizedBox(height: screenHeight * 0.01),
-                // Título
                 Text(
                   titulo,
                   textAlign: TextAlign.center,
