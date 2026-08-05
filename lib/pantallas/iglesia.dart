@@ -86,6 +86,9 @@ class Iglesia extends StatelessWidget {
       'rosa',
       'juanca',
       'kensy',
+      'nelson',
+      'cinthia',
+      'karlita',
     ];
 
     return Builder(
@@ -401,35 +404,53 @@ class _PastorImage extends StatelessWidget {
     },
     "juanramon": {
       "nombre": "Juan Ramón Tábora",
-      "titulo": "Pastor titular 9:00 A.M.",
+      "titulo": "Pastor Titular",
       "info":
           "Pastor titular del servicio de las 9:00 A.M. junto a su esposa Rosa de Tábora. "
               "Dedicado a la enseñanza de la Palabra y la pastoral de familias.",
     },
     "rosa": {
       "nombre": "Rosa de Tábora",
-      "titulo": "Pastora adjunta 9:00 A.M.",
+      "titulo": "Pastora Adjunta",
       "info": "Pastora adjunta del servicio de las 9:00 A.M. "
           "Con un corazón por la adoración y el acompañamiento pastoral.",
     },
     "juanca": {
       "nombre": "Juan Carlos Vallecillo",
-      "titulo": "Pastor titular 11:30 A.M.",
+      "titulo": "Pastor Titular",
       "info":
           "Pastor titular del servicio de las 11:30 A.M. junto a su esposa Kensy de Vallecillo. "
               "Enfocado en la predicación y el crecimiento de la congregación.",
     },
     "kensy": {
       "nombre": "Kensy de Vallecillo",
-      "titulo": "Pastora adjunta 11:30 A.M.",
+      "titulo": "Pastora Adjunta",
       "info": "Pastora adjunta del servicio de las 11:30 A.M. "
           "Comprometida con la formación espiritual y el cuidado de las familias.",
     },
     "enrique": {
       "nombre": "Enrique Zaldivar",
-      "titulo": "Pastor titular de Alabanza y Comunicaciones",
+      "titulo": "Pastor Titular",
       "info": "Lidera los ministerios de alabanza y comunicaciones. "
           "A cargo de la alabanza, los medios y la transmisión de los servicios.",
+    },
+    "nelson": {
+      "nombre": "Nelson López",
+      "titulo": "Pastor Adjunto",
+      "info": "Pastor de la Celebración de Oración de los miércoles junto a su esposa Cynthia de López. "
+          "Acompaña la vida pastoral de la iglesia y el cuidado de las familias.",
+    },
+    "cinthia": {
+      "nombre": "Cynthia de López",
+      "titulo": "Pastora Adjunta",
+      "info": "Pastora de la Celebración de Oración de los miércoles junto a su esposo Nelson López. "
+          "Sirve en el acompañamiento pastoral y el cuidado de las familias de CCI San Pedro Sula.",
+    },
+    "karlita": {
+      "nombre": "Karla Valencia",
+      "titulo": "Pastora Adjunta",
+      "info": "Pastora de jóvenes de los ministerios Next, Alive y Shift. "
+          "Se dedica al cuidado y la formación de los jóvenes de nuestra iglesia.",
     },
   };
 
