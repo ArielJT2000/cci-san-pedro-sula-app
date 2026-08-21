@@ -10,6 +10,7 @@ import '../pantallas/ubicacion.dart';
 import '../utils/constants.dart';
 import '../utils/fcm_service.dart';
 import '../widgets/back_button_widget.dart';
+import '../widgets/brand_wait_overlay.dart';
 
 class MainNavigation extends StatefulWidget {
   final bool fromSplash;
@@ -121,16 +122,17 @@ class _MainNavigationState extends State<MainNavigation> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Stack(
-        clipBehavior: Clip.none,
-        children: [
-          Positioned.fill(
-            child: Container(
-              width: double.infinity,
-              height: double.infinity,
-              decoration: getGradientBackground(),
-              child: GestureDetector(
+    return BrandWaitOverlay(
+      child: Scaffold(
+        body: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            Positioned.fill(
+              child: Container(
+                width: double.infinity,
+                height: double.infinity,
+                decoration: getGradientBackground(),
+                child: GestureDetector(
                 onHorizontalDragStart: (details) {
                   _dragDeltaX = 0.0;
                   _isVerticalScroll = false;
@@ -203,7 +205,8 @@ class _MainNavigationState extends State<MainNavigation> {
                 ),
               ),
             ),
-        ],
+          ],
+        ),
       ),
     );
   }

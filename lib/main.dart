@@ -8,8 +8,6 @@ import 'home/splash_screen.dart';
 import 'utils/notification_service.dart';
 import 'utils/fcm_service.dart';
 import 'utils/deep_link_service.dart';
-import 'widgets/brand_wait_overlay.dart';
-
 // Importar Firebase para Android e iOS
 import 'package:firebase_core/firebase_core.dart'
     if (dart.library.io) 'package:firebase_core/firebase_core.dart';
@@ -186,13 +184,11 @@ class MyApp extends StatelessWidget {
           final mq = MediaQuery.of(context);
           return MediaQuery(
             data: mq.copyWith(textScaler: TextScaler.noScaling),
-            child: BrandWaitOverlay(
-              child: Material(
-                type: MaterialType.transparency,
-                child: DefaultTextStyle.merge(
-                  style: const TextStyle(decoration: TextDecoration.none),
-                  child: safeChild,
-                ),
+            child: Material(
+              type: MaterialType.transparency,
+              child: DefaultTextStyle.merge(
+                style: const TextStyle(decoration: TextDecoration.none),
+                child: safeChild,
               ),
             ),
           );

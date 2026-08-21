@@ -1,18 +1,20 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import '../utils/constants.dart';
 
-/// Pantalla de marca (logo + degradado):
-/// - Tras [idleTimeout] sin tocar la app (aunque se bloquee o vaya a 2.º plano).
-/// - También al pasar a 2.º plano, para el App Switcher.
+/// Pantalla de marca solo tras inactividad prolongada (p. ej. 5 min).
+///
+/// No se muestra al abrir la app ni al pasar al App Switcher de inmediato:
+/// eso dejaba el logo encima del splash y cancelaba su animación.
 class BrandWaitOverlay extends StatefulWidget {
+  const BrandWaitOverlay({
+    super.key,
+    required this.child,
+    this.idleTimeout = const Duration(minutes: 5),
+  });
+
   final Widget child;
-
-  /// Tiempo sin interacción para activar la pantalla de marca.
-  static const Duration idleTimeout = Duration(minutes: 5);
-
-  const BrandWaitOverlay({super.key, required this.child});
+  final Duration idleTimeout;
 
   @override
   State<BrandWaitOverlay> createState() => _BrandWaitOverlayState();
@@ -20,24 +22,15 @@ class BrandWaitOverlay extends StatefulWidget {
 
 class _BrandWaitOverlayState extends State<BrandWaitOverlay>
     with WidgetsBindingObserver {
-  bool _backgroundBrand = false;
-  bool _idleBrand = false;
   Timer? _idleTimer;
+  bool _showBrand = false;
   DateTime _lastActivityAt = DateTime.now();
-  bool _appInForeground = true;
-
-  bool get _showBrand => _backgroundBrand || _idleBrand;
-
-  bool get _isPastIdleTimeout =>
-      DateTime.now().difference(_lastActivityAt) >=
-      BrandWaitOverlay.idleTimeout;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    _lastActivityAt = DateTime.now();
-    _scheduleIdleTimer();
+    _scheduleIdle();
   }
 
   @override
@@ -47,73 +40,57 @@ class _BrandWaitOverlayState extends State<BrandWaitOverlay>
     super.dispose();
   }
 
-  void _markActivity() {
-    _lastActivityAt = DateTime.now();
-    if (_idleBrand) {
-      setState(() => _idleBrand = false);
-    }
-    _scheduleIdleTimer();
+  Duration get _idleRemaining {
+    final elapsed = DateTime.now().difference(_lastActivityAt);
+    final left = widget.idleTimeout - elapsed;
+    return left.isNegative ? Duration.zero : left;
   }
 
-  void _scheduleIdleTimer() {
-    _idleTimer?.cancel();
-    if (!_appInForeground || _idleBrand) return;
+  bool get _isPastIdle =>
+      DateTime.now().difference(_lastActivityAt) >= widget.idleTimeout;
 
-    final elapsed = DateTime.now().difference(_lastActivityAt);
-    final remaining = BrandWaitOverlay.idleTimeout - elapsed;
-    if (remaining <= Duration.zero) {
-      setState(() => _idleBrand = true);
+  void _scheduleIdle() {
+    _idleTimer?.cancel();
+    final remaining = _idleRemaining;
+    if (remaining == Duration.zero) {
+      if (!_showBrand && mounted) setState(() => _showBrand = true);
       return;
     }
-
     _idleTimer = Timer(remaining, () {
-      if (!mounted || !_appInForeground) return;
-      if (_isPastIdleTimeout) {
-        setState(() => _idleBrand = true);
-      }
+      if (!mounted || _showBrand) return;
+      setState(() => _showBrand = true);
     });
   }
 
-  void _dismissIdleBrand() {
+  void _onUserActivity() {
     _lastActivityAt = DateTime.now();
-    if (!_idleBrand && !_backgroundBrand) return;
-    setState(() {
-      _idleBrand = false;
-      _backgroundBrand = false;
-    });
-    _scheduleIdleTimer();
+    if (_showBrand) {
+      setState(() => _showBrand = false);
+    }
+    _scheduleIdle();
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    final inBackground = state == AppLifecycleState.inactive ||
-        state == AppLifecycleState.paused ||
-        state == AppLifecycleState.hidden;
-
-    if (inBackground) {
-      _appInForeground = false;
-      _idleTimer?.cancel();
-      // App Switcher: captura el logo. Si ya hubo 5 min de inactividad,
-      // al volver también se mantiene la pantalla de marca.
-      setState(() {
-        _backgroundBrand = true;
-        if (_isPastIdleTimeout) {
-          _idleBrand = true;
+    switch (state) {
+      case AppLifecycleState.resumed:
+        // Si ya hubo ≥5 min sin tocar, mostrar marca al volver.
+        // Si no, no tapar la UI (ni el splash) y seguir el idle restante.
+        if (_isPastIdle) {
+          _idleTimer?.cancel();
+          if (!_showBrand) setState(() => _showBrand = true);
+        } else {
+          _scheduleIdle();
         }
-      });
-      return;
-    }
-
-    if (state == AppLifecycleState.resumed) {
-      _appInForeground = true;
-      final showIdle = _isPastIdleTimeout;
-      setState(() {
-        _backgroundBrand = false;
-        _idleBrand = showIdle;
-      });
-      if (!showIdle) {
-        _scheduleIdleTimer();
-      }
+        break;
+      case AppLifecycleState.inactive:
+      case AppLifecycleState.paused:
+      case AppLifecycleState.hidden:
+        // No mostrar marca al ir al switcher; solo pausar el timer.
+        _idleTimer?.cancel();
+        break;
+      case AppLifecycleState.detached:
+        break;
     }
   }
 
@@ -121,22 +98,15 @@ class _BrandWaitOverlayState extends State<BrandWaitOverlay>
   Widget build(BuildContext context) {
     return Listener(
       behavior: HitTestBehavior.translucent,
-      onPointerDown: (_) {
-        if (_idleBrand) return;
-        _markActivity();
-      },
-      onPointerSignal: (_) {
-        if (_idleBrand) return;
-        _markActivity();
-      },
+      onPointerDown: (_) => _onUserActivity(),
       child: Stack(
         fit: StackFit.expand,
         children: [
           widget.child,
           if (_showBrand)
-            Positioned.fill(
-              child: _BrandScreen(
-                onTap: _idleBrand ? _dismissIdleBrand : null,
+            const Positioned.fill(
+              child: AbsorbPointer(
+                child: _BrandScreen(),
               ),
             ),
         ],
@@ -146,33 +116,20 @@ class _BrandWaitOverlayState extends State<BrandWaitOverlay>
 }
 
 class _BrandScreen extends StatelessWidget {
-  final VoidCallback? onTap;
-
-  const _BrandScreen({this.onTap});
+  const _BrandScreen();
 
   @override
   Widget build(BuildContext context) {
-    final width = MediaQuery.sizeOf(context).width;
-    final content = DecoratedBox(
-      decoration: getGradientBackground(),
+    return ColoredBox(
+      color: Colors.black,
       child: Center(
         child: Image.asset(
           'assets/images/logo.png',
-          width: width * 0.42,
+          width: 160,
           fit: BoxFit.contain,
-          errorBuilder: (context, error, stackTrace) {
-            return const SizedBox.shrink();
-          },
+          errorBuilder: (_, __, ___) => const SizedBox.shrink(),
         ),
       ),
-    );
-
-    if (onTap == null) return content;
-
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: onTap,
-      child: content,
     );
   }
 }

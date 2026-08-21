@@ -1,10 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Launch splash: degradado de la app + logo centrado -->
+<!-- Solo degradado (sin logo). El logo lo anima SplashScreen en Flutter. -->
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:drawable="@drawable/launch_gradient_shape" />
-    <item>
-        <bitmap
-            android:gravity="center"
-            android:src="@drawable/splash_logo" />
-    </item>
 </layer-list>

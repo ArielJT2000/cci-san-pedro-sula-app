@@ -16,15 +16,9 @@
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
+                            <!-- Solo degradado: sin logo. El logo lo anima SplashScreen en Flutter. -->
                             <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="LaunchBackground" translatesAutoresizingMaskIntoConstraints="NO" id="bg-grad-001">
                                 <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
-                            </imageView>
-                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="LaunchImage" translatesAutoresizingMaskIntoConstraints="NO" id="YRO-k0-Ey4">
-                                <rect key="frame" x="96.5" y="326" width="200" height="200"/>
-                                <constraints>
-                                    <constraint firstAttribute="width" constant="200" id="g3v-w4-CYl"/>
-                                    <constraint firstAttribute="height" constant="200" id="uEo-Bl-9vf"/>
-                                </constraints>
                             </imageView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="Bcu-3y-fUS"/>
@@ -34,8 +28,6 @@
                             <constraint firstItem="bg-grad-001" firstAttribute="bottom" secondItem="Ze5-6b-2t3" secondAttribute="bottom" id="bg-b"/>
                             <constraint firstItem="bg-grad-001" firstAttribute="leading" secondItem="Ze5-6b-2t3" secondAttribute="leading" id="bg-l"/>
                             <constraint firstItem="bg-grad-001" firstAttribute="trailing" secondItem="Ze5-6b-2t3" secondAttribute="trailing" id="bg-r"/>
-                            <constraint firstItem="YRO-k0-Ey4" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="1a2-6s-vTC"/>
-                            <constraint firstItem="YRO-k0-Ey4" firstAttribute="centerY" secondItem="Ze5-6b-2t3" secondAttribute="centerY" id="cBh-4n-GOt"/>
                         </constraints>
                     </view>
                 </viewController>
@@ -46,6 +38,5 @@
     </scenes>
     <resources>
         <image name="LaunchBackground" width="390" height="844"/>
-        <image name="LaunchImage" width="200" height="200"/>
     </resources>
 </document>
