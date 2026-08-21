@@ -2,7 +2,7 @@ name: cci_app
 description: "Aplicación oficial de CCI San Pedro Sula para eventos, información y notificaciones."
 publish_to: 'none'
 
-version: 1.1.2+29
+version: 1.1.2+30
 
 environment:
   sdk: ">=3.0.0 <4.0.0"
@@ -28,6 +28,11 @@ dependencies:
   simple_icons: ^14.0.0
   share_plus: ^13.3.0
   app_links: ^7.0.0
+
+# path_provider_foundation ≥2.6 tira objective_c FFI con tag IOSSIMULATOR
+# y App Store rechaza el IPA (Validation failed 409).
+dependency_overrides:
+  path_provider_foundation: 2.5.1
 
 dev_dependencies:
   flutter_test:
